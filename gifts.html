@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>禮物拖拖</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:"PingFang HK","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;color:#3D2B5A;
+background:linear-gradient(180deg,#FFF3E0,#FFE4F1 50%,#E8F5E9);
+-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
+button{font:inherit;border:none;cursor:pointer}
+.top{height:64px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:rgba(255,255,255,.9);border-bottom:3px solid rgba(255,107,157,.2)}
+.who{display:flex;align-items:center;gap:8px;font-weight:900;font-size:1.1rem}
+.who .av{width:42px;height:42px;border-radius:50%;border:3px solid #FF6B9D;background:#fff;display:grid;place-items:center;font-size:1.4rem}
+.hint{flex:1;text-align:center;font-size:clamp(1.15rem,2.4vw,1.6rem);font-weight:900}
+.hint b{background:#FFD54F;padding:2px 8px;border-radius:8px}
+.icon{width:48px;height:48px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.25rem;font-weight:900}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stage{height:calc(100% - 64px);position:relative;overflow:hidden}
+.meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:5;display:flex;align-items:center;gap:10px}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(61,43,90,.12);overflow:hidden}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#00E5FF);transition:width .2s}
+.m-lab{font-weight:900;min-width:4.5rem}
+.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(255,255,255,.95);border:3px solid #FFD54F;border-radius:16px;padding:8px 12px;font-weight:900}
+.toast{position:fixed;left:50%;top:16%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.4rem;font-weight:900;padding:12px 22px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}
+.toast.bad{border-color:#FF6B9D;color:#9f1239}
+.overlay{position:fixed;inset:0;background:rgba(61,43,90,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.on{display:flex}
+.modal{width:min(440px,94vw);background:#fff;border:5px solid #FFD54F;border-radius:28px;padding:24px 18px;text-align:center}
+.modal h2{font-size:2rem;margin-bottom:6px}
+.modal p{font-weight:800;opacity:.8;margin-bottom:14px}
+.btn{min-height:56px;min-width:140px;padding:12px 20px;border-radius:999px;background:linear-gradient(135deg,#FF6B9D,#FF9D7A);color:#fff;font-size:1.2rem;font-weight:900}
+.btn.ghost{background:#fff;color:#3D2B5A;border:3px solid rgba(61,43,90,.12)}
+.target{position:absolute;width:100px;height:100px;display:grid;place-items:center;border-radius:24px;border:5px solid #FF9D7A;background:#fff;box-shadow:0 10px 24px rgba(0,0,0,.12);font-size:2.8rem;cursor:grab;z-index:3;touch-action:none;user-select:none}
+.pulse{animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.drop{position:absolute;width:min(280px,42vw);height:150px;right:6%;bottom:12%;border:5px dashed #22c55e;border-radius:28px;background:rgba(34,197,94,.12);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.25rem;z-index:2;transition:.15s}
+.drop.hot{background:rgba(34,197,94,.28);box-shadow:0 0 0 6px rgba(34,197,94,.25);transform:scale(1.03)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
+.confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti"></div>
+<div class="top">
+  <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
+  <div class="hint">拖 <b>禮物</b> 去盒</div>
+  <div class="row">
+    <button class="icon" id="btnSpeak" type="button">🔊</button>
+    <button class="icon" id="btnHub" type="button">🏠</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/6</div></div>
+  <div class="guide">按住左掣，拖去綠色盒</div>
+</div>
+<div class="overlay" id="win">
+  <div class="modal">
+    <div style="font-size:2.4rem">⭐⭐⭐</div>
+    <h2>做得好！</h2>
+    <p id="winMsg">完成喇</p>
+    <div class="row">
+      <button class="btn ghost" id="btnRetry" type="button">再玩</button>
+      <button class="btn" id="btnHub2" type="button">主頁</button>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('selectstart',e=>e.preventDefault());
+const NEED=6, HUB='./index.html';
+const $=id=>document.getElementById(id);
+const stage=$('stage');
+let progress=0, audioCtx=null;
+function loadProfile(){
+  let who=null,name='';
+  try{
+    const p=new URLSearchParams(location.search);
+    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
+    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
+    const q=p.get('who'); if(q) who={emoji:(who&&who.emoji)||'🐱',name:(who&&who.name)||'同學'};
+  }catch(_){}
+  if(!who) who={emoji:'🐱',name:'同學'};
+  $('av').textContent=who.emoji||'🐱';
+  $('whoName').textContent=name||who.name||'同學';
+  return name||who.name||'同學';
+}
+const displayName=loadProfile();
+function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+function tone(f,d=.12,t='sine',v=.2){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
+function sfxOk(){tone(523,.1);setTimeout(()=>tone(659,.1),70);setTimeout(()=>tone(784,.12),140)}
+function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
+function sfxBad(){tone(180,.14,'square',.1)}
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
+function toast(m,bad){const el=$('toast');el.textContent=m;el.classList.toggle('bad',!!bad);el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1100)}
+function confetti(){const box=$('confetti');box.innerHTML='';const cols=['#FF6B9D','#FFD54F','#69F0AE','#4FC3F7'];for(let i=0;i<28;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=cols[i%cols.length];el.style.animationDuration=(1.1+Math.random()*1.2)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2500)}
+function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';$('mlab').textContent=n+'/'+NEED}
+function win(){sfxWin();confetti();$('winMsg').textContent=displayName+' · 禮物拖拖';$('win').classList.add('on');speak('做得好')}
+function hits(el,zone,pad=56){const a=el.getBoundingClientRect(),b=zone.getBoundingClientRect();const cx=(a.left+a.right)/2,cy=(a.top+a.bottom)/2;return cx>=b.left-pad&&cx<=b.right+pad&&cy>=b.top-pad&&cy<=b.bottom+pad}
+function enableDrag(el,zone,onOk){
+  let ox=0,oy=0,dragging=false;
+  const detach=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)};
+  const down=e=>{if(e.button!=null&&e.button!==0)return;e.preventDefault();dragging=true;const r=el.getBoundingClientRect();ox=e.clientX-r.left;oy=e.clientY-r.top;el.classList.remove('pulse');el.style.position='fixed';el.style.left=r.left+'px';el.style.top=r.top+'px';el.style.zIndex='30';try{el.setPointerCapture(e.pointerId)}catch(_){}
+    el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);move(e)};
+  const move=e=>{if(!dragging||e.clientX==null)return;el.style.left=Math.max(0,Math.min(innerWidth-el.offsetWidth,e.clientX-ox))+'px';el.style.top=Math.max(0,Math.min(innerHeight-el.offsetHeight,e.clientY-oy))+'px';zone.classList.toggle('hot',hits(el,zone))};
+  const up=e=>{if(!dragging)return;dragging=false;detach();try{if(e&&e.pointerId!=null)el.releasePointerCapture(e.pointerId)}catch(_){}
+    if(hits(el,zone)) onOk(); else {sfxBad();toast('拖去盒',true);speak('拖去盒');el.style.position='absolute';el.style.zIndex='';el.style.left='12%';el.style.top='30%';el.classList.add('pulse');zone.classList.remove('hot')}};
+  el.addEventListener('pointerdown',down);
+}
+function spawn(){
+  stage.querySelectorAll('.target,.drop').forEach(el=>el.remove());
+  if(progress>=NEED) return;
+  const zone=document.createElement('div');zone.className='drop hot';zone.textContent='🎁 放呢度';stage.appendChild(zone);
+  const el=document.createElement('div');el.className='target pulse';el.textContent=['🎁','🎀','🧸','🎈'][progress%4];
+  el.style.left='12%';el.style.top='30%';stage.appendChild(el);
+  enableDrag(el,zone,()=>{el.remove();zone.classList.remove('hot');sfxOk();toast('好！');setProgress(progress+1);if(progress>=NEED)setTimeout(win,300);else setTimeout(spawn,280)});
+}
+function start(){setProgress(0);spawn();speak('拖禮物去盒')}
+$('btnHub').onclick=$('btnHub2').onclick=()=>location.href=HUB;
+$('btnSpeak').onclick=()=>speak('拖禮物去盒');
+$('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
+window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
+start();
+</script>
+</body>
+</html>

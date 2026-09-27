@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>寶箱右掣</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:"PingFang HK","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;color:#3D2B5A;
+background:linear-gradient(180deg,#F3E5F5,#E8EAF6 45%,#FFF8E1);
+-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
+button{font:inherit;border:none;cursor:pointer}
+.top{height:64px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:rgba(255,255,255,.9);border-bottom:3px solid rgba(179,136,255,.3)}
+.who{display:flex;align-items:center;gap:8px;font-weight:900;font-size:1.1rem}
+.who .av{width:42px;height:42px;border-radius:50%;border:3px solid #B388FF;background:#fff;display:grid;place-items:center;font-size:1.4rem}
+.hint{flex:1;text-align:center;font-size:clamp(1.1rem,2.4vw,1.55rem);font-weight:900}
+.hint b{background:#E1BEE7;padding:2px 8px;border-radius:8px}
+.icon{width:48px;height:48px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.25rem;font-weight:900}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stage{height:calc(100% - 64px);position:relative;overflow:hidden}
+.meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:5;display:flex;align-items:center;gap:10px}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(61,43,90,.12);overflow:hidden}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#B388FF);transition:width .2s}
+.m-lab{font-weight:900;min-width:4.5rem}
+.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(255,255,255,.95);border:3px solid #B388FF;border-radius:16px;padding:8px 12px;font-weight:900;max-width:80%}
+.toast{position:fixed;left:50%;top:16%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.4rem;font-weight:900;padding:12px 22px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}
+.toast.bad{border-color:#FF6B9D;color:#9f1239}
+.overlay{position:fixed;inset:0;background:rgba(61,43,90,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.on{display:flex}
+.modal{width:min(440px,94vw);background:#fff;border:5px solid #B388FF;border-radius:28px;padding:24px 18px;text-align:center}
+.modal h2{font-size:2rem;margin-bottom:6px}
+.modal p{font-weight:800;opacity:.8;margin-bottom:14px}
+.btn{min-height:56px;min-width:140px;padding:12px 20px;border-radius:999px;background:linear-gradient(135deg,#B388FF,#FF6B9D);color:#fff;font-size:1.2rem;font-weight:900}
+.btn.ghost{background:#fff;color:#3D2B5A;border:3px solid rgba(61,43,90,.12)}
+.chest{position:absolute;width:180px;height:160px;display:grid;place-items:center;border-radius:24px;border:5px solid #B388FF;background:linear-gradient(160deg,#F3E8FF,#E8F4FD);box-shadow:0 10px 24px rgba(0,0,0,.12);font-size:4.2rem;cursor:context-menu;z-index:3}
+.pulse{animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
+.confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti"></div>
+<div class="top">
+  <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
+  <div class="hint">右掣／兩指 開 <b>盒</b></div>
+  <div class="row">
+    <button class="icon" id="btnSpeak" type="button">🔊</button>
+    <button class="icon" id="btnHub" type="button">🏠</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/6</div></div>
+  <div class="guide">兩指撳盒＝右掣（或 Control+撳）</div>
+</div>
+<div class="overlay" id="win">
+  <div class="modal">
+    <div style="font-size:2.4rem">⭐⭐⭐</div>
+    <h2>做得好！</h2>
+    <p id="winMsg">完成喇</p>
+    <div class="row">
+      <button class="btn ghost" id="btnRetry" type="button">再玩</button>
+      <button class="btn" id="btnHub2" type="button">主頁</button>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('selectstart',e=>e.preventDefault());
+const NEED=6, HUB='./index.html';
+const $=id=>document.getElementById(id);
+const stage=$('stage');
+let progress=0, audioCtx=null;
+function loadProfile(){
+  let who=null,name='';
+  try{
+    const p=new URLSearchParams(location.search);
+    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
+    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
+  }catch(_){}
+  if(!who) who={emoji:'🐱',name:'同學'};
+  $('av').textContent=who.emoji||'🐱';
+  $('whoName').textContent=name||who.name||'同學';
+  return name||who.name||'同學';
+}
+const displayName=loadProfile();
+function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+function tone(f,d=.12,t='sine',v=.2){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
+function sfxOk(){tone(523,.1);setTimeout(()=>tone(659,.1),70);setTimeout(()=>tone(784,.12),140)}
+function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
+function sfxBad(){tone(180,.14,'square',.1)}
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
+function toast(m,bad){const el=$('toast');el.textContent=m;el.classList.toggle('bad',!!bad);el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1100)}
+function confetti(){const box=$('confetti');box.innerHTML='';const cols=['#B388FF','#FFD54F','#69F0AE','#FF6B9D'];for(let i=0;i<28;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=cols[i%cols.length];el.style.animationDuration=(1.1+Math.random()*1.2)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2500)}
+function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';$('mlab').textContent=n+'/'+NEED}
+function win(){sfxWin();confetti();$('winMsg').textContent=displayName+' · 寶箱右掣';$('win').classList.add('on');speak('做得好')}
+function bindRight(el,onOk){
+  let opened=false,until=0;
+  const go=e=>{if(opened)return;opened=true;until=Date.now()+600;if(e){e.preventDefault();e.stopPropagation()}onOk()};
+  el.addEventListener('pointerdown',e=>{if(e.button===2||e.ctrlKey)go(e)},true);
+  el.addEventListener('mousedown',e=>{if(e.button===2||e.ctrlKey)go(e)},true);
+  el.addEventListener('contextmenu',e=>go(e),true);
+  el.addEventListener('auxclick',e=>{if(e.button===2)go(e)},true);
+  el.addEventListener('click',e=>{
+    if(opened||Date.now()<until){e.preventDefault();e.stopPropagation();return}
+    if(e.ctrlKey||e.metaKey){go(e);return}
+    if(e.button===0){e.preventDefault();sfxBad();toast('兩指撳／右掣',true);speak('右掣')}
+  },true);
+}
+function spawn(){
+  stage.querySelectorAll('.chest').forEach(el=>el.remove());
+  if(progress>=NEED) return;
+  const el=document.createElement('div');el.className='chest pulse';el.textContent='📦';
+  el.style.left=(28+Math.random()*28)+'%';el.style.top=(26+Math.random()*28)+'%';
+  stage.appendChild(el);
+  bindRight(el,()=>{el.textContent='💎';el.classList.remove('pulse');tone(880,.1);setTimeout(()=>{el.remove();sfxOk();toast('開咗！');setProgress(progress+1);if(progress>=NEED)setTimeout(win,300);else setTimeout(spawn,300)},250)});
+}
+function start(){setProgress(0);spawn();speak('右掣開盒')}
+$('btnHub').onclick=$('btnHub2').onclick=()=>location.href=HUB;
+$('btnSpeak').onclick=()=>speak('右掣開盒');
+$('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
+window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
+start();
+</script>
+</body>
+</html>
