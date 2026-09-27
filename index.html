@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>滑鼠小達人</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: "PingFang HK", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  background: linear-gradient(165deg, #E8F4FF 0%, #FFE4F1 45%, #FFF3C4 100%);
+  color: #3D2B5A;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overflow: hidden;
+}
+button, input { font: inherit; }
+button { border: none; cursor: pointer; }
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.top {
+  flex-shrink: 0;
+  padding: 18px 16px 8px;
+  text-align: center;
+}
+.logo {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 900;
+  line-height: 1.15;
+}
+.sub {
+  margin-top: 6px;
+  font-weight: 800;
+  opacity: .7;
+  font-size: 1.05rem;
+}
+.who-bar {
+  margin: 14px auto 0;
+  width: min(520px, 94vw);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+.id-mini {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.id-chip {
+  width: 52px; height: 52px;
+  border-radius: 16px;
+  border: 3px solid rgba(255,107,157,.3);
+  background: #fff;
+  font-size: 1.6rem;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+.id-chip.sel {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34,197,94,.25);
+}
+.name-wrap {
+  flex: 1 1 180px;
+  max-width: 240px;
+}
+.name-wrap input {
+  width: 100%;
+  min-height: 52px;
+  border-radius: 14px;
+  border: 3px solid rgba(255,107,157,.3);
+  padding: 8px 12px;
+  font-weight: 800;
+  text-align: center;
+  background: #fff;
+  color: #3D2B5A;
+  outline: none;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.name-wrap input:focus {
+  border-color: #FF6B9D;
+  box-shadow: 0 0 0 3px rgba(255,107,157,.2);
+}
+.hint {
+  width: 100%;
+  text-align: center;
+  font-size: .9rem;
+  font-weight: 700;
+  opacity: .55;
+}
+.main {
+  flex: 1;
+  padding: 12px 16px 28px;
+  width: min(920px, 100%);
+  margin: 0 auto;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+.card {
+  min-height: 170px;
+  border-radius: 24px;
+  border: 4px solid rgba(255,107,157,.25);
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(61,43,90,.1);
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  transition: transform .12s, box-shadow .12s;
+  position: relative;
+}
+.card.open {
+  cursor: pointer;
+  border-color: #FF6B9D;
+}
+.card.open:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(61,43,90,.14); }
+.card.open:active { transform: scale(.98); }
+.card.lock {
+  opacity: .72;
+  filter: grayscale(.25);
+  cursor: not-allowed;
+  background: #f6f6f8;
+}
+.card .emoji { font-size: 3rem; line-height: 1; }
+.card .title { font-size: 1.25rem; font-weight: 900; }
+.card .tag {
+  font-size: .95rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #FFE4F1;
+  color: #C2185B;
+}
+.card.lock .tag { background: #e8e8ee; color: #777; }
+.card .badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  font-size: .8rem;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #22c55e;
+  color: #fff;
+}
+.card.lock .badge { background: #9ca3af; }
+.foot {
+  text-align: center;
+  padding: 8px 16px 20px;
+  font-weight: 700;
+  opacity: .5;
+  font-size: .9rem;
+}
+.teacher {
+  position: fixed; right: 10px; bottom: 10px; z-index: 20;
+}
+.teacher details {
+  background: rgba(255,255,255,.95);
+  border: 3px solid rgba(61,43,90,.12);
+  border-radius: 14px;
+  padding: 8px 12px;
+  font-size: .9rem;
+  font-weight: 700;
+  min-width: 160px;
+}
+.teacher summary { cursor: pointer; list-style: none; }
+.teacher p { margin-top: 6px; opacity: .75; line-height: 1.35; }
+
+@media (max-width: 520px) {
+  .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .card { min-height: 150px; padding: 12px 8px; }
+  .card .emoji { font-size: 2.4rem; }
+  .card .title { font-size: 1.05rem; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="logo">🖱️ 滑鼠小達人</div>
+  <div class="sub">揀遊戲 · 學滑鼠</div>
+  <div class="who-bar">
+    <div class="id-mini" id="idMini"></div>
+    <div class="name-wrap">
+      <input id="studentName" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="名字（可留空）" value="">
+    </div>
+    <div class="hint">唔填名都可以玩</div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="grid" id="gameGrid"></div>
+</main>
+
+<footer class="foot">電腦科 · 小一／小二</footer>
+
+<div class="teacher">
+  <details>
+    <summary>老師角</summary>
+    <p>① 已開放。其餘即將推出。<br>名／身份會帶去遊戲。</p>
+  </details>
+</div>
+
+<script>
+(() => {
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('selectstart', e => {
+    if (e.target && e.target.closest && e.target.closest('input, textarea')) return;
+    e.preventDefault();
+  });
+
+  const LS_NAME = 'mouse_hub_name';
+  const LS_WHO = 'mouse_hub_who';
+  // also mirror keys mouse-feeder can read later
+  const LS_FEED_NAME = 'mouse_feeder_student_name';
+  const LS_FEED_WHO = 'mouse_feeder_who';
+
+  const IDS = [
+    { id: 'cat', emoji: '🐱', name: '小貓' },
+    { id: 'dog', emoji: '🐶', name: '小狗' },
+    { id: 'bear', emoji: '🐻', name: '小熊' },
+    { id: 'rabbit', emoji: '🐰', name: '小兔' },
+    { id: 'panda', emoji: '🐼', name: '熊貓' },
+    { id: 'fox', emoji: '🦊', name: '小狐' },
+    { id: 'chick', emoji: '🐥', name: '小雞' },
+    { id: 'star', emoji: '⭐', name: '星星' },
+  ];
+
+  const GAMES = [
+    {
+      id: 'feeder',
+      emoji: '🐱',
+      title: '喵喵餵食館',
+      tag: '左 · 拖 · 右',
+      open: true,
+      url: 'https://ihateusingai-beep.github.io/mouse-feeder/',
+      badge: '可玩'
+    },
+    {
+      id: 'bubbles',
+      emoji: '🫧',
+      title: '泡泡點點',
+      tag: '只練左掣',
+      open: false,
+      badge: '即將'
+    },
+    {
+      id: 'gifts',
+      emoji: '🎁',
+      title: '禮物拖拖',
+      tag: '只練拖曳',
+      open: false,
+      badge: '即將'
+    },
+    {
+      id: 'chest',
+      emoji: '📦',
+      title: '寶箱右掣',
+      tag: '只練右掣',
+      open: false,
+      badge: '即將'
+    },
+    {
+      id: 'stars',
+      emoji: '✨',
+      title: '星空挑戰',
+      tag: '混合短關',
+      open: false,
+      badge: '即將'
+    }
+  ];
+
+  let who = null;
+  try {
+    const raw = localStorage.getItem(LS_WHO);
+    if (raw) who = JSON.parse(raw);
+  } catch (_) {}
+
+  const nameInput = document.getElementById('studentName');
+  nameInput.value = localStorage.getItem(LS_NAME) || '';
+
+  function saveProfile() {
+    const name = (nameInput.value || '').trim();
+    localStorage.setItem(LS_NAME, name);
+    localStorage.setItem(LS_FEED_NAME, name);
+    if (who) {
+      localStorage.setItem(LS_WHO, JSON.stringify(who));
+      localStorage.setItem(LS_FEED_WHO, JSON.stringify(who));
+    }
+  }
+
+  function renderIds() {
+    const box = document.getElementById('idMini');
+    box.innerHTML = '';
+    IDS.forEach(p => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'id-chip' + (who?.id === p.id ? ' sel' : '');
+      b.textContent = p.emoji;
+      b.title = p.name;
+      b.setAttribute('aria-label', p.name);
+      b.onclick = () => {
+        who = p;
+        saveProfile();
+        renderIds();
+      };
+      box.appendChild(b);
+    });
+  }
+
+  function openGame(g) {
+    if (!g.open || !g.url) return;
+    saveProfile();
+    // pass name via query for feeder (feeder may ignore until wired)
+    const name = (nameInput.value || '').trim();
+    let url = g.url;
+    const q = [];
+    if (name) q.push('name=' + encodeURIComponent(name));
+    if (who?.id) q.push('who=' + encodeURIComponent(who.id));
+    if (q.length) url += (url.includes('?') ? '&' : '?') + q.join('&');
+    window.location.href = url;
+  }
+
+  function renderGames() {
+    const grid = document.getElementById('gameGrid');
+    grid.innerHTML = '';
+    GAMES.forEach(g => {
+      const card = document.createElement(g.open ? 'button' : 'div');
+      if (g.open) card.type = 'button';
+      card.className = 'card ' + (g.open ? 'open' : 'lock');
+      card.innerHTML =
+        `<span class="badge">${g.badge}</span>` +
+        `<span class="emoji">${g.emoji}</span>` +
+        `<span class="title">${g.title}</span>` +
+        `<span class="tag">${g.tag}</span>`;
+      if (g.open) {
+        card.addEventListener('click', () => openGame(g));
+      }
+      grid.appendChild(card);
+    });
+  }
+
+  nameInput.addEventListener('input', saveProfile);
+  nameInput.addEventListener('keydown', e => e.stopPropagation());
+
+  // default who if none
+  if (!who) who = IDS[0];
+  saveProfile();
+  renderIds();
+  renderGames();
+})();
+</script>
+</body>
+</html>
