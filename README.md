@@ -1,13 +1,15 @@
 # 滑鼠小達人 Hub
 
-中度／小一～小二 電腦科：mouse 技能遊戲主頁。
-
 **Live:** https://ihateusingai-beep.github.io/mouse-master-hub/
 
-| 遊戲 | 技能 | 連結 |
-|------|------|------|
-| 喵喵餵食館 | 左+拖+右+混合 | [mouse-feeder](https://ihateusingai-beep.github.io/mouse-feeder/) |
-| 泡泡點點 | 左掣 | `bubbles.html` |
-| 禮物拖拖 | 拖曳 | `gifts.html` |
-| 寶箱右掣 | 右掣／兩指 | `chest.html` |
-| 星空挑戰 | 混合短關 | `stars.html` |
+## Flow
+1. 推薦路徑大卡（未集齊貼紙優先）
+2. 遊戲 NEED=5 · 減噪（成功無 toast）
+3. 通關：2s 慶祝 → 再玩 / 下一個 / 主頁
+4. 主頁 `?won=` → 寵物跳 + 貼紙飛入
+
+## 路徑
+泡泡 → 氣球 → 禮物 → 寶箱 → 星空 → 餵食館
+
+## 老師角
+- 入遊戲自動讀（預設關）

@@ -61,9 +61,10 @@ button{font:inherit;border:none;cursor:pointer}
     <div style="font-size:2.4rem">⭐⭐⭐</div>
     <h2>做得好！</h2>
     <p id="winMsg">完成喇</p>
-    <div class="row">
+        <div class="row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
       <button class="btn ghost" id="btnRetry" type="button">再玩</button>
-      <button class="btn" id="btnHub2" type="button">主頁</button>
+      <button class="btn" id="btnNext" type="button">下一個</button>
+      <button class="btn ghost" id="btnHub2" type="button">主頁</button>
     </div>
   </div>
 </div>
@@ -71,10 +72,10 @@ button{font:inherit;border:none;cursor:pointer}
 <script>
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('selectstart',e=>e.preventDefault());
-const NEED=6, HUB='./index.html';
+const NEED=5, HUB='./index.html';
 const $=id=>document.getElementById(id);
 const stage=$('stage');
-let progress=0, audioCtx=null;
+let progress=0, didWin=false, audioCtx=null;
 function loadProfile(){
   let who=null,name='';
   try{
@@ -104,9 +105,16 @@ function bigCelebrate(done){
   document.body.appendChild(ov);
   setTimeout(()=>{ov.remove();done&&done();},2000);
 }
-function win(){
-  try{ if(window.MouseHubReward){ const a=MouseHubReward.award('chest'); if(a&&a.stickerNew) toast('貼紙 +'+a.sticker.emoji); } }catch(_e){}
-  confetti(); sfxWin(); speak('做得好');
+function win(){ didWin=true;
+  try{ if(window.MouseHubReward) MouseHubReward.award('chest'); }catch(_e){}
+  confetti(); sfxWin();
+  if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
+  const next=window.MouseHubReward?MouseHubReward.nextAfter('chest'):null;
+  const nb=$('btnNext');
+  if(nb){
+    if(next && next.id!=='chest'){ nb.style.display=''; nb.textContent='下一個：'+next.title; nb.onclick=()=>{ location.href=MouseHubReward.gameUrl(next); }; }
+    else { nb.style.display='none'; }
+  }
   bigCelebrate(()=>{
     $('winMsg').textContent=displayName+' · 寶箱右掣';
     $('win').classList.add('on');
@@ -118,10 +126,10 @@ function spawn(){
   const el=document.createElement('div');el.className='chest pulse';el.textContent='📦';
   el.style.left=(28+Math.random()*28)+'%';el.style.top=(26+Math.random()*28)+'%';
   stage.appendChild(el);
-  bindRight(el,()=>{el.textContent='💎';el.classList.remove('pulse');tone(880,.1);setTimeout(()=>{el.remove();sfxOk();toast('開咗！');setProgress(progress+1);if(progress>=NEED)setTimeout(win,300);else setTimeout(spawn,300)},250)});
+  bindRight(el,()=>{el.textContent='💎';el.classList.remove('pulse');tone(880,.1);setTimeout(()=>{el.remove();sfxOk();setProgress(progress+1);if(progress>=NEED)setTimeout(win,300);else setTimeout(spawn,300)},250)});
 }
-function start(){setProgress(0);spawn();speak('右掣開盒')}
-$('btnHub').onclick=$('btnHub2').onclick=()=>location.href=HUB;
+function start(){ didWin=false; setProgress(0);spawn();if(window.MouseHubReward&&MouseHubReward.autoSpeak())speak('右掣開盒')}
+$('btnHub').onclick=()=>{location.href='./index.html'};$('btnHub2').onclick=()=>{location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl('chest'):'./index.html'+(didWin?('?won=chest'):'')};
 $('btnSpeak').onclick=()=>speak('右掣開盒');
 $('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
 window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});

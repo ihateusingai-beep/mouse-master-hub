@@ -38,6 +38,7 @@ button{font:inherit;border:none;cursor:pointer}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 .drop{position:absolute;width:min(280px,42vw);height:150px;right:6%;bottom:12%;border:5px dashed #22c55e;border-radius:28px;background:rgba(34,197,94,.12);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.25rem;z-index:2;transition:.15s}
 .drop.hot{background:rgba(34,197,94,.28);box-shadow:0 0 0 6px rgba(34,197,94,.25);transform:scale(1.03)}
+.drop.pulse-hint{animation:pulse 0.8s ease-in-out infinite}
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
 .confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;pointer-events:none;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
@@ -63,9 +64,10 @@ button{font:inherit;border:none;cursor:pointer}
     <div style="font-size:2.4rem">⭐⭐⭐</div>
     <h2>做得好！</h2>
     <p id="winMsg">完成喇</p>
-    <div class="row">
+        <div class="row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
       <button class="btn ghost" id="btnRetry" type="button">再玩</button>
-      <button class="btn" id="btnHub2" type="button">主頁</button>
+      <button class="btn" id="btnNext" type="button">下一個</button>
+      <button class="btn ghost" id="btnHub2" type="button">主頁</button>
     </div>
   </div>
 </div>
@@ -73,10 +75,10 @@ button{font:inherit;border:none;cursor:pointer}
 <script>
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('selectstart',e=>e.preventDefault());
-const NEED=6, HUB='./index.html';
+const NEED=5, HUB='./index.html';
 const $=id=>document.getElementById(id);
 const stage=$('stage');
-let progress=0, audioCtx=null;
+let progress=0, didWin=false, audioCtx=null;
 function loadProfile(){
   let who=null,name='';
   try{
@@ -107,9 +109,16 @@ function bigCelebrate(done){
   document.body.appendChild(ov);
   setTimeout(()=>{ov.remove();done&&done();},2000);
 }
-function win(){
-  try{ if(window.MouseHubReward){ const a=MouseHubReward.award('gifts'); if(a&&a.stickerNew) toast('貼紙 +'+a.sticker.emoji); } }catch(_e){}
-  confetti(); sfxWin(); speak('做得好');
+function win(){ didWin=true;
+  try{ if(window.MouseHubReward) MouseHubReward.award('gifts'); }catch(_e){}
+  confetti(); sfxWin();
+  if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
+  const next=window.MouseHubReward?MouseHubReward.nextAfter('gifts'):null;
+  const nb=$('btnNext');
+  if(nb){
+    if(next && next.id!=='gifts'){ nb.style.display=''; nb.textContent='下一個：'+next.title; nb.onclick=()=>{ location.href=MouseHubReward.gameUrl(next); }; }
+    else { nb.style.display='none'; }
+  }
   bigCelebrate(()=>{
     $('winMsg').textContent=displayName+' · 禮物拖拖';
     $('win').classList.add('on');
@@ -123,7 +132,7 @@ function enableDrag(el,zone,onOk){
     el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);move(e)};
   const move=e=>{if(!dragging||e.clientX==null)return;el.style.left=Math.max(0,Math.min(innerWidth-el.offsetWidth,e.clientX-ox))+'px';el.style.top=Math.max(0,Math.min(innerHeight-el.offsetHeight,e.clientY-oy))+'px';zone.classList.toggle('hot',hits(el,zone))};
   const up=e=>{if(!dragging)return;dragging=false;detach();try{if(e&&e.pointerId!=null)el.releasePointerCapture(e.pointerId)}catch(_){}
-    if(hits(el,zone)) onOk(); else {sfxBad();toast('拖去盒',true);speak('拖去盒');el.style.position='absolute';el.style.zIndex='';el.style.left='12%';el.style.top='30%';el.classList.add('pulse');zone.classList.remove('hot')}};
+    if(hits(el,zone)) onOk(); else {sfxBad();toast('拖去盒',true);speak('拖去盒');el.style.position='absolute';el.style.zIndex='';el.style.left='12%';el.style.top='30%';el.classList.add('pulse');zone.classList.remove('hot');zone.classList.add('pulse-hint');setTimeout(()=>zone.classList.remove('pulse-hint'),1500)}};
   el.addEventListener('pointerdown',down);
 }
 function spawn(){
@@ -132,10 +141,10 @@ function spawn(){
   const zone=document.createElement('div');zone.className='drop hot';zone.textContent='🎁 放呢度';stage.appendChild(zone);
   const el=document.createElement('div');el.className='target pulse';el.textContent=['🎁','🎀','🧸','🎈'][progress%4];
   el.style.left='12%';el.style.top='30%';stage.appendChild(el);
-  enableDrag(el,zone,()=>{el.remove();zone.classList.remove('hot');sfxOk();toast('好！');setProgress(progress+1);if(progress>=NEED)setTimeout(win,300);else setTimeout(spawn,280)});
+  enableDrag(el,zone,()=>{el.remove();zone.classList.remove('hot');sfxOk();setProgress(progress+1);if(progress>=NEED)setTimeout(win,300);else setTimeout(spawn,280)});
 }
-function start(){setProgress(0);spawn();speak('拖禮物去盒')}
-$('btnHub').onclick=$('btnHub2').onclick=()=>location.href=HUB;
+function start(){ didWin=false; setProgress(0);spawn();if(window.MouseHubReward&&MouseHubReward.autoSpeak())speak('拖禮物去盒')}
+$('btnHub').onclick=()=>{location.href='./index.html'};$('btnHub2').onclick=()=>{location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl('gifts'):'./index.html'+(didWin?('?won=gifts'):'')};
 $('btnSpeak').onclick=()=>speak('拖禮物去盒');
 $('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
 window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});

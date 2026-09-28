@@ -69,9 +69,10 @@ radial-gradient(1px 1px at 55% 40%,#fff,transparent)}
     <div style="font-size:2.4rem">⭐⭐⭐</div>
     <h2>做得好！</h2>
     <p id="winMsg">完成喇</p>
-    <div class="row">
+        <div class="row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
       <button class="btn ghost" id="btnRetry" type="button">再玩</button>
-      <button class="btn" id="btnHub2" type="button">主頁</button>
+      <button class="btn" id="btnNext" type="button">下一個</button>
+      <button class="btn ghost" id="btnHub2" type="button">主頁</button>
     </div>
   </div>
 </div>
@@ -79,11 +80,11 @@ radial-gradient(1px 1px at 55% 40%,#fff,transparent)}
 <script>
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('selectstart',e=>e.preventDefault());
-const NEED=6, HUB='./index.html';
+const NEED=5, HUB='./index.html';
 const STEPS=['click','drag','right','click','drag','right'];
 const $=id=>document.getElementById(id);
 const stage=$('stage');
-let progress=0, audioCtx=null;
+let progress=0, didWin=false, audioCtx=null;
 function loadProfile(){
   let who=null,name='';
   try{
@@ -113,9 +114,16 @@ function bigCelebrate(done){
   document.body.appendChild(ov);
   setTimeout(()=>{ov.remove();done&&done();},2000);
 }
-function win(){
-  try{ if(window.MouseHubReward){ const a=MouseHubReward.award('stars'); if(a&&a.stickerNew) toast('貼紙 +'+a.sticker.emoji); } }catch(_e){}
-  confetti(); sfxWin(); speak('做得好');
+function win(){ didWin=true;
+  try{ if(window.MouseHubReward) MouseHubReward.award('stars'); }catch(_e){}
+  confetti(); sfxWin();
+  if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
+  const next=window.MouseHubReward?MouseHubReward.nextAfter('stars'):null;
+  const nb=$('btnNext');
+  if(nb){
+    if(next && next.id!=='stars'){ nb.style.display=''; nb.textContent='下一個：'+next.title; nb.onclick=()=>{ location.href=MouseHubReward.gameUrl(next); }; }
+    else { nb.style.display='none'; }
+  }
   bigCelebrate(()=>{
     $('winMsg').textContent=displayName+' · 星空挑戰';
     $('win').classList.add('on');
@@ -151,21 +159,21 @@ function spawn(){
     $('hint').innerHTML='撳 <b>星星</b>';$('guide').textContent='左掣撳星星';speak('撳星星');
     const el=document.createElement('button');el.type='button';el.className='target pulse';el.textContent='⭐';
     el.style.width='110px';el.style.height='110px';el.style.left=(20+Math.random()*45)+'%';el.style.top=(25+Math.random()*35)+'%';
-    el.onclick=()=>{el.remove();sfxOk();toast('好！');advance()};
+    el.onclick=()=>{el.remove();sfxOk();advance()};
     stage.appendChild(el);
   } else if(kind==='drag'){
     $('hint').innerHTML='拖 <b>月亮</b> 去圈';$('guide').textContent='拖月亮去綠色圈';speak('拖去圈');
     const zone=document.createElement('div');zone.className='drop';zone.textContent='放呢度';stage.appendChild(zone);
     const el=document.createElement('div');el.className='target pulse';el.textContent='🌙';el.style.width='100px';el.style.height='100px';el.style.left='14%';el.style.top='34%';stage.appendChild(el);
-    enableDrag(el,zone,()=>{el.remove();sfxOk();toast('好！');advance()});
+    enableDrag(el,zone,()=>{el.remove();sfxOk();advance()});
   } else {
     $('hint').innerHTML='右掣／兩指 開 <b>盒</b>';$('guide').textContent='兩指撳＝右掣';speak('右掣');
     const el=document.createElement('div');el.className='target pulse';el.textContent='📦';el.style.width='160px';el.style.height='140px';el.style.left='36%';el.style.top='30%';el.style.cursor='context-menu';stage.appendChild(el);
-    bindRight(el,()=>{el.textContent='✨';setTimeout(()=>{el.remove();sfxOk();toast('好！');advance()},240)});
+    bindRight(el,()=>{el.textContent='✨';setTimeout(()=>{el.remove();sfxOk();advance()},240)});
   }
 }
-function start(){setProgress(0);spawn()}
-$('btnHub').onclick=$('btnHub2').onclick=()=>location.href=HUB;
+function start(){ didWin=false; setProgress(0);spawn()}
+$('btnHub').onclick=()=>{location.href='./index.html'};$('btnHub2').onclick=()=>{location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl('stars'):'./index.html'+(didWin?('?won=stars'):'')};
 $('btnSpeak').onclick=()=>speak('星空挑戰');
 $('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
 window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
