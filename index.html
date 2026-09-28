@@ -20,7 +20,6 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
 .top { flex-shrink: 0; padding: 12px 16px 4px; text-align: center; }
 .logo { font-size: clamp(1.6rem, 4.5vw, 2.4rem); font-weight: 900; line-height: 1.15; }
 .sub { margin-top: 2px; font-weight: 800; opacity: .65; font-size: .95rem; }
-
 .pet-card {
   margin: 10px auto 0; width: min(520px, 94vw);
   background: #fff; border: 4px solid #FF6B9D; border-radius: 22px;
@@ -40,7 +39,6 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
 .pet-lv { font-weight: 800; opacity: .75; font-size: .92rem; margin-top: 2px; }
 .pet-bar { margin-top: 6px; height: 12px; border-radius: 999px; background: rgba(61,43,90,.1); overflow: hidden; }
 .pet-bar > i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #69F0AE, #FFD54F); transition: width .35s; }
-
 .who-bar {
   margin: 10px auto 0; width: min(520px, 94vw);
   display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center;
@@ -60,12 +58,10 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
   -webkit-user-select: text; user-select: text;
 }
 .hint-mini { width: 100%; text-align: center; font-size: .8rem; font-weight: 700; opacity: .5; }
-
-.main { flex: 1; padding: 8px 14px 22px; width: min(920px, 100%); margin: 0 auto; }
-.sec-title { font-weight: 900; font-size: 1.05rem; margin: 6px 0 8px; }
-
+.main { flex: 1; padding: 8px 14px 22px; width: min(960px, 100%); margin: 0 auto; }
+.sec-title { font-weight: 900; font-size: 1.05rem; margin: 10px 0 8px; }
 .stickers {
-  display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 12px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; margin-bottom: 8px;
 }
 .sticker {
   aspect-ratio: 1; border-radius: 14px; border: 3px dashed #ddd; background: #f3f3f6;
@@ -81,52 +77,37 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
   0% { transform: scale(2) translateY(-30px); opacity: 0; }
   100% { transform: scale(1) translateY(0); opacity: 1; }
 }
-.sticker .em { font-size: 1.45rem; line-height: 1; }
-.sticker .lb { font-size: .6rem; }
-
-.rec {
-  margin-bottom: 12px;
-  border-radius: 24px; border: 5px solid #FF6B9D; background: #fff;
-  padding: 14px; display: flex; align-items: center; gap: 14px;
-  box-shadow: 0 12px 28px rgba(255,107,157,.2); cursor: pointer;
-  text-align: left; width: 100%;
-}
-.rec:active { transform: scale(.98); }
-.rec .em { font-size: 3.2rem; line-height: 1; }
-.rec .body { flex: 1; }
-.rec .kicker { font-weight: 900; color: #C2185B; font-size: .9rem; }
-.rec .title { font-weight: 900; font-size: 1.45rem; }
-.rec .tag { font-weight: 800; opacity: .7; margin-top: 2px; }
-.rec .go {
-  background: linear-gradient(135deg, #FF6B9D, #FF9D7A); color: #fff;
-  font-weight: 900; padding: 12px 16px; border-radius: 999px; white-space: nowrap;
-}
-
+.sticker .em { font-size: 1.35rem; line-height: 1; }
+.sticker .lb { font-size: .55rem; }
 .grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;
 }
 .card {
-  min-height: 120px; border-radius: 18px; border: 3px solid rgba(255,107,157,.22);
-  background: #fff; padding: 10px 8px; display: flex; flex-direction: column;
+  min-height: 148px; border-radius: 18px; border: 3px solid rgba(255,107,157,.28);
+  background: #fff; padding: 12px 8px; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 4px; text-align: center;
   position: relative; cursor: pointer; box-shadow: 0 6px 16px rgba(61,43,90,.08);
 }
-.card.rec-dim { opacity: .55; }
-.card .emoji { font-size: 2rem; line-height: 1; }
-.card .title { font-size: .95rem; font-weight: 900; }
-.card .tag { font-size: .75rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #FFE4F1; color: #C2185B; }
-.card .got { position: absolute; top: 6px; left: 6px; font-size: 1rem; }
-
+.card:hover { transform: translateY(-2px); }
+.card:active { transform: scale(.98); }
+.card .emoji { font-size: 2.2rem; line-height: 1; }
+.card .title { font-size: 1rem; font-weight: 900; }
+.card .tag { font-size: .78rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #FFE4F1; color: #C2185B; }
+.card .medal { position: absolute; top: 6px; left: 6px; font-size: 1.15rem; }
+.card .cert-btn {
+  position: absolute; top: 6px; right: 6px;
+  font-size: .7rem; font-weight: 900; padding: 3px 7px; border-radius: 999px;
+  background: #FFF8E1; border: 2px solid #F5B700; color: #8D6E00;
+}
+.card .cert-btn:disabled { opacity: .35; border-color: #ccc; color: #999; background: #f5f5f5; }
 .foot { text-align: center; padding: 4px 16px 16px; font-weight: 700; opacity: .45; font-size: .8rem; }
 .teacher { position: fixed; right: 8px; bottom: 8px; z-index: 20; }
 .teacher details {
   background: rgba(255,255,255,.96); border: 3px solid rgba(61,43,90,.12);
-  border-radius: 12px; padding: 8px 10px; font-size: .85rem; font-weight: 700; min-width: 160px;
+  border-radius: 12px; padding: 8px 10px; font-size: .85rem; font-weight: 700; min-width: 170px;
 }
 .teacher summary { cursor: pointer; list-style: none; }
 .teacher label { display: flex; gap: 6px; align-items: center; margin-top: 8px; }
-
-/* win return overlay */
 .won-ov {
   position: fixed; inset: 0; z-index: 50;
   background: rgba(61,43,90,.5);
@@ -136,18 +117,16 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
 .won-box {
   width: min(400px, 94vw); background: #fff; border-radius: 28px;
   border: 5px solid #FFD54F; padding: 22px 16px; text-align: center;
-  box-shadow: 0 16px 40px rgba(0,0,0,.25);
 }
 .won-box .big { font-size: 3.5rem; line-height: 1; margin-bottom: 6px; }
 .won-box h2 { font-size: 1.7rem; margin-bottom: 6px; }
 .won-box p { font-weight: 800; opacity: .8; margin-bottom: 14px; }
 .won-box .btn {
-  min-height: 52px; min-width: 140px; padding: 10px 18px; border-radius: 999px;
-  background: linear-gradient(135deg, #FF6B9D, #FF9D7A); color: #fff; font-weight: 900; font-size: 1.15rem;
+  min-height: 52px; min-width: 120px; padding: 10px 18px; border-radius: 999px;
+  background: linear-gradient(135deg, #FF6B9D, #FF9D7A); color: #fff; font-weight: 900; font-size: 1.1rem; margin: 4px;
 }
-
+.won-box .btn.ghost { background: #fff; color: #3D2B5A; border: 3px solid rgba(61,43,90,.12); }
 @media (max-width: 520px) {
-  .stickers { grid-template-columns: repeat(3, 1fr); }
   .grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
@@ -155,12 +134,12 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
 <body>
 <header class="top">
   <div class="logo">🖱️ 滑鼠小達人</div>
-  <div class="sub">跟住路徑學 · 養寵物</div>
+  <div class="sub">自由揀關 · 每關有證書</div>
   <div class="pet-card" id="petCard">
     <div class="pet-emoji" id="petEmoji">🐱</div>
     <div class="pet-info">
       <div class="pet-name" id="petName">我嘅小貓</div>
-      <div class="pet-lv" id="petLv">再玩 1 次就進化！</div>
+      <div class="pet-lv" id="petLv">再玩就進化！</div>
       <div class="pet-bar"><i id="petFill"></i></div>
     </div>
   </div>
@@ -174,24 +153,25 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
 </header>
 
 <main class="main">
-  <div class="sec-title">⭐ 而家玩呢個</div>
-  <button class="rec" type="button" id="recCard"></button>
-
   <div class="sec-title">📒 貼紙冊</div>
   <div class="stickers" id="stickerWall"></div>
 
-  <div class="sec-title">🎮 全部遊戲</div>
-  <div class="grid" id="gameGrid"></div>
+  <div class="sec-title">🌱 基礎關（自由揀）</div>
+  <div class="grid" id="gridBasic"></div>
+
+  <div class="sec-title">🎮 練習關（自由揀）</div>
+  <div class="grid" id="gridSkill"></div>
 </main>
 
-<footer class="foot">電腦科 · 小一／小二</footer>
+<footer class="foot">電腦科 · 小一／小二 · 每關完成可攞證書</footer>
 
 <div class="won-ov" id="wonOv">
   <div class="won-box">
     <div class="big" id="wonBig">😻</div>
     <h2 id="wonTitle">太叻喇！</h2>
     <p id="wonMsg">小貓好開心！</p>
-    <button class="btn" type="button" id="wonOk">繼續</button>
+    <button class="btn" type="button" id="wonCert">看證書</button>
+    <button class="btn ghost" type="button" id="wonOk">繼續</button>
   </div>
 </div>
 
@@ -199,11 +179,12 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
   <details>
     <summary>老師角</summary>
     <label><input type="checkbox" id="chkAutoSpeak"> 入遊戲自動讀</label>
-    <p style="margin-top:8px;opacity:.7;line-height:1.35">路徑：左→連撃→拖→右→混合→餵食館</p>
+    <p style="margin-top:8px;opacity:.7;line-height:1.35">自由選關。金≥20下／移5；銀≥12／移3；其餘銅。</p>
   </details>
 </div>
 
 <script src="./reward.js"></script>
+<script src="./cert.js"></script>
 <script>
 (() => {
   document.addEventListener('contextmenu', e => e.preventDefault());
@@ -217,6 +198,7 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
   const LS_WHO = 'mouse_hub_who';
   const LS_FEED_NAME = 'mouse_feeder_student_name';
   const LS_FEED_WHO = 'mouse_feeder_who';
+  let lastWon = null;
 
   const IDS = [
     { id: 'cat', emoji: '🐱', name: '小貓' },
@@ -262,9 +244,6 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
     if (pet.level >= 10) {
       document.getElementById('petLv').textContent = 'Lv.10 滿等！';
       document.getElementById('petFill').style.width = '100%';
-    } else if (xp.left <= 1) {
-      document.getElementById('petLv').textContent = `Lv.${pet.level} · 再玩 ${xp.left} 次就進化！`;
-      document.getElementById('petFill').style.width = ((xp.into / xp.need) * 100) + '%';
     } else {
       document.getElementById('petLv').textContent = `Lv.${pet.level} · 再玩 ${xp.left} 次就進化！`;
       document.getElementById('petFill').style.width = ((xp.into / xp.need) * 100) + '%';
@@ -279,7 +258,6 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
       const m = R.STICKER_META[id];
       const el = document.createElement('div');
       el.className = 'sticker' + (got[id] ? ' on' : '') + (flyId === id ? ' fly' : '');
-      el.dataset.id = id;
       el.innerHTML = `<span class="em">${got[id] ? m.emoji : '❓'}</span><span class="lb">${m.name}</span>`;
       wall.appendChild(el);
     });
@@ -304,58 +282,59 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
     location.href = R.gameUrl(g);
   }
 
-  function renderRec() {
-    const rec = R.recommend();
-    const btn = document.getElementById('recCard');
-    btn.innerHTML =
-      `<div class="em">${rec.emoji}</div>` +
-      `<div class="body"><div class="kicker">推薦</div><div class="title">${rec.title}</div><div class="tag">${rec.tag}</div></div>` +
-      `<div class="go">開始 ▶</div>`;
-    btn.onclick = () => openGame(rec);
-  }
-
   function renderGames() {
-    const got = R.loadStickers();
-    const rec = R.recommend();
-    const grid = document.getElementById('gameGrid');
-    grid.innerHTML = '';
-    R.PATH.forEach(g => {
-      const card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'card' + (g.id === rec.id ? '' : ' rec-dim');
-      card.innerHTML =
-        (got[g.id] ? `<span class="got">${R.STICKER_META[g.id]?.emoji || '✅'}</span>` : '') +
-        `<span class="emoji">${g.emoji}</span>` +
-        `<span class="title">${g.title}</span>` +
-        `<span class="tag">${g.tag}</span>`;
-      card.onclick = () => openGame(g);
-      grid.appendChild(card);
+    const certs = R.loadCerts();
+    ['basic', 'skill'].forEach(group => {
+      const grid = document.getElementById(group === 'basic' ? 'gridBasic' : 'gridSkill');
+      grid.innerHTML = '';
+      R.GAMES.filter(g => g.group === group).forEach(g => {
+        const c = certs[g.id];
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML =
+          (c ? `<span class="medal">${R.TIER_META[c.tier].medal}</span>` : '') +
+          `<button type="button" class="cert-btn" data-id="${g.id}" ${c ? '' : 'disabled'}>證書</button>` +
+          `<span class="emoji">${g.emoji}</span>` +
+          `<span class="title">${g.title}</span>` +
+          `<span class="tag">${g.tag}</span>`;
+        card.addEventListener('click', e => {
+          if (e.target.closest('.cert-btn')) {
+            e.stopPropagation();
+            if (c) MouseHubCert.showCert(g.id);
+            return;
+          }
+          openGame(g);
+        });
+        grid.appendChild(card);
+      });
     });
   }
 
   function showWon(gameId) {
-    const meta = R.STICKER_META[gameId] || { emoji: '⭐', name: gameId };
+    lastWon = gameId;
+    const meta = R.STICKER_META[gameId] || { emoji: '⭐' };
     const st = R.stageFor(R.loadPet().level);
-    const ov = document.getElementById('wonOv');
+    const certs = R.loadCerts();
+    const c = certs[gameId];
+    const medal = c ? R.TIER_META[c.tier].medal : '⭐';
     document.getElementById('wonBig').textContent = st.emoji;
     document.getElementById('wonTitle').textContent = '太叻喇！';
-    document.getElementById('wonMsg').textContent = `${st.label}好開心！貼紙 ${meta.emoji}`;
-    ov.classList.add('on');
+    document.getElementById('wonMsg').textContent = `${st.label}好開心！${meta.emoji} ${medal}`;
+    document.getElementById('wonOv').classList.add('on');
     const petCard = document.getElementById('petCard');
     petCard.classList.remove('jump');
     void petCard.offsetWidth;
     petCard.classList.add('jump');
     renderStickers(gameId);
     renderPet();
-    renderRec();
     renderGames();
     speak(st.label + '好開心');
-    // clean URL
     try { history.replaceState({}, '', './index.html'); } catch (_) {}
   }
 
-  document.getElementById('wonOk').onclick = () => {
-    document.getElementById('wonOv').classList.remove('on');
+  document.getElementById('wonOk').onclick = () => document.getElementById('wonOv').classList.remove('on');
+  document.getElementById('wonCert').onclick = () => {
+    if (lastWon) MouseHubCert.showCert(lastWon);
   };
 
   const chk = document.getElementById('chkAutoSpeak');
@@ -369,14 +348,10 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
   renderIds();
   renderPet();
   renderStickers();
-  renderRec();
   renderGames();
 
-  const params = new URLSearchParams(location.search);
-  const won = params.get('won');
-  if (won && R.STICKER_META[won]) {
-    setTimeout(() => showWon(won), 120);
-  }
+  const won = new URLSearchParams(location.search).get('won');
+  if (won && R.STICKER_META[won]) setTimeout(() => showWon(won), 120);
 })();
 </script>
 </body>

@@ -64,12 +64,14 @@ button{font:inherit;border:none;cursor:pointer}
     <p id="winMsg">完成喇</p>
         <div class="row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
       <button class="btn ghost" id="btnRetry" type="button">再玩</button>
+      <button class="btn" id="btnCert" type="button">證書</button>
       <button class="btn" id="btnNext" type="button">下一個</button>
       <button class="btn ghost" id="btnHub2" type="button">主頁</button>
     </div>
   </div>
 </div>
 <script src="./reward.js"></script>
+<script src="./cert.js"></script>
 <script>
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('selectstart',e=>e.preventDefault());
@@ -107,7 +109,7 @@ function bigCelebrate(done){
   setTimeout(()=>{ov.remove();done&&done();},2000);
 }
 function win(){ didWin=true;
-  try{ if(window.MouseHubReward) MouseHubReward.award('bubbles'); }catch(_e){}
+  try{ if(window.MouseHubReward) MouseHubReward.award('bubbles', progress, 'clear'); }catch(_e){}
   confetti(); sfxWin();
   if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
   const next=window.MouseHubReward?MouseHubReward.nextAfter('bubbles'):null;
@@ -135,6 +137,7 @@ function spawn(){
 function start(){ didWin=false; setProgress(0);spawn();if(window.MouseHubReward&&MouseHubReward.autoSpeak())speak('撳泡泡')}
 $('btnHub').onclick=()=>{location.href='./index.html'};$('btnHub2').onclick=()=>{location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl('bubbles'):'./index.html'+(didWin?('?won=bubbles'):'')};
 $('btnSpeak').onclick=()=>speak('撳泡泡');
+$('btnCert').onclick=()=>MouseHubCert.showCert('bubbles');
 $('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
 window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
 start();
