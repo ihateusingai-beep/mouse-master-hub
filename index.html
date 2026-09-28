@@ -11,201 +11,177 @@ html, body {
   font-family: "PingFang HK", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
   background: linear-gradient(165deg, #E8F4FF 0%, #FFE4F1 45%, #FFF3C4 100%);
   color: #3D2B5A;
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none; touch-action: manipulation;
   overflow: hidden;
 }
 button, input { font: inherit; }
 button { border: none; cursor: pointer; }
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.top {
-  flex-shrink: 0;
-  padding: 18px 16px 8px;
-  text-align: center;
-}
-.logo {
-  font-size: clamp(1.8rem, 5vw, 2.8rem);
-  font-weight: 900;
-  line-height: 1.15;
-}
-.sub {
-  margin-top: 6px;
-  font-weight: 800;
-  opacity: .7;
-  font-size: 1.05rem;
-}
-.who-bar {
-  margin: 14px auto 0;
+body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.top { flex-shrink: 0; padding: 14px 16px 6px; text-align: center; }
+.logo { font-size: clamp(1.7rem, 5vw, 2.6rem); font-weight: 900; line-height: 1.15; }
+.sub { margin-top: 4px; font-weight: 800; opacity: .7; font-size: 1rem; }
+
+.pet-card {
+  margin: 12px auto 0;
   width: min(520px, 94vw);
+  background: #fff;
+  border: 4px solid #FF6B9D;
+  border-radius: 24px;
+  padding: 12px 14px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
   align-items: center;
-  justify-content: center;
+  gap: 14px;
+  box-shadow: 0 8px 24px rgba(61,43,90,.1);
+  text-align: left;
 }
-.id-mini {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
+.pet-emoji {
+  font-size: 3.2rem;
+  line-height: 1;
+  min-width: 72px;
+  text-align: center;
+  animation: bob 2.4s ease-in-out infinite;
 }
+@keyframes bob {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.pet-info { flex: 1; min-width: 0; }
+.pet-name { font-weight: 900; font-size: 1.2rem; }
+.pet-lv { font-weight: 800; opacity: .7; font-size: .95rem; margin-top: 2px; }
+.pet-bar {
+  margin-top: 8px; height: 12px; border-radius: 999px;
+  background: rgba(61,43,90,.1); overflow: hidden;
+}
+.pet-bar > i {
+  display: block; height: 100%; width: 0%;
+  background: linear-gradient(90deg, #69F0AE, #FFD54F);
+  transition: width .3s;
+}
+
+.who-bar {
+  margin: 12px auto 0; width: min(520px, 94vw);
+  display: flex; flex-wrap: wrap; gap: 8px;
+  align-items: center; justify-content: center;
+}
+.id-mini { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
 .id-chip {
-  width: 52px; height: 52px;
-  border-radius: 16px;
-  border: 3px solid rgba(255,107,157,.3);
-  background: #fff;
-  font-size: 1.6rem;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  width: 48px; height: 48px; border-radius: 14px;
+  border: 3px solid rgba(255,107,157,.3); background: #fff;
+  font-size: 1.45rem; display: grid; place-items: center;
 }
-.id-chip.sel {
-  border-color: #22c55e;
-  box-shadow: 0 0 0 3px rgba(34,197,94,.25);
-}
-.name-wrap {
-  flex: 1 1 180px;
-  max-width: 240px;
-}
+.id-chip.sel { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.25); }
+.name-wrap { flex: 1 1 160px; max-width: 220px; }
 .name-wrap input {
-  width: 100%;
-  min-height: 52px;
-  border-radius: 14px;
-  border: 3px solid rgba(255,107,157,.3);
-  padding: 8px 12px;
-  font-weight: 800;
-  text-align: center;
-  background: #fff;
-  color: #3D2B5A;
-  outline: none;
-  -webkit-user-select: text;
-  user-select: text;
+  width: 100%; min-height: 48px; border-radius: 14px;
+  border: 3px solid rgba(255,107,157,.3); padding: 8px 12px;
+  font-weight: 800; text-align: center; background: #fff; color: #3D2B5A; outline: none;
+  -webkit-user-select: text; user-select: text;
 }
-.name-wrap input:focus {
-  border-color: #FF6B9D;
-  box-shadow: 0 0 0 3px rgba(255,107,157,.2);
+.hint-mini { width: 100%; text-align: center; font-size: .85rem; font-weight: 700; opacity: .55; }
+
+.main { flex: 1; padding: 10px 16px 24px; width: min(920px, 100%); margin: 0 auto; }
+.sec-title {
+  font-weight: 900; font-size: 1.15rem; margin: 8px 0 10px;
+  display: flex; align-items: center; gap: 8px;
 }
-.hint {
-  width: 100%;
-  text-align: center;
-  font-size: .9rem;
-  font-weight: 700;
-  opacity: .55;
+
+.stickers {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
 }
-.main {
-  flex: 1;
-  padding: 12px 16px 28px;
-  width: min(920px, 100%);
-  margin: 0 auto;
+.sticker {
+  aspect-ratio: 1;
+  border-radius: 16px;
+  border: 3px dashed #ddd;
+  background: #f3f3f6;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; font-weight: 900; opacity: .4; filter: grayscale(1);
 }
+.sticker.on {
+  opacity: 1; filter: none; border-style: solid; border-color: #FFD54F;
+  background: #FFFBEB; box-shadow: 0 0 0 3px rgba(255,213,79,.3);
+}
+.sticker .em { font-size: 1.6rem; line-height: 1; }
+.sticker .lb { font-size: .65rem; }
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
 }
 .card {
-  min-height: 170px;
-  border-radius: 24px;
-  border: 4px solid rgba(255,107,157,.25);
-  background: #fff;
+  min-height: 158px; border-radius: 22px;
+  border: 4px solid rgba(255,107,157,.25); background: #fff;
   box-shadow: 0 10px 28px rgba(61,43,90,.1);
-  padding: 16px 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-align: center;
+  padding: 14px 12px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  text-align: center; position: relative; cursor: pointer;
   transition: transform .12s, box-shadow .12s;
-  position: relative;
 }
-.card.open {
-  cursor: pointer;
-  border-color: #FF6B9D;
-}
-.card.open:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(61,43,90,.14); }
-.card.open:active { transform: scale(.98); }
-.card.lock {
-  opacity: .72;
-  filter: grayscale(.25);
-  cursor: not-allowed;
-  background: #f6f6f8;
-}
-.card .emoji { font-size: 3rem; line-height: 1; }
-.card .title { font-size: 1.25rem; font-weight: 900; }
+.card:hover { transform: translateY(-3px); }
+.card:active { transform: scale(.98); }
+.card .emoji { font-size: 2.7rem; line-height: 1; }
+.card .title { font-size: 1.15rem; font-weight: 900; }
 .card .tag {
-  font-size: .95rem;
-  font-weight: 800;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: #FFE4F1;
-  color: #C2185B;
+  font-size: .88rem; font-weight: 800; padding: 3px 10px;
+  border-radius: 999px; background: #FFE4F1; color: #C2185B;
 }
-.card.lock .tag { background: #e8e8ee; color: #777; }
 .card .badge {
-  position: absolute;
-  top: 10px; right: 10px;
-  font-size: .8rem;
-  font-weight: 900;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: #22c55e;
-  color: #fff;
+  position: absolute; top: 8px; right: 8px;
+  font-size: .75rem; font-weight: 900; padding: 3px 8px;
+  border-radius: 999px; background: #22c55e; color: #fff;
 }
-.card.lock .badge { background: #9ca3af; }
-.foot {
-  text-align: center;
-  padding: 8px 16px 20px;
-  font-weight: 700;
-  opacity: .5;
-  font-size: .9rem;
+.card .got {
+  position: absolute; top: 8px; left: 8px; font-size: 1.1rem;
 }
-.teacher {
-  position: fixed; right: 10px; bottom: 10px; z-index: 20;
-}
+.foot { text-align: center; padding: 6px 16px 18px; font-weight: 700; opacity: .5; font-size: .85rem; }
+.teacher { position: fixed; right: 10px; bottom: 10px; z-index: 20; }
 .teacher details {
-  background: rgba(255,255,255,.95);
-  border: 3px solid rgba(61,43,90,.12);
-  border-radius: 14px;
-  padding: 8px 12px;
-  font-size: .9rem;
-  font-weight: 700;
-  min-width: 160px;
+  background: rgba(255,255,255,.95); border: 3px solid rgba(61,43,90,.12);
+  border-radius: 14px; padding: 8px 12px; font-size: .88rem; font-weight: 700; min-width: 170px;
 }
 .teacher summary { cursor: pointer; list-style: none; }
 .teacher p { margin-top: 6px; opacity: .75; line-height: 1.35; }
 
 @media (max-width: 520px) {
+  .stickers { grid-template-columns: repeat(3, 1fr); }
   .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .card { min-height: 150px; padding: 12px 8px; }
-  .card .emoji { font-size: 2.4rem; }
-  .card .title { font-size: 1.05rem; }
+  .card { min-height: 140px; }
+  .pet-emoji { font-size: 2.6rem; min-width: 56px; }
 }
 </style>
 </head>
 <body>
 <header class="top">
   <div class="logo">🖱️ 滑鼠小達人</div>
-  <div class="sub">揀遊戲 · 學滑鼠</div>
+  <div class="sub">養寵物 · 集貼紙 · 學滑鼠</div>
+
+  <div class="pet-card" id="petCard">
+    <div class="pet-emoji" id="petEmoji">🐱</div>
+    <div class="pet-info">
+      <div class="pet-name" id="petName">我嘅小貓</div>
+      <div class="pet-lv" id="petLv">Lv.1 · 完成遊戲餵佢</div>
+      <div class="pet-bar"><i id="petFill"></i></div>
+    </div>
+  </div>
+
   <div class="who-bar">
     <div class="id-mini" id="idMini"></div>
     <div class="name-wrap">
       <input id="studentName" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="名字（可留空）" value="">
     </div>
-    <div class="hint">唔填名都可以玩</div>
+    <div class="hint-mini">唔填名都可以玩</div>
   </div>
 </header>
 
 <main class="main">
+  <div class="sec-title">📒 貼紙冊</div>
+  <div class="stickers" id="stickerWall"></div>
+
+  <div class="sec-title">🎮 遊戲</div>
   <div class="grid" id="gameGrid"></div>
 </main>
 
@@ -214,10 +190,11 @@ body {
 <div class="teacher">
   <details>
     <summary>老師角</summary>
-    <p>5 個遊戲已開放。<br>名／身份會帶去各遊戲。</p>
+    <p>通關 +1 寵物經驗、解鎖貼紙。<br>每 3 次升級（最高 Lv.10）。</p>
   </details>
 </div>
 
+<script src="./reward.js"></script>
 <script>
 (() => {
   document.addEventListener('contextmenu', e => e.preventDefault());
@@ -228,9 +205,9 @@ body {
 
   const LS_NAME = 'mouse_hub_name';
   const LS_WHO = 'mouse_hub_who';
-  // also mirror keys mouse-feeder can read later
   const LS_FEED_NAME = 'mouse_feeder_student_name';
   const LS_FEED_WHO = 'mouse_feeder_who';
+  const R = window.MouseHubReward;
 
   const IDS = [
     { id: 'cat', emoji: '🐱', name: '小貓' },
@@ -244,59 +221,16 @@ body {
   ];
 
   const GAMES = [
-    {
-      id: 'feeder',
-      emoji: '🐱',
-      title: '喵喵餵食館',
-      tag: '左 · 拖 · 右',
-      open: true,
-      url: 'https://ihateusingai-beep.github.io/mouse-feeder/',
-      badge: '可玩'
-    },
-    {
-      id: 'bubbles',
-      emoji: '🫧',
-      title: '泡泡點點',
-      tag: '只練左掣',
-      open: true,
-      url: './bubbles.html',
-      badge: '可玩'
-    },
-    {
-      id: 'gifts',
-      emoji: '🎁',
-      title: '禮物拖拖',
-      tag: '只練拖曳',
-      open: true,
-      url: './gifts.html',
-      badge: '可玩'
-    },
-    {
-      id: 'chest',
-      emoji: '📦',
-      title: '寶箱右掣',
-      tag: '只練右掣',
-      open: true,
-      url: './chest.html',
-      badge: '可玩'
-    },
-    {
-      id: 'stars',
-      emoji: '✨',
-      title: '星空挑戰',
-      tag: '混合短關',
-      open: true,
-      url: './stars.html',
-      badge: '可玩'
-    }
+    { id: 'feeder', emoji: '🐱', title: '喵喵餵食館', tag: '左·拖·右', url: 'https://ihateusingai-beep.github.io/mouse-feeder/' },
+    { id: 'bubbles', emoji: '🫧', title: '泡泡點點', tag: '左掣', url: './bubbles.html' },
+    { id: 'balloons', emoji: '🎈', title: '氣球派對', tag: '左掣連撃', url: './balloons.html' },
+    { id: 'gifts', emoji: '🎁', title: '禮物拖拖', tag: '拖曳', url: './gifts.html' },
+    { id: 'chest', emoji: '📦', title: '寶箱右掣', tag: '右掣', url: './chest.html' },
+    { id: 'stars', emoji: '✨', title: '星空挑戰', tag: '混合', url: './stars.html' },
   ];
 
   let who = null;
-  try {
-    const raw = localStorage.getItem(LS_WHO);
-    if (raw) who = JSON.parse(raw);
-  } catch (_) {}
-
+  try { who = JSON.parse(localStorage.getItem(LS_WHO) || 'null'); } catch (_) {}
   const nameInput = document.getElementById('studentName');
   nameInput.value = localStorage.getItem(LS_NAME) || '';
 
@@ -310,6 +244,30 @@ body {
     }
   }
 
+  function renderPet() {
+    const pet = R.loadPet();
+    const st = R.stageFor(pet.level);
+    document.getElementById('petEmoji').textContent = st.emoji;
+    document.getElementById('petName').textContent = '我嘅' + st.label;
+    const into = pet.xp % 3;
+    const need = 3;
+    document.getElementById('petLv').textContent = `Lv.${pet.level} · 仲差 ${need - into} 次升級` + (pet.level >= 10 ? '（滿等）' : '');
+    document.getElementById('petFill').style.width = (pet.level >= 10 ? 100 : (into / need) * 100) + '%';
+  }
+
+  function renderStickers() {
+    const got = R.loadStickers();
+    const wall = document.getElementById('stickerWall');
+    wall.innerHTML = '';
+    Object.keys(R.STICKER_META).forEach(id => {
+      const m = R.STICKER_META[id];
+      const el = document.createElement('div');
+      el.className = 'sticker' + (got[id] ? ' on' : '');
+      el.innerHTML = `<span class="em">${got[id] ? m.emoji : '❓'}</span><span class="lb">${m.name}</span>`;
+      wall.appendChild(el);
+    });
+  }
+
   function renderIds() {
     const box = document.getElementById('idMini');
     box.innerHTML = '';
@@ -318,21 +276,14 @@ body {
       b.type = 'button';
       b.className = 'id-chip' + (who?.id === p.id ? ' sel' : '');
       b.textContent = p.emoji;
-      b.title = p.name;
       b.setAttribute('aria-label', p.name);
-      b.onclick = () => {
-        who = p;
-        saveProfile();
-        renderIds();
-      };
+      b.onclick = () => { who = p; saveProfile(); renderIds(); };
       box.appendChild(b);
     });
   }
 
   function openGame(g) {
-    if (!g.open || !g.url) return;
     saveProfile();
-    // pass name via query for feeder (feeder may ignore until wired)
     const name = (nameInput.value || '').trim();
     let url = g.url;
     const q = [];
@@ -343,31 +294,31 @@ body {
   }
 
   function renderGames() {
+    const got = R.loadStickers();
     const grid = document.getElementById('gameGrid');
     grid.innerHTML = '';
     GAMES.forEach(g => {
-      const card = document.createElement(g.open ? 'button' : 'div');
-      if (g.open) card.type = 'button';
-      card.className = 'card ' + (g.open ? 'open' : 'lock');
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'card';
       card.innerHTML =
-        `<span class="badge">${g.badge}</span>` +
+        (got[g.id] ? `<span class="got">${R.STICKER_META[g.id]?.emoji || '✅'}</span>` : '') +
+        `<span class="badge">可玩</span>` +
         `<span class="emoji">${g.emoji}</span>` +
         `<span class="title">${g.title}</span>` +
         `<span class="tag">${g.tag}</span>`;
-      if (g.open) {
-        card.addEventListener('click', () => openGame(g));
-      }
+      card.onclick = () => openGame(g);
       grid.appendChild(card);
     });
   }
 
   nameInput.addEventListener('input', saveProfile);
   nameInput.addEventListener('keydown', e => e.stopPropagation());
-
-  // default who if none
   if (!who) who = IDS[0];
   saveProfile();
   renderIds();
+  renderPet();
+  renderStickers();
   renderGames();
 })();
 </script>

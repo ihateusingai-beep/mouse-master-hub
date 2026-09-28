@@ -69,6 +69,7 @@ button{font:inherit;border:none;cursor:pointer}
     </div>
   </div>
 </div>
+<script src="./reward.js"></script>
 <script>
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('selectstart',e=>e.preventDefault());
@@ -98,8 +99,22 @@ function sfxBad(){tone(180,.14,'square',.1)}
 function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
 function toast(m,bad){const el=$('toast');el.textContent=m;el.classList.toggle('bad',!!bad);el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1100)}
 function confetti(){const box=$('confetti');box.innerHTML='';const cols=['#FF6B9D','#FFD54F','#69F0AE','#4FC3F7'];for(let i=0;i<28;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=cols[i%cols.length];el.style.animationDuration=(1.1+Math.random()*1.2)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2500)}
-function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';$('mlab').textContent=n+'/'+NEED}
-function win(){sfxWin();confetti();$('winMsg').textContent=displayName+' · 禮物拖拖';$('win').classList.add('on');speak('做得好')}
+function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';const R=window.MouseHubReward;$('mlab').textContent=(R&&R.fishBones)?R.fishBones(n,NEED):(n+'/'+NEED);$('mlab').style.letterSpacing='2px';$('mlab').style.fontSize='1.2rem'}
+function bigCelebrate(done){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(61,43,90,.55)';
+  ov.innerHTML='<div style="font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#fff;text-align:center;text-shadow:0 4px 16px rgba(0,0,0,.35)">🎉 太叻喇！<br><span style="font-size:1.15em">😻</span></div>';
+  document.body.appendChild(ov);
+  setTimeout(()=>{ov.remove();done&&done();},2000);
+}
+function win(){
+  try{ if(window.MouseHubReward){ const a=MouseHubReward.award('gifts'); if(a&&a.stickerNew) toast('貼紙 +'+a.sticker.emoji); } }catch(_e){}
+  confetti(); sfxWin(); speak('做得好');
+  bigCelebrate(()=>{
+    $('winMsg').textContent=displayName+' · 禮物拖拖';
+    $('win').classList.add('on');
+  });
+}
 function hits(el,zone,pad=56){const a=el.getBoundingClientRect(),b=zone.getBoundingClientRect();const cx=(a.left+a.right)/2,cy=(a.top+a.bottom)/2;return cx>=b.left-pad&&cx<=b.right+pad&&cy>=b.top-pad&&cy<=b.bottom+pad}
 function enableDrag(el,zone,onOk){
   let ox=0,oy=0,dragging=false;
