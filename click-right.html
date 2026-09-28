@@ -3,35 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>右掣鬥快</title>
+<title>禮物雨</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:"PingFang HK","Noto Sans TC",system-ui,sans-serif;color:#3D2B5A;
-background:linear-gradient(180deg,#F3E5F5,#E8EAF6 50%,#FFF8E1);
+background:linear-gradient(180deg,#F3E5F5 0%,#E8EAF6 45%,#FFF8E1 100%);
 -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overflow:hidden}
 button{font:inherit;border:none;cursor:pointer}
-.top{height:64px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:rgba(255,255,255,.92);border-bottom:3px solid rgba(179,136,255,.35)}
+.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:rgba(255,255,255,.92);border-bottom:3px solid rgba(179,136,255,.35)}
 .who{display:flex;align-items:center;gap:8px;font-weight:900}
-.av{width:42px;height:42px;border-radius:50%;border:3px solid #B388FF;display:grid;place-items:center;font-size:1.4rem;background:#fff}
-.hint{flex:1;text-align:center;font-size:clamp(1.05rem,2.4vw,1.45rem);font-weight:900}
+.av{width:40px;height:40px;border-radius:50%;border:3px solid #B388FF;display:grid;place-items:center;font-size:1.3rem;background:#fff}
+.hint{flex:1;text-align:center;font-size:clamp(1.05rem,2.3vw,1.4rem);font-weight:900}
 .hint b{background:#E1BEE7;padding:2px 8px;border-radius:8px}
-.icon{width:48px;height:48px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.2rem;font-weight:900}
-.stage{height:calc(100% - 64px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:16px;position:relative}
-.timer{font-size:clamp(2rem,6vw,3rem);font-weight:900}
+.icon{width:46px;height:46px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.15rem;font-weight:900}
+.stage{height:calc(100% - 60px);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:10px 16px 18px;position:relative}
+.hud{display:flex;gap:16px;align-items:center;font-weight:900;width:100%;max-width:520px;justify-content:space-between}
+.timer{font-size:clamp(1.6rem,5vw,2.4rem)}
 .timer.go{color:#6A1B9A}
-.score{font-size:clamp(2.5rem,8vw,4rem);font-weight:900}
-.score span{color:#7E57C2}
-.pad{
-  width:min(280px,70vw);height:min(280px,70vw);border-radius:50%;
-  border:8px solid #B388FF;background:linear-gradient(160deg,#F3E8FF,#fff);
-  box-shadow:0 12px 32px rgba(179,136,255,.35);
-  font-size:3.2rem;font-weight:900;display:grid;place-items:center;
-  user-select:none;touch-action:manipulation;cursor:context-menu;
-  transition:transform .05s;
+.score{font-size:clamp(1.3rem,4vw,1.8rem)}
+.score span{color:#7E57C2;font-size:1.2em}
+.scene{flex:1;width:100%;max-width:560px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;position:relative;min-height:0;padding-bottom:8px}
+.pile{
+  position:absolute;left:0;right:0;bottom:38%;height:42%;
+  display:flex;flex-wrap:wrap;align-content:flex-end;justify-content:center;
+  gap:2px;padding:0 8%;pointer-events:none;z-index:1;
 }
-.pad.hit{transform:scale(.92);background:#E1BEE7}
+.pile .g{font-size:clamp(1.4rem,4vw,2rem);animation:popin .25s ease;line-height:1}
+@keyframes popin{from{transform:scale(0) translateY(-20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.box-wrap{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center}
+.box{
+  width:min(200px,52vw);height:min(150px,28vh);border-radius:18px;
+  background:linear-gradient(160deg,#FF8A80,#E53935);border:5px solid #B71C1C;
+  box-shadow:0 12px 28px rgba(183,28,28,.3);position:relative;
+  display:grid;place-items:center;font-size:2.5rem;
+  transition:transform .08s;
+}
+.box::before{content:'';position:absolute;left:0;right:0;top:42%;height:14px;background:#FFD54F}
+.box::after{content:'';position:absolute;top:0;bottom:0;left:46%;width:14px;background:#FFD54F}
+.box.lid-up{transform:scale(1.04) rotate(-2deg)}
+.box .bow{position:absolute;top:-18px;font-size:2rem}
+.fly{position:absolute;font-size:1.8rem;pointer-events:none;z-index:5;animation:shoot .55s ease forwards}
+@keyframes shoot{
+  0%{transform:translate(-50%,0) scale(.5);opacity:1}
+  100%{transform:translate(var(--tx), var(--ty)) scale(1.2);opacity:.15}
+}
+.cheer{position:absolute;top:8%;left:50%;transform:translateX(-50%) scale(.8);font-size:1.5rem;font-weight:900;color:#6A1B9A;
+opacity:0;pointer-events:none;z-index:8;transition:.2s;text-shadow:0 2px 0 #fff;white-space:nowrap}
+.cheer.on{opacity:1;transform:translateX(-50%) scale(1.1)}
+.pad{
+  width:min(240px,60vw);height:min(110px,20vh);border-radius:28px;
+  border:6px solid #B388FF;background:linear-gradient(180deg,#F3E8FF,#fff);
+  box-shadow:0 10px 28px rgba(179,136,255,.35);
+  font-size:clamp(1.15rem,3.5vw,1.5rem);font-weight:900;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  user-select:none;touch-action:manipulation;z-index:4;cursor:context-menu;transition:transform .05s;
+}
+.pad .em{font-size:2rem;line-height:1}
+.pad.hit{transform:scale(.94);background:#E1BEE7}
 .pad.disabled{opacity:.5;pointer-events:none}
-.guide{font-weight:900;opacity:.75;text-align:center;max-width:90%}
+.guide{font-weight:900;opacity:.75;text-align:center;line-height:1.35}
 .overlay{position:fixed;inset:0;background:rgba(61,43,90,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
 .overlay.on{display:flex}
 .modal{width:min(440px,94vw);background:#fff;border:5px solid #B388FF;border-radius:28px;padding:24px 18px;text-align:center}
@@ -43,31 +73,49 @@ button{font:inherit;border:none;cursor:pointer}
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
 .confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
-.start-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.7);z-index:6}
+.start-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(255,255,255,.78);z-index:6;text-align:center;padding:16px}
+.start-ov .story{font-size:1.35rem;font-weight:900;line-height:1.4}
 .start-ov .btn{min-width:200px;font-size:1.4rem}
+.count3{font-size:4rem;font-weight:900;color:#7E57C2}
+.burst{position:absolute;inset:0;pointer-events:none;z-index:7;display:none;align-items:center;justify-content:center;font-size:3rem;font-weight:900;color:#6A1B9A;text-shadow:0 2px 8px #fff}
+.burst.on{display:flex;animation:popin .4s ease}
 </style>
 </head>
 <body>
 <div class="confetti" id="confetti"></div>
 <div class="top">
   <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
-  <div class="hint">原地 <b>右掣／兩指</b> 鬥快</div>
+  <div class="hint">右掣／兩指 開 <b>禮物</b></div>
   <div class="row">
     <button class="icon" id="btnSpeak" type="button">🔊</button>
     <button class="icon" id="btnHub" type="button">🏠</button>
   </div>
 </div>
 <div class="stage" id="stage">
-  <div class="timer" id="timer">10</div>
-  <div class="score">分數 <span id="score">0</span></div>
-  <div class="pad" id="pad">📦</div>
-  <div class="guide">大掣上面右掣／兩指撳<br>（或 Control + 撳）</div>
-  <div class="start-ov" id="startOv"><button class="btn" id="btnGo" type="button">開始！</button></div>
+  <div class="hud">
+    <div class="timer" id="timer">10</div>
+    <div class="score">開咗 <span id="score">0</span> 件</div>
+  </div>
+  <div class="scene" id="scene">
+    <div class="cheer" id="cheer">開多件！</div>
+    <div class="burst" id="burst">🎁💥</div>
+    <div class="pile" id="pile"></div>
+    <div class="box-wrap">
+      <div class="box" id="box"><span class="bow">🎀</span>📦</div>
+    </div>
+  </div>
+  <div class="pad disabled" id="pad"><span class="em">🎁</span>右掣／兩指開盒</div>
+  <div class="guide">兩指撳＝右掣（或 Control+撳）</div>
+  <div class="start-ov" id="startOv">
+    <div class="story">🎁 大禮物盒！<br>用右掣／兩指開出禮物雨</div>
+    <div class="count3" id="count3" hidden></div>
+    <button class="btn" id="btnGo" type="button">開始開！</button>
+  </div>
 </div>
 <div class="overlay" id="win">
   <div class="modal">
-    <div style="font-size:2.4rem" id="winMedal">🥇</div>
-    <h2>時間到！</h2>
+    <div style="font-size:2.6rem" id="winMedal">🥇</div>
+    <h2 id="winTitle">禮物雨！</h2>
     <p id="winMsg">分數</p>
     <div class="row">
       <button class="btn ghost" id="btnRetry" type="button">再玩</button>
@@ -82,8 +130,9 @@ button{font:inherit;border:none;cursor:pointer}
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('selectstart',e=>e.preventDefault());
 const GID='clickR', SECS=10;
+const GIFTS=['⭐','🐟','🎁','🎀','💎','🎈','🧸','🍪','🌟','🩷'];
 const $=id=>document.getElementById(id);
-const pad=$('pad');
+const pad=$('pad'), pile=$('pile'), box=$('box'), cheer=$('cheer'), scene=$('scene');
 let score=0, left=SECS, timer=null, running=false, didWin=false, audioCtx=null;
 function loadProfile(){
   let who=null,name='';
@@ -100,31 +149,71 @@ function loadProfile(){
 const displayName=loadProfile();
 function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
 function tone(f,d=.08,t='sine',v=.15){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
-function sfxHit(){tone(520+Math.min(score*6,300),.08,'triangle')}
+function sfxOpen(){tone(520,.06,'triangle');setTimeout(()=>tone(780,.08,'sine'),50)}
+function sfxMile(){[523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,.1),i*55))}
 function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
 function sfxBad(){tone(180,.1,'square',.08)}
 function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
-function confetti(){const box=$('confetti');box.innerHTML='';for(let i=0;i<30;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=['#B388FF','#FFD54F','#69F0AE'][i%3];el.style.animationDuration=(1+Math.random())+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2500)}
+function confetti(){const boxc=$('confetti');boxc.innerHTML='';for(let i=0;i<40;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=['#B388FF','#FFD54F','#FF6B9D','#69F0AE'][i%4];el.style.animationDuration=(1+Math.random()*1.3)+'s';boxc.appendChild(el)}setTimeout(()=>boxc.innerHTML='',2600)}
+function showCheer(t){cheer.textContent=t;cheer.classList.add('on');clearTimeout(cheer._t);cheer._t=setTimeout(()=>cheer.classList.remove('on'),700)}
+function stageTitle(n){
+  if(n>=20) return '禮物爆炸！';
+  if(n>=12) return '禮物小山！';
+  if(n>=1) return '小堆禮物';
+  return '再試啦';
+}
+function spawnGift(){
+  const g=GIFTS[score%GIFTS.length];
+  // flying particle
+  const fly=document.createElement('div');
+  fly.className='fly'; fly.textContent=g;
+  const br=box.getBoundingClientRect();
+  const sr=scene.getBoundingClientRect();
+  fly.style.left=(br.left+br.width/2-sr.left)+'px';
+  fly.style.top=(br.top-sr.top)+'px';
+  const ang=(Math.random()-.5)*140;
+  const dist=60+Math.random()*80;
+  fly.style.setProperty('--tx', Math.sin(ang*Math.PI/180)*dist+'px');
+  fly.style.setProperty('--ty', (-40-Math.random()*70)+'px');
+  scene.appendChild(fly);
+  setTimeout(()=>fly.remove(),560);
+  // pile (cap visual 40)
+  if(pile.children.length<40){
+    const el=document.createElement('span');
+    el.className='g'; el.textContent=g;
+    pile.appendChild(el);
+  }
+}
 function tick(){ left--; $('timer').textContent=left; if(left<=0) finish(); }
 function finish(){
   if(didWin) return;
   didWin=true; running=false; clearInterval(timer);
   pad.classList.add('disabled');
   const a=MouseHubReward.award(GID, score, 'race');
-  confetti(); sfxWin();
+  if(score>=20){ $('burst').classList.add('on'); confetti(); }
+  else confetti();
+  sfxWin();
   if(MouseHubReward.autoSpeak()) speak('做得好');
   $('winMedal').textContent=a.cert.meta.medal;
-  $('winMsg').textContent=displayName+' · '+score+' 下 · '+a.cert.meta.label;
+  $('winTitle').textContent=stageTitle(score);
+  $('winMsg').textContent=displayName+' · 開咗 '+score+' 件 · '+a.cert.meta.label;
   $('win').classList.add('on');
 }
 function hit(e){
   if(!running) return;
-  if(e){e.preventDefault();e.stopPropagation()}
-  score++; $('score').textContent=score;
-  pad.classList.add('hit'); setTimeout(()=>pad.classList.remove('hit'),80);
-  sfxHit();
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  score++;
+  $('score').textContent=score;
+  pad.classList.add('hit'); box.classList.add('lid-up');
+  setTimeout(()=>{ pad.classList.remove('hit'); box.classList.remove('lid-up'); },90);
+  sfxOpen();
+  spawnGift();
+  if(score===5){ showCheer('開多件！'); sfxMile(); }
+  else if(score===10){ showCheer('小山！'); sfxMile(); }
+  else if(score===15){ showCheer('好滿！'); sfxMile(); }
+  else if(score===20){ showCheer('爆炸！🎉'); sfxMile(); confetti(); }
+  else if(score%4===0) showCheer('叮！');
 }
-// multi right-click paths
 pad.addEventListener('pointerdown',e=>{ if(e.button===2||e.ctrlKey) hit(e); }, true);
 pad.addEventListener('mousedown',e=>{ if(e.button===2||e.ctrlKey) hit(e); }, true);
 pad.addEventListener('contextmenu',e=>hit(e), true);
@@ -132,28 +221,50 @@ pad.addEventListener('auxclick',e=>{ if(e.button===2) hit(e); }, true);
 pad.addEventListener('click',e=>{
   if(!running) return;
   if(e.ctrlKey||e.metaKey){ hit(e); return; }
-  if(e.button===0){ e.preventDefault(); sfxBad(); }
+  if(e.button===0){ e.preventDefault(); sfxBad(); showCheer('要右掣／兩指'); }
 }, true);
+// also allow right-click on box itself
+box.addEventListener('contextmenu',e=>{ if(running) hit(e); }, true);
+box.addEventListener('pointerdown',e=>{ if(running && (e.button===2||e.ctrlKey)) hit(e); }, true);
+
+function countdownThenStart(){
+  const c=$('count3'); const go=$('btnGo'); const story=$('startOv').querySelector('.story');
+  go.hidden=true; story.hidden=true; c.hidden=false;
+  let n=3; c.textContent=n;
+  const iv=setInterval(()=>{
+    n--;
+    if(n>0){ c.textContent=n; tone(400+n*80,.1); }
+    else {
+      clearInterval(iv); c.textContent='GO!'; tone(880,.15);
+      setTimeout(()=>{ $('startOv').style.display='none'; begin(); },350);
+    }
+  },500);
+}
 function begin(){
   didWin=false; score=0; left=SECS; running=true;
+  pile.innerHTML=''; $('burst').classList.remove('on');
   $('score').textContent='0'; $('timer').textContent=SECS; $('timer').classList.add('go');
-  pad.classList.remove('disabled'); $('startOv').style.display='none';
+  pad.classList.remove('disabled');
   clearInterval(timer); timer=setInterval(tick,1000);
-  if(MouseHubReward.autoSpeak()) speak('開始');
 }
 function reset(){
   clearInterval(timer); running=false; didWin=false; score=0; left=SECS;
+  pile.innerHTML=''; $('burst').classList.remove('on');
   $('score').textContent='0'; $('timer').textContent=SECS; $('timer').classList.remove('go');
-  pad.classList.add('disabled'); $('startOv').style.display='flex'; $('win').classList.remove('on');
+  pad.classList.add('disabled');
+  $('win').classList.remove('on');
+  const ov=$('startOv');
+  ov.style.display='flex';
+  ov.querySelector('.story').hidden=false;
+  $('btnGo').hidden=false;
+  $('count3').hidden=true;
 }
-$('btnGo').onclick=begin;
+$('btnGo').onclick=()=>{ try{ctx()}catch(_){} countdownThenStart(); };
 $('btnHub').onclick=()=>location.href='./index.html';
 $('btnHub2').onclick=()=>location.href=didWin?MouseHubReward.hubWonUrl(GID):'./index.html';
-$('btnSpeak').onclick=()=>speak('右掣或者兩指鬥快');
+$('btnSpeak').onclick=()=>speak('右掣開禮物');
 $('btnRetry').onclick=reset;
 $('btnCert').onclick=()=>MouseHubCert.showCert(GID);
-pad.classList.add('disabled');
-window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
 </script>
 </body>
 </html>

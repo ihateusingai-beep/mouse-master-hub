@@ -15,8 +15,8 @@
 
   const STICKER_META = {
     move: { emoji: '🖱️', name: '移動' },
-    clickL: { emoji: '👆', name: '左掣' },
-    clickR: { emoji: '🖱️', name: '右掣' },
+    clickL: { emoji: '🎈', name: '氣筒' },
+    clickR: { emoji: '🎁', name: '禮物雨' },
     bubbles: { emoji: '🫧', name: '泡泡' },
     balloons: { emoji: '🎈', name: '氣球' },
     gifts: { emoji: '🎁', name: '禮物' },
@@ -28,8 +28,8 @@
   /** Free pick — basic first, then skills */
   const GAMES = [
     { id: 'move', title: '滑鼠走走', tag: '只移動', emoji: '🖱️', url: './move.html', group: 'basic', certName: '移動小達人' },
-    { id: 'clickL', title: '左掣鬥快', tag: '原地左掣', emoji: '👆', url: './click-left.html', group: 'basic', certName: '左掣小達人' },
-    { id: 'clickR', title: '右掣鬥快', tag: '原地右掣', emoji: '👇', url: './click-right.html', group: 'basic', certName: '右掣小達人' },
+    { id: 'clickL', title: '打氣筒救氣球', tag: '左掣泵氣', emoji: '🎈', url: './click-left.html', group: 'basic', certName: '救氣球小達人' },
+    { id: 'clickR', title: '禮物雨', tag: '右掣開盒', emoji: '🎁', url: './click-right.html', group: 'basic', certName: '禮物雨小達人' },
     { id: 'bubbles', title: '泡泡點點', tag: '左掣', emoji: '🫧', url: './bubbles.html', group: 'skill', certName: '泡泡小達人' },
     { id: 'balloons', title: '氣球派對', tag: '左掣連撃', emoji: '🎈', url: './balloons.html', group: 'skill', certName: '氣球小達人' },
     { id: 'gifts', title: '禮物拖拖', tag: '拖曳', emoji: '🎁', url: './gifts.html', group: 'skill', certName: '拖曳小達人' },
