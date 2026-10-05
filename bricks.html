@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>打磚塊｜將軍澳培智學校</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:"PingFang HK","Noto Sans TC",system-ui,sans-serif;color:#3D2B5A;
+background:linear-gradient(180deg,#E3F2FD,#BBDEFB 40%,#90CAF9);
+-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
+button{font:inherit;border:none;cursor:pointer}
+.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:rgba(255,255,255,.92);border-bottom:3px solid #1565C055}
+.who{display:flex;align-items:center;gap:8px;font-weight:900}
+.av{width:40px;height:40px;border-radius:50%;border:3px solid #1565C0;display:grid;place-items:center;font-size:1.3rem;background:#fff}
+.hint{flex:1;text-align:center;font-size:clamp(1.05rem,2.3vw,1.45rem);font-weight:900}
+.hint b{background:#FFD54F;padding:2px 8px;border-radius:8px}
+.icon{width:46px;height:46px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.15rem;font-weight:900}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stage{height:calc(100% - 60px);position:relative;overflow:hidden;cursor:none}
+.meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:5;display:flex;align-items:center;gap:10px;pointer-events:none}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(61,43,90,.12);overflow:hidden}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#1565C0);transition:width .2s}
+.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem}
+.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(255,255,255,.95);border:3px solid #1565C0;border-radius:16px;padding:8px 12px;font-weight:900;max-width:85%}
+.toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.35rem;font-weight:900;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}.toast.bad{border-color:#FF6B9D;color:#9f1239}
+.overlay{position:fixed;inset:0;background:rgba(61,43,90,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.on{display:flex}
+.modal{width:min(440px,94vw);background:#fff;border:5px solid #FFD54F;border-radius:28px;padding:22px 16px;text-align:center}
+.modal h2{font-size:1.9rem;margin-bottom:6px}.modal p{font-weight:800;opacity:.8;margin-bottom:12px}
+.btn{min-height:54px;min-width:120px;padding:12px 16px;border-radius:999px;background:linear-gradient(135deg,#1565C0,#FF6B9D);color:#fff;font-size:1.15rem;font-weight:900}
+.btn.ghost{background:#fff;color:#3D2B5A;border:3px solid rgba(61,43,90,.12)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
+.confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.brick{position:absolute;border-radius:10px;border:3px solid rgba(255,255,255,.55);box-shadow:0 4px 0 rgba(0,0,0,.12);z-index:2}
+.brick.gold{background:linear-gradient(180deg,#FFE082,#FFB300);border-color:#FF8F00}
+.paddle{position:absolute;bottom:52px;height:18px;width:110px;margin-left:-55px;border-radius:999px;background:linear-gradient(180deg,#42A5F5,#1565C0);border:3px solid #0D47A1;z-index:4;box-shadow:0 4px 12px rgba(21,101,192,.35)}
+.ball{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,#FFD54F 40%,#FF8F00);border:2px solid #F57C00;z-index:3;box-shadow:0 0 12px rgba(255,213,79,.6)}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti"></div>
+<div class="top">
+  <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
+  <div class="hint" id="hint">移 <b>擋板</b> 接波</div>
+  <div class="row">
+    <button class="icon" id="btnSpeak" type="button">🔊</button>
+    <button class="icon" id="btnHub" type="button">🏠</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
+  <div class="paddle" id="paddle"></div>
+  <div class="ball" id="ball"></div>
+  <div class="guide" id="guide">左右移滑鼠擋波，打爆磚塊！</div>
+</div>
+<div class="overlay" id="win">
+  <div class="modal">
+    <div style="font-size:2.4rem" id="winMedal">🥇</div>
+    <h2>做得好！</h2>
+    <p id="winMsg">完成</p>
+    <div class="row">
+      <button class="btn ghost" id="btnRetry" type="button">再玩</button>
+      <button class="btn" id="btnCert" type="button">證書</button>
+      <button class="btn" id="btnNext" type="button">下一個</button>
+      <button class="btn ghost" id="btnHub2" type="button">主頁</button>
+    </div>
+  </div>
+</div>
+<script src="./reward.js"></script>
+<script src="./cert.js"></script>
+<script src="./common.js"></script>
+<script>
+const C = MouseHubCommon, NEED = 5, GID = 'bricks';
+const $ = C.$, stage = $('stage'), paddle = $('paddle'), ball = $('ball');
+let progress = 0, didWin = false, raf = 0, px = 0.5;
+let bx = 0, by = 0, vx = 3.2, vy = -4.2, bricks = [], launched = false;
+const colors = ['#EF5350','#AB47BC','#42A5F5','#66BB6A','#FFA726','#EC407A'];
+const displayName = C.loadProfile();
+C.lockSEN(); C.armAudioOnce();
+
+window.addEventListener('pointermove', e => {
+  const r = stage.getBoundingClientRect();
+  px = Math.max(0.08, Math.min(0.92, (e.clientX - r.left) / r.width));
+  paddle.style.left = (px * r.width) + 'px';
+  if (!launched && !didWin) {
+    bx = px * r.width; by = r.height - 78;
+    ball.style.left = bx + 'px'; ball.style.top = by + 'px';
+  }
+});
+stage.addEventListener('pointerdown', e => {
+  if (e.button === 0 && !launched && !didWin) {
+    launched = true; vx = (Math.random() < 0.5 ? -1 : 1) * (2.8 + Math.random()); vy = -4.4;
+  }
+});
+
+function clearBricks() {
+  bricks.forEach(b => b.el.remove()); bricks = [];
+}
+function spawnBricks() {
+  clearBricks();
+  const w = stage.clientWidth, cols = 5, rows = 2;
+  const bw = Math.min(88, (w - 40) / cols - 8), bh = 28;
+  const startX = (w - cols * (bw + 8) + 8) / 2;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (bricks.length >= NEED + 2) break;
+      const el = document.createElement('div'); el.className = 'brick';
+      const gold = bricks.length === NEED - 1;
+      if (gold) el.classList.add('gold');
+      else el.style.background = colors[(r * cols + c) % colors.length];
+      const x = startX + c * (bw + 8), y = 56 + r * (bh + 10);
+      el.style.left = x + 'px'; el.style.top = y + 'px';
+      el.style.width = bw + 'px'; el.style.height = bh + 'px';
+      stage.appendChild(el);
+      bricks.push({ el, x, y, w: bw, h: bh, alive: true, gold });
+    }
+  }
+}
+function resetBall() {
+  const r = stage.getBoundingClientRect();
+  launched = false; vx = 3; vy = -4.2;
+  bx = px * r.width; by = r.height - 78;
+  ball.style.left = bx + 'px'; ball.style.top = by + 'px';
+  paddle.style.left = bx + 'px';
+}
+function breakBrick(b) {
+  b.alive = false; b.el.style.opacity = '0';
+  setTimeout(() => b.el.remove(), 100);
+  C.sfxOk(); C.toast(b.gold ? '金色！' : '打爆！');
+  progress += 1; C.setProgress(progress, NEED);
+  if (progress >= NEED) setTimeout(win, 280);
+}
+function tick() {
+  if (didWin) return;
+  const r = stage.getBoundingClientRect(), W = r.width, H = r.height;
+  paddle.style.left = (px * W) + 'px';
+  if (launched) {
+    bx += vx; by += vy;
+    if (bx < 12) { bx = 12; vx = Math.abs(vx); }
+    if (bx > W - 12) { bx = W - 12; vx = -Math.abs(vx); }
+    if (by < 12) { by = 12; vy = Math.abs(vy); }
+    // paddle
+    const pL = px * W - 55, pR = px * W + 55, pY = H - 52;
+    if (vy > 0 && by >= pY - 12 && by <= pY + 10 && bx >= pL && bx <= pR) {
+      by = pY - 12; vy = -Math.abs(vy);
+      const off = (bx - (px * W)) / 55;
+      vx = off * 4.5; C.tone(440, 0.05, 'triangle', 0.1);
+    }
+    // miss
+    if (by > H - 8) {
+      C.sfxBad(); C.toast('接波！', true); resetBall();
+    }
+    // bricks
+    for (const b of bricks) {
+      if (!b.alive) continue;
+      if (bx >= b.x - 8 && bx <= b.x + b.w + 8 && by >= b.y - 8 && by <= b.y + b.h + 8) {
+        vy = -vy; breakBrick(b); break;
+      }
+    }
+    ball.style.left = bx + 'px'; ball.style.top = by + 'px';
+  }
+  raf = requestAnimationFrame(tick);
+}
+function win() {
+  if (raf) cancelAnimationFrame(raf); raf = 0; launched = false;
+  C.finishClear({ gid: GID, progress, label: '打磚塊', displayName, setDidWin: v => { didWin = v; } });
+}
+function start() {
+  didWin = false; progress = 0; C.setProgress(0, NEED);
+  if (raf) cancelAnimationFrame(raf);
+  spawnBricks(); resetBall(); raf = requestAnimationFrame(tick);
+  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('移擋板接波');
+}
+C.wireChrome({ gid: GID, speakText: '移擋板接波', didWin: () => didWin, onRetry: start });
+start();
+</script>
+</body>
+</html>

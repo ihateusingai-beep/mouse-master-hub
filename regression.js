@@ -54,12 +54,19 @@ for (const g of R.GAMES) {
 }
 ok('all local levels on common.js');
 
-// fun levels marker (compat)
-for (const id of ['fish', 'pizza', 'planet', 'duo']) {
+// fun levels marker (compat + retro)
+for (const id of ['fish', 'pizza', 'planet', 'duo', 'moles', 'invaders', 'frog', 'bricks']) {
   const html = fs.readFileSync(path.join(root, id + '.html'), 'utf8');
   if (!/common\.js/.test(html)) bad(id + ' should load common.js');
+  if (!/MouseHubCommon/.test(html)) bad(id + ' should use MouseHubCommon');
 }
-ok('fun levels on common.js');
+ok('fun+retro levels on common.js');
+for (const id of ['moles', 'invaders', 'frog', 'bricks']) {
+  const html = fs.readFileSync(path.join(root, id + '.html'), 'utf8');
+  if (!/finishClear/.test(html)) bad(id + ' should call finishClear');
+  if (!new RegExp("GID\\s*=\\s*'" + id + "'").test(html)) bad(id + ' GID mismatch');
+}
+ok('retro finishClear + GID');
 
 // shared API surface
 for (const k of ['enableDrag', 'bindRight', 'finishClear', 'wireChrome', 'hits', 'sfxOk']) {

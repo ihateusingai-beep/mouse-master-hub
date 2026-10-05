@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>過馬路｜將軍澳培智學校</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:"PingFang HK","Noto Sans TC",system-ui,sans-serif;color:#3D2B5A;
+background:linear-gradient(180deg,#81C784,#66BB6A 20%,#78909C 35%,#546E7A 70%,#81C784 85%);
+-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
+button{font:inherit;border:none;cursor:pointer}
+.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:rgba(255,255,255,.92);border-bottom:3px solid #2E7D3255}
+.who{display:flex;align-items:center;gap:8px;font-weight:900}
+.av{width:40px;height:40px;border-radius:50%;border:3px solid #2E7D32;display:grid;place-items:center;font-size:1.3rem;background:#fff}
+.hint{flex:1;text-align:center;font-size:clamp(1.05rem,2.3vw,1.45rem);font-weight:900}
+.hint b{background:#FFD54F;padding:2px 8px;border-radius:8px}
+.icon{width:46px;height:46px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.15rem;font-weight:900}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stage{height:calc(100% - 60px);position:relative;overflow:hidden}
+.meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:8;display:flex;align-items:center;gap:10px;pointer-events:none}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(61,43,90,.12);overflow:hidden}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#2E7D32);transition:width .2s}
+.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem}
+.guide{position:absolute;left:12px;bottom:12px;z-index:8;background:rgba(255,255,255,.95);border:3px solid #2E7D32;border-radius:16px;padding:8px 12px;font-weight:900;max-width:85%}
+.toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.35rem;font-weight:900;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}.toast.bad{border-color:#FF6B9D;color:#9f1239}
+.overlay{position:fixed;inset:0;background:rgba(61,43,90,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.on{display:flex}
+.modal{width:min(440px,94vw);background:#fff;border:5px solid #FFD54F;border-radius:28px;padding:22px 16px;text-align:center}
+.modal h2{font-size:1.9rem;margin-bottom:6px}.modal p{font-weight:800;opacity:.8;margin-bottom:12px}
+.btn{min-height:54px;min-width:120px;padding:12px 16px;border-radius:999px;background:linear-gradient(135deg,#2E7D32,#FFD54F);color:#fff;font-size:1.15rem;font-weight:900}
+.btn.ghost{background:#fff;color:#3D2B5A;border:3px solid rgba(61,43,90,.12)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
+.confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.lane{position:absolute;left:0;right:0;border-top:2px dashed rgba(255,255,255,.35);display:flex;align-items:center}
+.lane.safe{background:rgba(129,199,132,.55);border-top:none}
+.lane.road{background:rgba(69,90,100,.85)}
+.pad{position:absolute;width:56px;height:40px;border-radius:12px;background:rgba(255,255,255,.55);border:3px solid #fff;left:50%;margin-left:-28px;top:50%;margin-top:-20px;pointer-events:none}
+.frog{position:absolute;width:52px;height:52px;margin-left:-26px;margin-top:-26px;font-size:2.4rem;line-height:1;z-index:6;text-align:center;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.3));transition:left .12s,top .12s}
+.car{position:absolute;font-size:2rem;line-height:1;z-index:4;pointer-events:none}
+.goal{position:absolute;left:50%;transform:translateX(-50%);top:8px;font-size:1.6rem;font-weight:900;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.4);z-index:7;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti"></div>
+<div class="top">
+  <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
+  <div class="hint" id="hint">移去 <b>安全格</b></div>
+  <div class="row">
+    <button class="icon" id="btnSpeak" type="button">🔊</button>
+    <button class="icon" id="btnHub" type="button">🏠</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
+  <div class="goal">🏠 對岸</div>
+  <div class="frog" id="frog">🐸</div>
+  <div class="guide" id="guide">滑鼠移入下一格安全綠位，小心車！</div>
+</div>
+<div class="overlay" id="win">
+  <div class="modal">
+    <div style="font-size:2.4rem" id="winMedal">🥇</div>
+    <h2>做得好！</h2>
+    <p id="winMsg">完成</p>
+    <div class="row">
+      <button class="btn ghost" id="btnRetry" type="button">再玩</button>
+      <button class="btn" id="btnCert" type="button">證書</button>
+      <button class="btn" id="btnNext" type="button">下一個</button>
+      <button class="btn ghost" id="btnHub2" type="button">主頁</button>
+    </div>
+  </div>
+</div>
+<script src="./reward.js"></script>
+<script src="./cert.js"></script>
+<script src="./common.js"></script>
+<script>
+const C = MouseHubCommon, NEED = 5, GID = 'frog', ROWS = 6;
+const $ = C.$, stage = $('stage'), frog = $('frog');
+let progress = 0, didWin = false, row = ROWS - 1, colX = 0.5, lanes = [], raf = 0, rowEls = [];
+const carsEmoji = ['🚗','🚕','🚙','🚌','🛻'];
+const displayName = C.loadProfile();
+C.lockSEN(); C.armAudioOnce();
+
+function layout() {
+  stage.querySelectorAll('.lane,.car').forEach(e => e.remove());
+  lanes = []; rowEls = [];
+  const h = stage.clientHeight, topPad = 48, botPad = 64;
+  const usable = h - topPad - botPad, rh = usable / ROWS;
+  for (let r = 0; r < ROWS; r++) {
+    const el = document.createElement('div');
+    const isSafe = r === 0 || r === ROWS - 1 || r === Math.floor(ROWS / 2);
+    el.className = 'lane ' + (isSafe ? 'safe' : 'road');
+    el.style.top = (topPad + r * rh) + 'px';
+    el.style.height = rh + 'px';
+    if (isSafe) {
+      const pad = document.createElement('div'); pad.className = 'pad'; el.appendChild(pad);
+    }
+    stage.appendChild(el);
+    rowEls.push({ el, y: topPad + r * rh + rh / 2, h: rh, safe: isSafe, top: topPad + r * rh });
+    if (!isSafe) {
+      const dir = r % 2 === 0 ? 1 : -1;
+      const n = 2 + (r % 2);
+      for (let i = 0; i < n; i++) {
+        const car = document.createElement('div'); car.className = 'car';
+        car.textContent = carsEmoji[(r + i) % carsEmoji.length];
+        const x = (i / n) * stage.clientWidth;
+        car.style.left = x + 'px'; car.style.top = (topPad + r * rh + rh * 0.15) + 'px';
+        stage.appendChild(car);
+        lanes.push({ el: car, x, y: topPad + r * rh + rh * 0.2, row: r, dir, speed: 1.2 + r * 0.15 + progress * 0.05 });
+      }
+    }
+  }
+  placeFrog();
+}
+function placeFrog() {
+  const rr = rowEls[row];
+  frog.style.left = (colX * stage.clientWidth) + 'px';
+  frog.style.top = rr.y + 'px';
+}
+function hitCar() {
+  for (const c of lanes) {
+    if (c.row !== row) continue;
+    const fx = colX * stage.clientWidth;
+    if (Math.abs(c.x + 16 - fx) < 36) return true;
+  }
+  return false;
+}
+function tryHop(targetRow, nx) {
+  if (didWin || progress >= NEED) return;
+  if (targetRow < 0 || targetRow >= ROWS) return;
+  if (targetRow > row + 1 || targetRow < row - 1) return; // one row at a time
+  if (!rowEls[targetRow].safe && targetRow !== row) {
+    // hopping onto road is ok if no car at landing
+  }
+  row = targetRow; colX = Math.max(0.12, Math.min(0.88, nx));
+  placeFrog();
+  if (hitCar()) {
+    C.sfxBad(); C.toast('小心車！', true);
+    row = ROWS - 1; colX = 0.5; placeFrog();
+    return;
+  }
+  if (row === 0) {
+    C.sfxOk(); C.toast('過到！');
+    progress += 1; C.setProgress(progress, NEED);
+    if (progress >= NEED) setTimeout(win, 320);
+    else { row = ROWS - 1; colX = 0.5; placeFrog(); layout(); }
+  }
+}
+window.addEventListener('pointermove', e => {
+  if (didWin) return;
+  const rect = stage.getBoundingClientRect();
+  const nx = (e.clientX - rect.left) / rect.width;
+  const ny = e.clientY - rect.top;
+  // find nearest row center
+  let best = row, bestD = 1e9;
+  rowEls.forEach((rr, i) => {
+    const d = Math.abs(rr.y - ny);
+    if (d < bestD) { bestD = d; best = i; }
+  });
+  if (best !== row && bestD < rowEls[0].h * 0.55) {
+    tryHop(best, nx);
+  } else if (Math.abs(nx - colX) > 0.02 && best === row) {
+    colX = Math.max(0.12, Math.min(0.88, nx));
+    placeFrog();
+    if (hitCar()) {
+      C.sfxBad(); C.toast('小心車！', true);
+      row = ROWS - 1; colX = 0.5; placeFrog();
+    }
+  }
+});
+function tick() {
+  if (didWin) return;
+  const w = stage.clientWidth;
+  lanes.forEach(c => {
+    c.x += c.dir * c.speed;
+    if (c.dir > 0 && c.x > w + 40) c.x = -40;
+    if (c.dir < 0 && c.x < -40) c.x = w + 40;
+    c.el.style.left = c.x + 'px';
+  });
+  if (hitCar()) {
+    C.sfxBad(); C.toast('小心車！', true);
+    row = ROWS - 1; colX = 0.5; placeFrog();
+  }
+  raf = requestAnimationFrame(tick);
+}
+function win() {
+  if (raf) cancelAnimationFrame(raf); raf = 0;
+  C.finishClear({ gid: GID, progress, label: '過馬路', displayName, setDidWin: v => { didWin = v; } });
+}
+function start() {
+  didWin = false; progress = 0; row = ROWS - 1; colX = 0.5; C.setProgress(0, NEED);
+  if (raf) cancelAnimationFrame(raf);
+  layout(); raf = requestAnimationFrame(tick);
+  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('移去安全格');
+}
+window.addEventListener('resize', () => { if (!didWin) layout(); });
+C.wireChrome({ gid: GID, speakText: '移去安全格', didWin: () => didWin, onRetry: start });
+start();
+</script>
+</body>
+</html>

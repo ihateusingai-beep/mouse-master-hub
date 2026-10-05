@@ -26,7 +26,11 @@
     fish: { emoji: '🎣', name: '釣魚' },
     pizza: { emoji: '🍕', name: '薄餅' },
     planet: { emoji: '🚀', name: '快遞' },
-    duo: { emoji: '👯', name: '接力' }
+    duo: { emoji: '👯', name: '接力' },
+    moles: { emoji: '🐹', name: '地鼠' },
+    invaders: { emoji: '👾', name: '入侵' },
+    frog: { emoji: '🐸', name: '過路' },
+    bricks: { emoji: '🧱', name: '磚塊' }
   };
 
   /** Free pick — basic first, then skills */
@@ -43,6 +47,10 @@
     { id: 'pizza', title: '薄餅店', tag: '左+拖', emoji: '🍕', url: './pizza.html', group: 'fun', certName: '薄餅小達人' },
     { id: 'planet', title: '星球快遞', tag: '混合Boss', emoji: '🚀', url: './planet.html', group: 'fun', certName: '快遞小達人' },
     { id: 'duo', title: '雙人接力', tag: '左vs右', emoji: '👯', url: './duo.html', group: 'fun', certName: '接力小達人' },
+    { id: 'moles', title: '打地鼠', tag: '精準左', emoji: '🐹', url: './moles.html', group: 'fun', certName: '地鼠小達人' },
+    { id: 'invaders', title: '太空入侵', tag: '移+射', emoji: '👾', url: './invaders.html', group: 'fun', certName: '太空小達人' },
+    { id: 'frog', title: '過馬路', tag: '移準', emoji: '🐸', url: './frog.html', group: 'fun', certName: '過路小達人' },
+    { id: 'bricks', title: '打磚塊', tag: '擋板', emoji: '🧱', url: './bricks.html', group: 'fun', certName: '磚塊小達人' },
     { id: 'feeder', title: '喵喵餵食館', tag: '左·拖·右', emoji: '🐱', url: 'https://ihateusingai-beep.github.io/mouse-feeder/', group: 'skill', certName: '餵食小達人' }
   ];
 
