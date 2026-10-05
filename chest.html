@@ -122,6 +122,19 @@ function win(){ didWin=true;
     $('win').classList.add('on');
   });
 }
+function bindRight(el,onOk){
+  let opened=false,until=0;
+  const go=e=>{if(opened)return;opened=true;until=Date.now()+600;if(e){e.preventDefault();e.stopPropagation()}onOk()};
+  el.addEventListener('pointerdown',e=>{if(e.button===2||e.ctrlKey)go(e)},true);
+  el.addEventListener('mousedown',e=>{if(e.button===2||e.ctrlKey)go(e)},true);
+  el.addEventListener('contextmenu',e=>go(e),true);
+  el.addEventListener('auxclick',e=>{if(e.button===2)go(e)},true);
+  el.addEventListener('click',e=>{
+    if(opened||Date.now()<until){e.preventDefault();return}
+    if(e.ctrlKey||e.metaKey){go(e);return}
+    if(e.button===0){sfxBad();toast('兩指／右掣',true)}
+  },true);
+}
 function spawn(){
   stage.querySelectorAll('.chest').forEach(el=>el.remove());
   if(progress>=NEED) return;
