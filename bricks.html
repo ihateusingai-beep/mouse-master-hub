@@ -7,37 +7,36 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:"PingFang HK","Noto Sans TC",system-ui,sans-serif;color:#3D2B5A;
-background:linear-gradient(180deg,#E3F2FD,#BBDEFB 40%,#90CAF9);
+background:linear-gradient(180deg,#F3E5F5,#E1BEE7 40%,#CE93D8);
 -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
 button{font:inherit;border:none;cursor:pointer}
-.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:rgba(255,255,255,.92);border-bottom:3px solid #1565C055}
+.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:rgba(255,255,255,.92);border-bottom:3px solid #AB47BC55}
 .who{display:flex;align-items:center;gap:8px;font-weight:900}
-.av{width:40px;height:40px;border-radius:50%;border:3px solid #1565C0;display:grid;place-items:center;font-size:1.3rem;background:#fff}
+.av{width:40px;height:40px;border-radius:50%;border:3px solid #8E24AA;display:grid;place-items:center;font-size:1.3rem;background:#fff}
 .hint{flex:1;text-align:center;font-size:clamp(1.05rem,2.3vw,1.45rem);font-weight:900}
 .hint b{background:#FFD54F;padding:2px 8px;border-radius:8px}
 .icon{width:46px;height:46px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.15rem;font-weight:900}
 .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.stage{height:calc(100% - 60px);position:relative;overflow:hidden;cursor:none}
+.stage{height:calc(100% - 60px);position:relative;overflow:hidden;background:linear-gradient(180deg,#4A148C 0%,#6A1B9A 35%,#311B92 100%)}
 .meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:5;display:flex;align-items:center;gap:10px;pointer-events:none}
-.meter{flex:1;height:16px;border-radius:999px;background:rgba(61,43,90,.12);overflow:hidden}
-.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#1565C0);transition:width .2s}
-.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem}
-.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(255,255,255,.95);border:3px solid #1565C0;border-radius:16px;padding:8px 12px;font-weight:900;max-width:85%}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(255,255,255,.18);overflow:hidden}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#FFD54F);transition:width .2s}
+.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem;color:#fff}
+.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(255,255,255,.95);border:3px solid #AB47BC;border-radius:16px;padding:8px 12px;font-weight:900;max-width:85%;color:#3D2B5A}
 .toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.35rem;font-weight:900;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%) scale(1)}.toast.bad{border-color:#FF6B9D;color:#9f1239}
 .overlay{position:fixed;inset:0;background:rgba(61,43,90,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
 .overlay.on{display:flex}
 .modal{width:min(440px,94vw);background:#fff;border:5px solid #FFD54F;border-radius:28px;padding:22px 16px;text-align:center}
 .modal h2{font-size:1.9rem;margin-bottom:6px}.modal p{font-weight:800;opacity:.8;margin-bottom:12px}
-.btn{min-height:54px;min-width:120px;padding:12px 16px;border-radius:999px;background:linear-gradient(135deg,#1565C0,#FF6B9D);color:#fff;font-size:1.15rem;font-weight:900}
+.btn{min-height:54px;min-width:120px;padding:12px 16px;border-radius:999px;background:linear-gradient(135deg,#8E24AA,#FF6B9D);color:#fff;font-size:1.15rem;font-weight:900}
 .btn.ghost{background:#fff;color:#3D2B5A;border:3px solid rgba(61,43,90,.12)}
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
 .confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
-.brick{position:absolute;border-radius:10px;border:3px solid rgba(255,255,255,.55);box-shadow:0 4px 0 rgba(0,0,0,.12);z-index:2}
-.brick.gold{background:linear-gradient(180deg,#FFE082,#FFB300);border-color:#FF8F00}
-.paddle{position:absolute;bottom:52px;height:18px;width:110px;margin-left:-55px;border-radius:999px;background:linear-gradient(180deg,#42A5F5,#1565C0);border:3px solid #0D47A1;z-index:4;box-shadow:0 4px 12px rgba(21,101,192,.35)}
-.ball{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,#FFD54F 40%,#FF8F00);border:2px solid #F57C00;z-index:3;box-shadow:0 0 12px rgba(255,213,79,.6)}
+.brick{position:absolute;border-radius:10px;border:3px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:1.2rem;font-weight:900;color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.25);z-index:2}
+.paddle{position:absolute;bottom:28px;height:22px;width:120px;border-radius:999px;background:linear-gradient(90deg,#FFD54F,#FF6B9D);border:3px solid #fff;z-index:4;box-shadow:0 4px 14px rgba(0,0,0,.3);left:50%;transform:translateX(-50%)}
+.ball{position:absolute;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,#FFD54F 50%,#FF8F00);border:2px solid #fff;z-index:5;box-shadow:0 0 12px #FFD54F;left:50%;top:60%}
 </style>
 </head>
 <body>
@@ -45,7 +44,7 @@ button{font:inherit;border:none;cursor:pointer}
 <div class="confetti" id="confetti"></div>
 <div class="top">
   <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
-  <div class="hint" id="hint">移 <b>擋板</b> 接波</div>
+  <div class="hint" id="hint">左右移擋板 · 打 <b>磚</b></div>
   <div class="row">
     <button class="icon" id="btnSpeak" type="button">🔊</button>
     <button class="icon" id="btnHub" type="button">🏠</button>
@@ -53,9 +52,9 @@ button{font:inherit;border:none;cursor:pointer}
 </div>
 <div class="stage" id="stage">
   <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
+  <div class="guide" id="guide">移滑鼠左右，擋板接球打磚！</div>
   <div class="paddle" id="paddle"></div>
   <div class="ball" id="ball"></div>
-  <div class="guide" id="guide">左右移滑鼠擋波，打爆磚塊！</div>
 </div>
 <div class="overlay" id="win">
   <div class="modal">
@@ -76,107 +75,143 @@ button{font:inherit;border:none;cursor:pointer}
 <script>
 const C = MouseHubCommon, NEED = 5, GID = 'bricks';
 const $ = C.$, stage = $('stage'), paddle = $('paddle'), ball = $('ball');
-let progress = 0, didWin = false, raf = 0, px = 0.5;
-let bx = 0, by = 0, vx = 3.2, vy = -4.2, bricks = [], launched = false;
-const colors = ['#EF5350','#AB47BC','#42A5F5','#66BB6A','#FFA726','#EC407A'];
+const COLORS = ['#EF5350','#FFA726','#FFEE58','#66BB6A','#42A5F5','#AB47BC'];
+let progress = 0, didWin = false, raf = 0, bricks = [];
+let bx = 0, by = 0, vx = 3.2, vy = -4.2, px = 0, pw = 120, running = false;
 const displayName = C.loadProfile();
 C.lockSEN(); C.armAudioOnce();
 
 window.addEventListener('pointermove', e => {
   const r = stage.getBoundingClientRect();
-  px = Math.max(0.08, Math.min(0.92, (e.clientX - r.left) / r.width));
-  paddle.style.left = (px * r.width) + 'px';
-  if (!launched && !didWin) {
-    bx = px * r.width; by = r.height - 78;
-    ball.style.left = bx + 'px'; ball.style.top = by + 'px';
+  px = Math.max(0, Math.min(r.width - pw, e.clientX - r.left - pw / 2));
+  paddle.style.left = px + 'px';
+  paddle.style.transform = 'none';
+  if (!running && !didWin) {
+    bx = px + pw / 2 - 11;
+    ball.style.left = bx + 'px';
   }
 });
-stage.addEventListener('pointerdown', e => {
-  if (e.button === 0 && !launched && !didWin) {
-    launched = true; vx = (Math.random() < 0.5 ? -1 : 1) * (2.8 + Math.random()); vy = -4.4;
-  }
-});
+stage.addEventListener('click', () => { if (!running && !didWin) launch(); });
+stage.addEventListener('pointerdown', e => { if (e.button === 0 && !running && !didWin) launch(); });
 
 function clearBricks() {
-  bricks.forEach(b => b.el.remove()); bricks = [];
+  bricks.forEach(b => b.el.remove());
+  bricks = [];
 }
 function spawnBricks() {
   clearBricks();
-  const w = stage.clientWidth, cols = 5, rows = 2;
-  const bw = Math.min(88, (w - 40) / cols - 8), bh = 28;
-  const startX = (w - cols * (bw + 8) + 8) / 2;
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (bricks.length >= NEED + 2) break;
-      const el = document.createElement('div'); el.className = 'brick';
-      const gold = bricks.length === NEED - 1;
-      if (gold) el.classList.add('gold');
-      else el.style.background = colors[(r * cols + c) % colors.length];
-      const x = startX + c * (bw + 8), y = 56 + r * (bh + 10);
-      el.style.left = x + 'px'; el.style.top = y + 'px';
-      el.style.width = bw + 'px'; el.style.height = bh + 'px';
+  const r = stage.getBoundingClientRect();
+  const cols = 5, rows = 2;
+  const gap = 8;
+  const bw = (r.width - 24 - gap * (cols - 1)) / cols;
+  const bh = 36;
+  const top = 48;
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      // only 5 target bricks total for NEED=5 — first 5 only
+      if (bricks.length >= NEED) break;
+      const el = document.createElement('div');
+      el.className = 'brick';
+      el.textContent = '🧱';
+      el.style.width = bw + 'px';
+      el.style.height = bh + 'px';
+      el.style.left = (12 + col * (bw + gap)) + 'px';
+      el.style.top = (top + row * (bh + gap)) + 'px';
+      el.style.background = COLORS[bricks.length % COLORS.length];
       stage.appendChild(el);
-      bricks.push({ el, x, y, w: bw, h: bh, alive: true, gold });
+      bricks.push({ el, alive: true });
     }
   }
+}
+function launch() {
+  if (running || didWin) return;
+  running = true;
+  const r = stage.getBoundingClientRect();
+  bx = px + pw / 2 - 11;
+  by = r.height - 70;
+  vx = (Math.random() < 0.5 ? -1 : 1) * (2.8 + Math.random() * 1.2);
+  vy = -4.0 - Math.random() * 0.8;
+  loop();
 }
 function resetBall() {
+  running = false;
+  if (raf) { cancelAnimationFrame(raf); raf = 0; }
   const r = stage.getBoundingClientRect();
-  launched = false; vx = 3; vy = -4.2;
-  bx = px * r.width; by = r.height - 78;
-  ball.style.left = bx + 'px'; ball.style.top = by + 'px';
-  paddle.style.left = bx + 'px';
+  pw = Math.max(100, Math.min(160, r.width * 0.22));
+  paddle.style.width = pw + 'px';
+  px = (r.width - pw) / 2;
+  paddle.style.left = px + 'px';
+  paddle.style.transform = 'none';
+  bx = px + pw / 2 - 11;
+  by = r.height - 70;
+  ball.style.left = bx + 'px';
+  ball.style.top = by + 'px';
 }
-function breakBrick(b) {
-  b.alive = false; b.el.style.opacity = '0';
-  setTimeout(() => b.el.remove(), 100);
-  C.sfxOk(); C.toast(b.gold ? '金色！' : '打爆！');
-  progress += 1; C.setProgress(progress, NEED);
-  if (progress >= NEED) setTimeout(win, 280);
-}
-function tick() {
-  if (didWin) return;
-  const r = stage.getBoundingClientRect(), W = r.width, H = r.height;
-  paddle.style.left = (px * W) + 'px';
-  if (launched) {
-    bx += vx; by += vy;
-    if (bx < 12) { bx = 12; vx = Math.abs(vx); }
-    if (bx > W - 12) { bx = W - 12; vx = -Math.abs(vx); }
-    if (by < 12) { by = 12; vy = Math.abs(vy); }
-    // paddle
-    const pL = px * W - 55, pR = px * W + 55, pY = H - 52;
-    if (vy > 0 && by >= pY - 12 && by <= pY + 10 && bx >= pL && bx <= pR) {
-      by = pY - 12; vy = -Math.abs(vy);
-      const off = (bx - (px * W)) / 55;
-      vx = off * 4.5; C.tone(440, 0.05, 'triangle', 0.1);
-    }
-    // miss
-    if (by > H - 8) {
-      C.sfxBad(); C.toast('接波！', true); resetBall();
-    }
-    // bricks
-    for (const b of bricks) {
-      if (!b.alive) continue;
-      if (bx >= b.x - 8 && bx <= b.x + b.w + 8 && by >= b.y - 8 && by <= b.y + b.h + 8) {
-        vy = -vy; breakBrick(b); break;
-      }
-    }
-    ball.style.left = bx + 'px'; ball.style.top = by + 'px';
+function loop() {
+  if (!running || didWin) return;
+  const r = stage.getBoundingClientRect();
+  bx += vx; by += vy;
+  // walls
+  if (bx <= 0) { bx = 0; vx = Math.abs(vx); C.tone(400, 0.04, 'sine', 0.06); }
+  if (bx + 22 >= r.width) { bx = r.width - 22; vx = -Math.abs(vx); C.tone(400, 0.04, 'sine', 0.06); }
+  if (by <= 0) { by = 0; vy = Math.abs(vy); C.tone(400, 0.04, 'sine', 0.06); }
+  // paddle
+  const py = r.height - 50;
+  if (by + 22 >= py && by + 22 <= py + 28 && bx + 22 >= px && bx <= px + pw) {
+    by = py - 22;
+    vy = -Math.abs(vy);
+    const hit = ((bx + 11) - (px + pw / 2)) / (pw / 2);
+    vx = hit * 4.5;
+    C.tone(520, 0.05, 'triangle', 0.08);
   }
-  raf = requestAnimationFrame(tick);
+  // miss
+  if (by > r.height + 10) {
+    C.sfxBad(); C.toast('接住波！', true);
+    resetBall();
+    return;
+  }
+  // bricks
+  for (const b of bricks) {
+    if (!b.alive) continue;
+    const br = b.el.getBoundingClientRect();
+    const sx = r.left, sy = r.top;
+    const left = br.left - sx, top = br.top - sy, right = br.right - sx, bottom = br.bottom - sy;
+    if (bx + 22 > left && bx < right && by + 22 > top && by < bottom) {
+      b.alive = false;
+      b.el.style.opacity = '0';
+      b.el.style.transform = 'scale(1.2)';
+      setTimeout(() => b.el.remove(), 160);
+      vy = -vy;
+      C.sfxOk(); C.toast('打中！');
+      progress += 1; C.setProgress(progress, NEED);
+      if (progress >= NEED) {
+        running = false;
+        ball.style.left = bx + 'px'; ball.style.top = by + 'px';
+        setTimeout(win, 280);
+        return;
+      }
+      break;
+    }
+  }
+  ball.style.left = bx + 'px';
+  ball.style.top = by + 'px';
+  raf = requestAnimationFrame(loop);
 }
 function win() {
-  if (raf) cancelAnimationFrame(raf); raf = 0; launched = false;
+  if (raf) cancelAnimationFrame(raf);
   C.finishClear({ gid: GID, progress, label: '打磚塊', displayName, setDidWin: v => { didWin = v; } });
 }
 function start() {
-  didWin = false; progress = 0; C.setProgress(0, NEED);
   if (raf) cancelAnimationFrame(raf);
-  spawnBricks(); resetBall(); raf = requestAnimationFrame(tick);
+  didWin = false; progress = 0; running = false;
+  C.setProgress(0, NEED);
+  spawnBricks();
+  resetBall();
   if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('移擋板接波');
 }
 C.wireChrome({ gid: GID, speakText: '移擋板接波', didWin: () => didWin, onRetry: start });
 start();
+window.addEventListener('resize', () => { if (!running) resetBall(); });
 </script>
 </body>
 </html>
