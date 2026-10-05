@@ -126,145 +126,111 @@ opacity:0;pointer-events:none;z-index:8;transition:.2s;text-shadow:0 2px 0 #fff;
 </div>
 <script src="./reward.js"></script>
 <script src="./cert.js"></script>
+<script src="./common.js"></script>
 <script>
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('selectstart',e=>e.preventDefault());
-const GID='clickR', SECS=10;
-const GIFTS=['⭐','🐟','🎁','🎀','💎','🎈','🧸','🍪','🌟','🩷'];
-const $=id=>document.getElementById(id);
-const pad=$('pad'), pile=$('pile'), box=$('box'), cheer=$('cheer'), scene=$('scene');
-let score=0, left=SECS, timer=null, running=false, didWin=false, audioCtx=null;
-function loadProfile(){
-  let who=null,name='';
-  try{
-    const p=new URLSearchParams(location.search);
-    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
-    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
-  }catch(_){}
-  if(!who) who={emoji:'🐱',name:'同學'};
-  $('av').textContent=who.emoji||'🐱';
-  $('whoName').textContent=name||who.name||'同學';
-  return name||who.name||'同學';
+const C = MouseHubCommon, GID = 'clickR', SECS = 10;
+const GIFTS = ['⭐', '🐟', '🎁', '🎀', '💎', '🎈', '🧸', '🍪', '🌟', '🩷'];
+const $ = C.$;
+const pad = $('pad'), pile = $('pile'), box = $('box'), cheer = $('cheer'), scene = $('scene');
+let score = 0, left = SECS, timer = null, running = false, didWin = false;
+const displayName = C.loadProfile();
+C.lockSEN(); C.armAudioOnce();
+function sfxOpen() { C.tone(520, 0.06, 'triangle'); setTimeout(() => C.tone(780, 0.08, 'sine'), 50); }
+function sfxMile() { [523, 659, 784].forEach((f, i) => setTimeout(() => C.tone(f, 0.1), i * 55)); }
+function showCheer(t) {
+  cheer.textContent = t; cheer.classList.add('on');
+  clearTimeout(cheer._t); cheer._t = setTimeout(() => cheer.classList.remove('on'), 700);
 }
-const displayName=loadProfile();
-function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
-function tone(f,d=.08,t='sine',v=.15){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
-function sfxOpen(){tone(520,.06,'triangle');setTimeout(()=>tone(780,.08,'sine'),50)}
-function sfxMile(){[523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,.1),i*55))}
-function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
-function sfxBad(){tone(180,.1,'square',.08)}
-function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
-function confetti(){const boxc=$('confetti');boxc.innerHTML='';for(let i=0;i<40;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=['#B388FF','#FFD54F','#FF6B9D','#69F0AE'][i%4];el.style.animationDuration=(1+Math.random()*1.3)+'s';boxc.appendChild(el)}setTimeout(()=>boxc.innerHTML='',2600)}
-function showCheer(t){cheer.textContent=t;cheer.classList.add('on');clearTimeout(cheer._t);cheer._t=setTimeout(()=>cheer.classList.remove('on'),700)}
-function stageTitle(n){
-  if(n>=20) return '禮物爆炸！';
-  if(n>=12) return '禮物小山！';
-  if(n>=1) return '小堆禮物';
+function stageTitle(n) {
+  if (n >= 20) return '禮物爆炸！';
+  if (n >= 12) return '禮物小山！';
+  if (n >= 1) return '小堆禮物';
   return '再試啦';
 }
-function spawnGift(){
-  const g=GIFTS[score%GIFTS.length];
-  // flying particle
-  const fly=document.createElement('div');
-  fly.className='fly'; fly.textContent=g;
-  const br=box.getBoundingClientRect();
-  const sr=scene.getBoundingClientRect();
-  fly.style.left=(br.left+br.width/2-sr.left)+'px';
-  fly.style.top=(br.top-sr.top)+'px';
-  const ang=(Math.random()-.5)*140;
-  const dist=60+Math.random()*80;
-  fly.style.setProperty('--tx', Math.sin(ang*Math.PI/180)*dist+'px');
-  fly.style.setProperty('--ty', (-40-Math.random()*70)+'px');
+function spawnGift() {
+  const g = GIFTS[score % GIFTS.length];
+  const fly = document.createElement('div');
+  fly.className = 'fly'; fly.textContent = g;
+  const br = box.getBoundingClientRect(), sr = scene.getBoundingClientRect();
+  fly.style.left = (br.left + br.width / 2 - sr.left) + 'px';
+  fly.style.top = (br.top - sr.top) + 'px';
+  const ang = (Math.random() - 0.5) * 140;
+  const dist = 60 + Math.random() * 80;
+  fly.style.setProperty('--tx', Math.sin(ang * Math.PI / 180) * dist + 'px');
+  fly.style.setProperty('--ty', (-40 - Math.random() * 70) + 'px');
   scene.appendChild(fly);
-  setTimeout(()=>fly.remove(),560);
-  // pile (cap visual 40)
-  if(pile.children.length<40){
-    const el=document.createElement('span');
-    el.className='g'; el.textContent=g;
-    pile.appendChild(el);
+  setTimeout(() => fly.remove(), 560);
+  if (pile.children.length < 40) {
+    const el = document.createElement('span'); el.className = 'g'; el.textContent = g; pile.appendChild(el);
   }
 }
-function tick(){ left--; $('timer').textContent=left; if(left<=0) finish(); }
-function finish(){
-  if(didWin) return;
-  didWin=true; running=false; clearInterval(timer);
-  pad.classList.add('disabled');
-  const a=MouseHubReward.award(GID, score, 'race');
-  if(score>=20){ $('burst').classList.add('on'); confetti(); }
-  else confetti();
-  sfxWin();
-  if(MouseHubReward.autoSpeak()) speak('做得好');
-  $('winMedal').textContent=a.cert.meta.medal;
-  $('winTitle').textContent=stageTitle(score);
-  $('winMsg').textContent=displayName+' · 開咗 '+score+' 件 · '+a.cert.meta.label;
+function tick() { left--; $('timer').textContent = left; if (left <= 0) finish(); }
+function finish() {
+  if (didWin) return;
+  didWin = true; running = false; clearInterval(timer); pad.classList.add('disabled');
+  const a = MouseHubReward.award(GID, score, 'race');
+  if (score >= 20) { $('burst').classList.add('on'); C.confetti(); } else C.confetti();
+  C.sfxWin();
+  if (MouseHubReward.autoSpeak()) C.speak('做得好');
+  $('winMedal').textContent = a.cert.meta.medal;
+  $('winTitle').textContent = stageTitle(score);
+  $('winMsg').textContent = displayName + ' · 開咗 ' + score + ' 件 · ' + a.cert.meta.label;
   $('win').classList.add('on');
 }
-function hit(e){
-  if(!running) return;
-  if(e){ e.preventDefault(); e.stopPropagation(); }
-  score++;
-  $('score').textContent=score;
+function hit(e) {
+  if (!running) return;
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  score++; $('score').textContent = score;
   pad.classList.add('hit'); box.classList.add('lid-up');
-  setTimeout(()=>{ pad.classList.remove('hit'); box.classList.remove('lid-up'); },90);
-  sfxOpen();
-  spawnGift();
-  if(score===5){ showCheer('開多件！'); sfxMile(); }
-  else if(score===10){ showCheer('小山！'); sfxMile(); }
-  else if(score===15){ showCheer('好滿！'); sfxMile(); }
-  else if(score===20){ showCheer('爆炸！🎉'); sfxMile(); confetti(); }
-  else if(score%4===0) showCheer('叮！');
+  setTimeout(() => { pad.classList.remove('hit'); box.classList.remove('lid-up'); }, 90);
+  sfxOpen(); spawnGift();
+  if (score === 5) { showCheer('開多件！'); sfxMile(); }
+  else if (score === 10) { showCheer('小山！'); sfxMile(); }
+  else if (score === 15) { showCheer('好滿！'); sfxMile(); }
+  else if (score === 20) { showCheer('爆炸！🎉'); sfxMile(); C.confetti(); }
+  else if (score % 4 === 0) showCheer('叮！');
 }
-pad.addEventListener('pointerdown',e=>{ if(e.button===2||e.ctrlKey) hit(e); }, true);
-pad.addEventListener('mousedown',e=>{ if(e.button===2||e.ctrlKey) hit(e); }, true);
-pad.addEventListener('contextmenu',e=>hit(e), true);
-pad.addEventListener('auxclick',e=>{ if(e.button===2) hit(e); }, true);
-pad.addEventListener('click',e=>{
-  if(!running) return;
-  if(e.ctrlKey||e.metaKey){ hit(e); return; }
-  if(e.button===0){ e.preventDefault(); sfxBad(); showCheer('要右掣／兩指'); }
+pad.addEventListener('pointerdown', e => { if (e.button === 2 || e.ctrlKey) hit(e); }, true);
+pad.addEventListener('mousedown', e => { if (e.button === 2 || e.ctrlKey) hit(e); }, true);
+pad.addEventListener('contextmenu', e => hit(e), true);
+pad.addEventListener('auxclick', e => { if (e.button === 2) hit(e); }, true);
+pad.addEventListener('click', e => {
+  if (!running) return;
+  if (e.ctrlKey || e.metaKey) { hit(e); return; }
+  if (e.button === 0) { e.preventDefault(); C.sfxBad(); showCheer('要右掣／兩指'); }
 }, true);
-// also allow right-click on box itself
-box.addEventListener('contextmenu',e=>{ if(running) hit(e); }, true);
-box.addEventListener('pointerdown',e=>{ if(running && (e.button===2||e.ctrlKey)) hit(e); }, true);
-
-function countdownThenStart(){
-  const c=$('count3'); const go=$('btnGo'); const story=$('startOv').querySelector('.story');
-  go.hidden=true; story.hidden=true; c.hidden=false;
-  let n=3; c.textContent=n;
-  const iv=setInterval(()=>{
+box.addEventListener('contextmenu', e => { if (running) hit(e); }, true);
+box.addEventListener('pointerdown', e => { if (running && (e.button === 2 || e.ctrlKey)) hit(e); }, true);
+function countdownThenStart() {
+  const c = $('count3'), go = $('btnGo'), story = $('startOv').querySelector('.story');
+  go.hidden = true; story.hidden = true; c.hidden = false;
+  let n = 3; c.textContent = n;
+  const iv = setInterval(() => {
     n--;
-    if(n>0){ c.textContent=n; tone(400+n*80,.1); }
+    if (n > 0) { c.textContent = n; C.tone(400 + n * 80, 0.1); }
     else {
-      clearInterval(iv); c.textContent='GO!'; tone(880,.15);
-      setTimeout(()=>{ $('startOv').style.display='none'; begin(); },350);
+      clearInterval(iv); c.textContent = 'GO!'; C.tone(880, 0.15);
+      setTimeout(() => { $('startOv').style.display = 'none'; begin(); }, 350);
     }
-  },500);
+  }, 500);
 }
-function begin(){
-  didWin=false; score=0; left=SECS; running=true;
-  pile.innerHTML=''; $('burst').classList.remove('on');
-  $('score').textContent='0'; $('timer').textContent=SECS; $('timer').classList.add('go');
+function begin() {
+  didWin = false; score = 0; left = SECS; running = true;
+  pile.innerHTML = ''; $('burst').classList.remove('on');
+  $('score').textContent = '0'; $('timer').textContent = SECS; $('timer').classList.add('go');
   pad.classList.remove('disabled');
-  clearInterval(timer); timer=setInterval(tick,1000);
+  clearInterval(timer); timer = setInterval(tick, 1000);
 }
-function reset(){
-  clearInterval(timer); running=false; didWin=false; score=0; left=SECS;
-  pile.innerHTML=''; $('burst').classList.remove('on');
-  $('score').textContent='0'; $('timer').textContent=SECS; $('timer').classList.remove('go');
-  pad.classList.add('disabled');
-  $('win').classList.remove('on');
-  const ov=$('startOv');
-  ov.style.display='flex';
-  ov.querySelector('.story').hidden=false;
-  $('btnGo').hidden=false;
-  $('count3').hidden=true;
+function reset() {
+  clearInterval(timer); running = false; didWin = false; score = 0; left = SECS;
+  pile.innerHTML = ''; $('burst').classList.remove('on');
+  $('score').textContent = '0'; $('timer').textContent = SECS; $('timer').classList.remove('go');
+  pad.classList.add('disabled'); $('win').classList.remove('on');
+  const ov = $('startOv'); ov.style.display = 'flex';
+  ov.querySelector('.story').hidden = false; $('btnGo').hidden = false; $('count3').hidden = true;
 }
-$('btnGo').onclick=()=>{ try{ctx()}catch(_){} countdownThenStart(); };
-$('btnHub').onclick=()=>location.href='./index.html';
-$('btnHub2').onclick=()=>location.href=didWin?MouseHubReward.hubWonUrl(GID):'./index.html';
-$('btnSpeak').onclick=()=>speak('右掣開禮物');
-$('btnRetry').onclick=reset;
-$('btnCert').onclick=()=>MouseHubCert.showCert(GID);
+$('btnGo').onclick = () => { try { C.ctx(); } catch (_) {} countdownThenStart(); };
+C.wireChrome({ gid: GID, speakText: '右掣開禮物', didWin: () => didWin, onRetry: reset });
 </script>
 </body>
 </html>

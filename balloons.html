@@ -76,95 +76,57 @@ button{font:inherit;border:none;cursor:pointer}
 </div>
 <script src="./reward.js"></script>
 <script src="./cert.js"></script>
+<script src="./common.js"></script>
 <script>
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('selectstart',e=>e.preventDefault());
-const NEED=5, HUB='./index.html';
-const BALLOONS=['🔴','🟠','🟡','🟢','🔵','🟣','🩷','🎈'];
-const $=id=>document.getElementById(id);
-const stage=$('stage');
-let progress=0, didWin=false, combo=0, lastPop=0, audioCtx=null;
-function loadProfile(){
-  let who=null,name='';
-  try{
-    const p=new URLSearchParams(location.search);
-    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
-    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
-  }catch(_){}
-  if(!who) who={emoji:'🐱',name:'同學'};
-  $('av').textContent=who.emoji||'🐱';
-  $('whoName').textContent=name||who.name||'同學';
-  return name||who.name||'同學';
+const C = MouseHubCommon, NEED = 5, GID = 'balloons';
+const BALLOONS = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '🩷', '🎈'];
+const $ = C.$, stage = $('stage');
+let progress = 0, didWin = false, combo = 0, lastPop = 0;
+const displayName = C.loadProfile();
+C.lockSEN(); C.armAudioOnce();
+function setProgress(n) { progress = n; C.setProgress(n, NEED); }
+function sfxOk() { C.tone(523 + combo * 40, 0.1); setTimeout(() => C.tone(659 + combo * 30, 0.1), 60); }
+function sfxRainbow() { [523, 659, 784, 988, 1175].forEach((f, i) => setTimeout(() => C.tone(f, 0.1, 'square', 0.12), i * 50)); }
+function showCombo(n) {
+  const el = $('combo'); el.textContent = n >= 3 ? '連撃 ×' + n + ' 🌈🌈' : '連撃 ×' + n + ' 🌈';
+  el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 700);
 }
-const displayName=loadProfile();
-function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
-function tone(f,d=.12,t='sine',v=.2){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
-function sfxOk(){tone(523+combo*40,.1);setTimeout(()=>tone(659+combo*30,.1),60)}
-function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
-function sfxRainbow(){[523,659,784,988,1175].forEach((f,i)=>setTimeout(()=>tone(f,.1,'square',.12),i*50))}
-function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
-function toast(m){const el=$('toast');el.textContent=m;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1000)}
-function confetti(){const box=$('confetti');box.innerHTML='';const cols=['#FF6B9D','#FFD54F','#69F0AE','#4FC3F7','#B388FF'];for(let i=0;i<36;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=cols[i%cols.length];el.style.animationDuration=(1+Math.random()*1.4)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2600)}
-function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';$('mlab').textContent=(window.MouseHubReward&&MouseHubReward.fishBones)?MouseHubReward.fishBones(n,NEED):(n+'/'+NEED)}
-function showCombo(n){const el=$('combo');el.textContent=n>=3?'連撃 ×'+n+' 🌈🌈':'連撃 ×'+n+' 🌈';el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),700)}
-function bigCelebrate(done){
-  const ov=document.createElement('div');
-  ov.style.cssText='position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(61,43,90,.55)';
-  ov.innerHTML='<div style="font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#fff;text-align:center;text-shadow:0 4px 16px rgba(0,0,0,.35)">🎈 派對成功！<br>😻</div>';
-  document.body.appendChild(ov);
-  setTimeout(()=>{ov.remove();done&&done()},2000);
+function win() {
+  C.finishClear({ gid: GID, progress, label: '氣球派對', displayName, setDidWin: v => { didWin = v; } });
 }
-function win(){ didWin=true;
-  try{ if(window.MouseHubReward) MouseHubReward.award('balloons', progress, 'clear'); }catch(_e){}
-  confetti(); sfxWin();
-  if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
-  const next=window.MouseHubReward?MouseHubReward.nextAfter('balloons'):null;
-  const nb=$('btnNext');
-  if(nb){
-    if(next && next.id!=='balloons'){ nb.style.display=''; nb.textContent='下一個：'+next.title; nb.onclick=()=>{ location.href=MouseHubReward.gameUrl(next); }; }
-    else { nb.style.display='none'; }
-  }
-  bigCelebrate(()=>{
-    $('winMsg').textContent=displayName+' · 氣球派對';
-    $('win').classList.add('on');
-  });
-}
-function rand(a,b){return a+Math.random()*(b-a)}
-function spawn(){
-  stage.querySelectorAll('.balloon').forEach(el=>el.remove());
-  if(progress>=NEED) return;
-  // spawn 1-2 balloons; combo target glows after first pop soon
-  const count = combo>=2 ? 2 : 1;
-  for(let i=0;i<count;i++){
-    const el=document.createElement('button');
-    el.type='button'; el.className='balloon'+(combo>=2?' rainbow':'');
-    el.textContent=BALLOONS[(progress+i)%BALLOONS.length];
-    el.style.left=rand(10,75)+'%';
-    el.style.top=rand(22,62)+'%';
-    el.onclick=e=>{
-      if(e.button!=null&&e.button!==0) return;
+function rand(a, b) { return a + Math.random() * (b - a); }
+function spawn() {
+  stage.querySelectorAll('.balloon').forEach(el => el.remove());
+  if (progress >= NEED) return;
+  const count = combo >= 2 ? 2 : 1;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('button');
+    el.type = 'button'; el.className = 'balloon' + (combo >= 2 ? ' rainbow' : '');
+    el.textContent = BALLOONS[(progress + i) % BALLOONS.length];
+    el.style.left = rand(10, 75) + '%'; el.style.top = rand(22, 62) + '%';
+    el.onclick = e => {
+      if (e.button != null && e.button !== 0) return;
       el.classList.add('pop');
-      const now=Date.now();
-      if(now-lastPop<1600) combo++; else combo=1;
-      lastPop=now;
-      if(combo>=2){showCombo(combo); if(combo>=3) sfxRainbow(); else sfxOk();}
+      const now = Date.now();
+      if (now - lastPop < 1600) combo++; else combo = 1;
+      lastPop = now;
+      if (combo >= 2) { showCombo(combo); if (combo >= 3) sfxRainbow(); else sfxOk(); }
       else sfxOk();
-      setTimeout(()=>el.remove(),250);
-      let gain=1;
-      if(combo>=3 && progress+1<NEED){ gain=2; showCombo(combo); }
-      setProgress(Math.min(NEED, progress+gain));
-      if(progress>=NEED) setTimeout(win,320);
-      else setTimeout(spawn, combo>=2?180:280);
+      setTimeout(() => el.remove(), 250);
+      let gain = 1;
+      if (combo >= 3 && progress + 1 < NEED) { gain = 2; showCombo(combo); }
+      setProgress(Math.min(NEED, progress + gain));
+      if (progress >= NEED) setTimeout(win, 320);
+      else setTimeout(spawn, combo >= 2 ? 180 : 280);
     };
     stage.appendChild(el);
   }
 }
-function start(){ didWin=false; progress=0;combo=0;lastPop=0;setProgress(0);spawn();if(window.MouseHubReward&&MouseHubReward.autoSpeak())speak('撳氣球')}
-$('btnHub').onclick=()=>{location.href='./index.html'};$('btnHub2').onclick=()=>{location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl('balloons'):'./index.html'+(didWin?('?won=balloons'):'')};
-$('btnSpeak').onclick=()=>speak('撳氣球');
-$('btnCert').onclick=()=>MouseHubCert.showCert('balloons');
-$('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
-window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
+function start() {
+  didWin = false; progress = 0; combo = 0; lastPop = 0; setProgress(0); spawn();
+  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('撳氣球');
+}
+C.wireChrome({ gid: GID, speakText: '撳氣球', didWin: () => didWin, onRetry: start });
 start();
 </script>
 </body>

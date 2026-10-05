@@ -74,83 +74,42 @@ button{font:inherit;border:none;cursor:pointer}
 </div>
 <script src="./reward.js"></script>
 <script src="./cert.js"></script>
+<script src="./common.js"></script>
 <script>
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('selectstart',e=>e.preventDefault());
-const NEED=5, HUB='./index.html';
-const $=id=>document.getElementById(id);
-const stage=$('stage');
-let progress=0, didWin=false, audioCtx=null;
-function loadProfile(){
-  let who=null,name='';
-  try{
-    const p=new URLSearchParams(location.search);
-    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
-    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
-    const q=p.get('who'); if(q) who={emoji:(who&&who.emoji)||'🐱',name:(who&&who.name)||'同學'};
-  }catch(_){}
-  if(!who) who={emoji:'🐱',name:'同學'};
-  $('av').textContent=who.emoji||'🐱';
-  $('whoName').textContent=name||who.name||'同學';
-  return name||who.name||'同學';
+const C = MouseHubCommon, NEED = 5, GID = 'gifts';
+const $ = C.$, stage = $('stage');
+let progress = 0, didWin = false;
+const displayName = C.loadProfile();
+C.lockSEN(); C.armAudioOnce();
+function setProgress(n) {
+  progress = n; C.setProgress(n, NEED);
+  const lab = $('mlab'); if (lab) { lab.style.letterSpacing = '2px'; lab.style.fontSize = '1.2rem'; }
 }
-const displayName=loadProfile();
-function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
-function tone(f,d=.12,t='sine',v=.2){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
-function sfxOk(){tone(523,.1);setTimeout(()=>tone(659,.1),70);setTimeout(()=>tone(784,.12),140)}
-function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
-function sfxBad(){tone(180,.14,'square',.1)}
-function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
-function toast(m,bad){const el=$('toast');el.textContent=m;el.classList.toggle('bad',!!bad);el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1100)}
-function confetti(){const box=$('confetti');box.innerHTML='';const cols=['#FF6B9D','#FFD54F','#69F0AE','#4FC3F7'];for(let i=0;i<28;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=cols[i%cols.length];el.style.animationDuration=(1.1+Math.random()*1.2)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2500)}
-function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';const R=window.MouseHubReward;$('mlab').textContent=(R&&R.fishBones)?R.fishBones(n,NEED):(n+'/'+NEED);$('mlab').style.letterSpacing='2px';$('mlab').style.fontSize='1.2rem'}
-function bigCelebrate(done){
-  const ov=document.createElement('div');
-  ov.style.cssText='position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(61,43,90,.55)';
-  ov.innerHTML='<div style="font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#fff;text-align:center;text-shadow:0 4px 16px rgba(0,0,0,.35)">🎉 太叻喇！<br><span style="font-size:1.15em">😻</span></div>';
-  document.body.appendChild(ov);
-  setTimeout(()=>{ov.remove();done&&done();},2000);
+function win() {
+  C.finishClear({ gid: GID, progress, label: '禮物拖拖', displayName, setDidWin: v => { didWin = v; } });
 }
-function win(){ didWin=true;
-  try{ if(window.MouseHubReward) MouseHubReward.award('gifts', progress, 'clear'); }catch(_e){}
-  confetti(); sfxWin();
-  if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
-  const next=window.MouseHubReward?MouseHubReward.nextAfter('gifts'):null;
-  const nb=$('btnNext');
-  if(nb){
-    if(next && next.id!=='gifts'){ nb.style.display=''; nb.textContent='下一個：'+next.title; nb.onclick=()=>{ location.href=MouseHubReward.gameUrl(next); }; }
-    else { nb.style.display='none'; }
-  }
-  bigCelebrate(()=>{
-    $('winMsg').textContent=displayName+' · 禮物拖拖';
-    $('win').classList.add('on');
+function spawn() {
+  stage.querySelectorAll('.target,.drop').forEach(el => el.remove());
+  if (progress >= NEED) return;
+  const zone = document.createElement('div'); zone.className = 'drop hot'; zone.textContent = '🎁 放呢度'; stage.appendChild(zone);
+  const el = document.createElement('div'); el.className = 'target pulse';
+  el.textContent = ['🎁', '🎀', '🧸', '🎈'][progress % 4];
+  el.style.left = '12%'; el.style.top = '30%'; stage.appendChild(el);
+  C.enableDrag(el, zone, () => {
+    el.remove(); zone.classList.remove('hot'); C.sfxOk(); setProgress(progress + 1);
+    if (progress >= NEED) setTimeout(win, 300); else setTimeout(spawn, 280);
+  }, () => {
+    C.toast('拖去盒', true); C.speak('拖去盒');
+    el.style.position = 'absolute'; el.style.zIndex = ''; el.style.left = '12%'; el.style.top = '30%';
+    el.classList.add('pulse'); zone.classList.remove('hot'); zone.classList.add('pulse-hint');
+    setTimeout(() => zone.classList.remove('pulse-hint'), 1500);
   });
 }
-function hits(el,zone,pad=56){const a=el.getBoundingClientRect(),b=zone.getBoundingClientRect();const cx=(a.left+a.right)/2,cy=(a.top+a.bottom)/2;return cx>=b.left-pad&&cx<=b.right+pad&&cy>=b.top-pad&&cy<=b.bottom+pad}
-function enableDrag(el,zone,onOk){
-  let ox=0,oy=0,dragging=false;
-  const detach=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)};
-  const down=e=>{if(e.button!=null&&e.button!==0)return;e.preventDefault();dragging=true;const r=el.getBoundingClientRect();ox=e.clientX-r.left;oy=e.clientY-r.top;el.classList.remove('pulse');el.style.position='fixed';el.style.left=r.left+'px';el.style.top=r.top+'px';el.style.zIndex='30';try{el.setPointerCapture(e.pointerId)}catch(_){}
-    el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);move(e)};
-  const move=e=>{if(!dragging||e.clientX==null)return;el.style.left=Math.max(0,Math.min(innerWidth-el.offsetWidth,e.clientX-ox))+'px';el.style.top=Math.max(0,Math.min(innerHeight-el.offsetHeight,e.clientY-oy))+'px';zone.classList.toggle('hot',hits(el,zone))};
-  const up=e=>{if(!dragging)return;dragging=false;detach();try{if(e&&e.pointerId!=null)el.releasePointerCapture(e.pointerId)}catch(_){}
-    if(hits(el,zone)) onOk(); else {sfxBad();toast('拖去盒',true);speak('拖去盒');el.style.position='absolute';el.style.zIndex='';el.style.left='12%';el.style.top='30%';el.classList.add('pulse');zone.classList.remove('hot');zone.classList.add('pulse-hint');setTimeout(()=>zone.classList.remove('pulse-hint'),1500)}};
-  el.addEventListener('pointerdown',down);
+function start() {
+  didWin = false; setProgress(0); spawn();
+  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('拖禮物去盒');
 }
-function spawn(){
-  stage.querySelectorAll('.target,.drop').forEach(el=>el.remove());
-  if(progress>=NEED) return;
-  const zone=document.createElement('div');zone.className='drop hot';zone.textContent='🎁 放呢度';stage.appendChild(zone);
-  const el=document.createElement('div');el.className='target pulse';el.textContent=['🎁','🎀','🧸','🎈'][progress%4];
-  el.style.left='12%';el.style.top='30%';stage.appendChild(el);
-  enableDrag(el,zone,()=>{el.remove();zone.classList.remove('hot');sfxOk();setProgress(progress+1);if(progress>=NEED)setTimeout(win,300);else setTimeout(spawn,280)});
-}
-function start(){ didWin=false; setProgress(0);spawn();if(window.MouseHubReward&&MouseHubReward.autoSpeak())speak('拖禮物去盒')}
-$('btnHub').onclick=()=>{location.href='./index.html'};$('btnHub2').onclick=()=>{location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl('gifts'):'./index.html'+(didWin?('?won=gifts'):'')};
-$('btnSpeak').onclick=()=>speak('拖禮物去盒');
-$('btnCert').onclick=()=>MouseHubCert.showCert('gifts');
-$('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
-window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
+C.wireChrome({ gid: GID, speakText: '拖禮物去盒', didWin: () => didWin, onRetry: start });
 start();
 </script>
 </body>

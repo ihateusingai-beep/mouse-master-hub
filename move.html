@@ -71,78 +71,60 @@ box-shadow:0 4px 12px rgba(0,0,0,.25);pointer-events:none;z-index:20;left:0;top:
 </div>
 <script src="./reward.js"></script>
 <script src="./cert.js"></script>
+<script src="./common.js"></script>
 <script>
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('selectstart',e=>e.preventDefault());
-const NEED=5, GID='move';
-const $=id=>document.getElementById(id);
-const stage=$('stage'), dot=$('dot');
-let progress=0, didWin=false, audioCtx=null, zone=null, inside=false;
-function loadProfile(){
-  let who=null,name='';
-  try{
-    const p=new URLSearchParams(location.search);
-    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
-    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
-  }catch(_){}
-  if(!who) who={emoji:'🐱',name:'同學'};
-  $('av').textContent=who.emoji||'🐱';
-  $('whoName').textContent=name||who.name||'同學';
-  return name||who.name||'同學';
+const C = MouseHubCommon, NEED = 5, GID = 'move';
+const $ = C.$, stage = $('stage'), dot = $('dot');
+let progress = 0, didWin = false, zone = null, inside = false;
+const displayName = C.loadProfile();
+C.lockSEN(); C.armAudioOnce();
+function setProgress(n) { progress = n; C.setProgress(n, NEED); }
+function rand(a, b) { return a + Math.random() * (b - a); }
+function popScore(x, y) {
+  const el = document.createElement('div'); el.className = 'score-pop'; el.textContent = '+1';
+  el.style.left = x + 'px'; el.style.top = y + 'px'; stage.appendChild(el);
+  setTimeout(() => el.remove(), 700);
 }
-const displayName=loadProfile();
-function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
-function tone(f,d=.12,t='sine',v=.2){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
-function sfxOk(){tone(660,.1);setTimeout(()=>tone(880,.12),70)}
-function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
-function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
-function confetti(){const box=$('confetti');box.innerHTML='';['#42A5F5','#69F0AE','#FFD54F','#FF6B9D'].forEach((c,i)=>{for(let j=0;j<7;j++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=c;el.style.animationDuration=(1+Math.random())+'s';box.appendChild(el)}});setTimeout(()=>box.innerHTML='',2500)}
-function setProgress(n){progress=n;$('fill').style.width=(n/NEED*100)+'%';$('mlab').textContent=(MouseHubReward&&MouseHubReward.fishBones)?MouseHubReward.fishBones(n,NEED):n+'/'+NEED}
-function rand(a,b){return a+Math.random()*(b-a)}
-function popScore(x,y){const el=document.createElement('div');el.className='score-pop';el.textContent='+1';el.style.left=x+'px';el.style.top=y+'px';stage.appendChild(el);setTimeout(()=>el.remove(),700)}
-window.addEventListener('pointermove',e=>{
-  dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';
-  if(!zone||didWin) return;
-  const r=zone.getBoundingClientRect();
-  const cx=e.clientX, cy=e.clientY;
-  const hit=cx>=r.left&&cx<=r.right&&cy>=r.top&&cy<=r.bottom;
+window.addEventListener('pointermove', e => {
+  dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
+  if (!zone || didWin) return;
+  const r = zone.getBoundingClientRect();
+  const hit = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
   zone.classList.toggle('hot', hit);
-  if(hit && !inside){
-    inside=true;
-    sfxOk();
-    popScore(r.left+40, r.top);
-    zone.remove(); zone=null;
-    setProgress(progress+1);
-    if(progress>=NEED) setTimeout(finish,350);
-    else setTimeout(spawn,400);
-  } else if(!hit) inside=false;
+  if (hit && !inside) {
+    inside = true;
+    C.tone(660, 0.1); setTimeout(() => C.tone(880, 0.12), 70);
+    popScore(r.left + 40, r.top);
+    zone.remove(); zone = null;
+    setProgress(progress + 1);
+    if (progress >= NEED) setTimeout(finish, 350);
+    else setTimeout(spawn, 400);
+  } else if (!hit) inside = false;
 });
-function spawn(){
-  if(zone) zone.remove();
-  inside=false;
-  zone=document.createElement('div');
-  zone.className='zone';
-  zone.textContent=['⭐','🔵','🟢','🟡','🟣'][progress%5];
-  zone.style.left=rand(8,70)+'%';
-  zone.style.top=rand(18,62)+'%';
+function spawn() {
+  if (zone) zone.remove();
+  inside = false;
+  zone = document.createElement('div');
+  zone.className = 'zone';
+  zone.textContent = ['⭐', '🔵', '🟢', '🟡', '🟣'][progress % 5];
+  zone.style.left = rand(8, 70) + '%';
+  zone.style.top = rand(18, 62) + '%';
   stage.appendChild(zone);
 }
-function finish(){
-  didWin=true;
-  const a=MouseHubReward.award(GID, progress, 'move');
-  confetti(); sfxWin();
-  if(MouseHubReward.autoSpeak()) speak('做得好');
-  $('winMedal').textContent=a.cert.meta.medal;
-  $('winMsg').textContent=displayName+' · 分數 '+progress+' · '+a.cert.meta.label;
+function finish() {
+  didWin = true;
+  const a = MouseHubReward.award(GID, progress, 'move');
+  C.confetti(['#42A5F5', '#69F0AE', '#FFD54F', '#FF6B9D']); C.sfxWin();
+  if (MouseHubReward.autoSpeak()) C.speak('做得好');
+  $('winMedal').textContent = a.cert.meta.medal;
+  $('winMsg').textContent = displayName + ' · 分數 ' + progress + ' · ' + a.cert.meta.label;
   $('win').classList.add('on');
 }
-function start(){didWin=false;setProgress(0);spawn();if(MouseHubReward.autoSpeak())speak('移去圈圈')}
-$('btnHub').onclick=()=>location.href='./index.html';
-$('btnHub2').onclick=()=>location.href=didWin?MouseHubReward.hubWonUrl(GID):'./index.html';
-$('btnSpeak').onclick=()=>speak('移去圈圈，唔使撳');
-$('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
-$('btnCert').onclick=()=>MouseHubCert.showCert(GID);
-window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
+function start() {
+  didWin = false; setProgress(0); spawn();
+  if (MouseHubReward.autoSpeak()) C.speak('移去圈圈');
+}
+C.wireChrome({ gid: GID, speakText: '移去圈圈，唔使撳', didWin: () => didWin, onRetry: start });
 start();
 </script>
 </body>

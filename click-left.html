@@ -125,135 +125,90 @@ opacity:0;pointer-events:none;z-index:8;transition:.2s;text-shadow:0 2px 0 #fff;
 </div>
 <script src="./reward.js"></script>
 <script src="./cert.js"></script>
+<script src="./common.js"></script>
 <script>
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('selectstart',e=>e.preventDefault());
-const GID='clickL', SECS=10;
-const $=id=>document.getElementById(id);
-const pad=$('pad'), balloon=$('balloon'), face=$('face'), bwrap=$('bwrap'), cheer=$('cheer');
-let score=0, left=SECS, timer=null, running=false, didWin=false, audioCtx=null, lastMile=0;
-function loadProfile(){
-  let who=null,name='';
-  try{
-    const p=new URLSearchParams(location.search);
-    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
-    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
-  }catch(_){}
-  if(!who) who={emoji:'🐱',name:'同學'};
-  $('av').textContent=who.emoji||'🐱';
-  $('whoName').textContent=name||who.name||'同學';
-  return name||who.name||'同學';
+const C = MouseHubCommon, GID = 'clickL', SECS = 10;
+const $ = C.$;
+const pad = $('pad'), balloon = $('balloon'), face = $('face'), bwrap = $('bwrap'), cheer = $('cheer');
+let score = 0, left = SECS, timer = null, running = false, didWin = false;
+const displayName = C.loadProfile();
+C.lockSEN(); C.armAudioOnce();
+function sfxPump() {
+  C.tone(180 + Math.min(score * 12, 280), 0.06, 'triangle', 0.12);
+  setTimeout(() => C.tone(420 + Math.min(score * 10, 300), 0.07), 40);
 }
-const displayName=loadProfile();
-function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
-function tone(f,d=.08,t='sine',v=.16){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
-function sfxPump(){tone(180+Math.min(score*12,280),.06,'triangle',.12);setTimeout(()=>tone(420+Math.min(score*10,300),.07),40)}
-function sfxMile(){[523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,.1,'sine',.15),i*60))}
-function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
-function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
-function confetti(){const box=$('confetti');box.innerHTML='';for(let i=0;i<36;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=['#FF6B9D','#FFD54F','#69F0AE','#4FC3F7'][i%4];el.style.animationDuration=(1+Math.random()*1.2)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2600)}
-function showCheer(t){cheer.textContent=t;cheer.classList.add('on');clearTimeout(cheer._t);cheer._t=setTimeout(()=>cheer.classList.remove('on'),700)}
-function stageOf(n){
-  if(n>=20) return 4;
-  if(n>=12) return 3;
-  if(n>=7) return 2;
-  if(n>=3) return 1;
-  return 0;
+function sfxMile() { [523, 659, 784].forEach((f, i) => setTimeout(() => C.tone(f, 0.1, 'sine', 0.15), i * 60)); }
+function showCheer(t) {
+  cheer.textContent = t; cheer.classList.add('on');
+  clearTimeout(cheer._t); cheer._t = setTimeout(() => cheer.classList.remove('on'), 700);
 }
-function faces(s){return ['😴','😐','🙂','😄','🤩'][s]}
-function paintBalloon(){
-  const s=stageOf(score);
-  balloon.className='balloon s'+s;
-  face.textContent=faces(s);
-  face.style.fontSize=(1.4+s*0.25)+'rem';
-  bwrap.style.transform='translateY('+(-s*6)+'px)';
+function stageOf(n) { if (n >= 20) return 4; if (n >= 12) return 3; if (n >= 7) return 2; if (n >= 3) return 1; return 0; }
+function faces(s) { return ['😴', '😐', '🙂', '😄', '🤩'][s]; }
+function paintBalloon() {
+  const s = stageOf(score);
+  balloon.className = 'balloon s' + s;
+  face.textContent = faces(s);
+  face.style.fontSize = (1.4 + s * 0.25) + 'rem';
+  bwrap.style.transform = 'translateY(' + (-s * 6) + 'px)';
 }
-function tick(){
-  left--;
-  $('timer').textContent=left;
-  if(left<=0) finish();
-}
-function finish(){
-  if(didWin) return;
-  didWin=true; running=false;
-  clearInterval(timer);
-  pad.classList.add('disabled');
-  const a=MouseHubReward.award(GID, score, 'race');
-  const s=stageOf(score);
-  if(s>=4){ bwrap.classList.add('fly-away'); confetti(); }
-  else confetti();
-  sfxWin();
-  if(MouseHubReward.autoSpeak()) speak('做得好');
-  $('winMedal').textContent=a.cert.meta.medal;
-  const lines=['有少少氣','圓咗啲','好圓！','好大個！','飛上天喇！'];
-  $('winTitle').textContent=lines[s];
-  $('winMsg').textContent=displayName+' · 泵咗 '+score+' 下 · '+a.cert.meta.label;
+function tick() { left--; $('timer').textContent = left; if (left <= 0) finish(); }
+function finish() {
+  if (didWin) return;
+  didWin = true; running = false; clearInterval(timer); pad.classList.add('disabled');
+  const a = MouseHubReward.award(GID, score, 'race');
+  const s = stageOf(score);
+  if (s >= 4) { bwrap.classList.add('fly-away'); C.confetti(); } else C.confetti();
+  C.sfxWin();
+  if (MouseHubReward.autoSpeak()) C.speak('做得好');
+  $('winMedal').textContent = a.cert.meta.medal;
+  $('winTitle').textContent = ['有少少氣', '圓咗啲', '好圓！', '好大個！', '飛上天喇！'][s];
+  $('winMsg').textContent = displayName + ' · 泵咗 ' + score + ' 下 · ' + a.cert.meta.label;
   $('win').classList.add('on');
 }
-function onHit(e){
-  if(!running) return;
-  if(e && e.button!=null && e.button!==0) return;
-  if(e) e.preventDefault();
-  score++;
-  $('score').textContent=score;
-  pad.classList.add('hit');
-  setTimeout(()=>pad.classList.remove('hit'),70);
-  sfxPump();
-  paintBalloon();
-  // milestones
-  if(score===5){ showCheer('再泵！'); sfxMile(); }
-  else if(score===10){ showCheer('好大！'); sfxMile(); }
-  else if(score===15){ showCheer('差啲飛！'); sfxMile(); }
-  else if(score===20){ showCheer('升空！🌈'); sfxMile(); confetti(); }
-  else if(score%4===0) showCheer('泵！');
+function onHit(e) {
+  if (!running) return;
+  if (e && e.button != null && e.button !== 0) return;
+  if (e) e.preventDefault();
+  score++; $('score').textContent = score;
+  pad.classList.add('hit'); setTimeout(() => pad.classList.remove('hit'), 70);
+  sfxPump(); paintBalloon();
+  if (score === 5) { showCheer('再泵！'); sfxMile(); }
+  else if (score === 10) { showCheer('好大！'); sfxMile(); }
+  else if (score === 15) { showCheer('差啲飛！'); sfxMile(); }
+  else if (score === 20) { showCheer('升空！🌈'); sfxMile(); C.confetti(); }
+  else if (score % 4 === 0) showCheer('泵！');
 }
 pad.addEventListener('pointerdown', onHit);
-function countdownThenStart(){
-  const c=$('count3'); const go=$('btnGo'); const story=$('startOv').querySelector('.story');
-  go.hidden=true; story.hidden=true; c.hidden=false;
-  let n=3;
-  c.textContent=n;
-  const iv=setInterval(()=>{
+function countdownThenStart() {
+  const c = $('count3'), go = $('btnGo'), story = $('startOv').querySelector('.story');
+  go.hidden = true; story.hidden = true; c.hidden = false;
+  let n = 3; c.textContent = n;
+  const iv = setInterval(() => {
     n--;
-    if(n>0){ c.textContent=n; tone(400+n*80,.1); }
+    if (n > 0) { c.textContent = n; C.tone(400 + n * 80, 0.1); }
     else {
-      clearInterval(iv);
-      c.textContent='GO!';
-      tone(880,.15);
-      setTimeout(()=>{ $('startOv').style.display='none'; begin(); },350);
+      clearInterval(iv); c.textContent = 'GO!'; C.tone(880, 0.15);
+      setTimeout(() => { $('startOv').style.display = 'none'; begin(); }, 350);
     }
-  },500);
+  }, 500);
 }
-function begin(){
-  didWin=false; score=0; left=SECS; running=true; lastMile=0;
+function begin() {
+  didWin = false; score = 0; left = SECS; running = true;
   bwrap.classList.remove('fly-away');
-  $('score').textContent='0';
-  $('timer').textContent=SECS;
-  $('timer').classList.add('go');
-  pad.classList.remove('disabled');
-  paintBalloon();
-  clearInterval(timer);
-  timer=setInterval(tick,1000);
+  $('score').textContent = '0'; $('timer').textContent = SECS; $('timer').classList.add('go');
+  pad.classList.remove('disabled'); paintBalloon();
+  clearInterval(timer); timer = setInterval(tick, 1000);
 }
-function reset(){
-  clearInterval(timer); running=false; didWin=false; score=0; left=SECS;
-  $('score').textContent='0'; $('timer').textContent=SECS; $('timer').classList.remove('go');
-  pad.classList.add('disabled');
-  bwrap.classList.remove('fly-away');
-  paintBalloon();
+function reset() {
+  clearInterval(timer); running = false; didWin = false; score = 0; left = SECS;
+  $('score').textContent = '0'; $('timer').textContent = SECS; $('timer').classList.remove('go');
+  pad.classList.add('disabled'); bwrap.classList.remove('fly-away'); paintBalloon();
   $('win').classList.remove('on');
-  const ov=$('startOv');
-  ov.style.display='flex';
-  ov.querySelector('.story').hidden=false;
-  $('btnGo').hidden=false;
-  $('count3').hidden=true;
+  const ov = $('startOv'); ov.style.display = 'flex';
+  ov.querySelector('.story').hidden = false; $('btnGo').hidden = false; $('count3').hidden = true;
 }
-$('btnGo').onclick=()=>{ try{ctx()}catch(_){} countdownThenStart(); };
-$('btnHub').onclick=()=>location.href='./index.html';
-$('btnHub2').onclick=()=>location.href=didWin?MouseHubReward.hubWonUrl(GID):'./index.html';
-$('btnSpeak').onclick=()=>speak('撳氣筒救氣球');
-$('btnRetry').onclick=reset;
-$('btnCert').onclick=()=>MouseHubCert.showCert(GID);
+$('btnGo').onclick = () => { try { C.ctx(); } catch (_) {} countdownThenStart(); };
+C.wireChrome({ gid: GID, speakText: '撳氣筒救氣球', didWin: () => didWin, onRetry: reset });
 paintBalloon();
 </script>
 </body>
