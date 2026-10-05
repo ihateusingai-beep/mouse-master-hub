@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>星球快遞｜將軍澳培智學校</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:"PingFang HK","Noto Sans TC",system-ui,sans-serif;color:#E8EAF6;
+background:linear-gradient(160deg,#1A237E,#311B92 50%,#4A148C);
+-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
+button{font:inherit;border:none;cursor:pointer;color:#3D2B5A}
+.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:rgba(255,255,255,.92);border-bottom:3px solid #7C4DFF55;color:#3D2B5A}
+.who{display:flex;align-items:center;gap:8px;font-weight:900}
+.av{width:40px;height:40px;border-radius:50%;border:3px solid #7C4DFF;display:grid;place-items:center;font-size:1.3rem;background:#fff}
+.hint{flex:1;text-align:center;font-size:clamp(1.05rem,2.3vw,1.45rem);font-weight:900}
+.hint b{background:#FFD54F;padding:2px 8px;border-radius:8px;color:#3D2B5A}
+.icon{width:46px;height:46px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.15rem;font-weight:900}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stage{height:calc(100% - 60px);position:relative;overflow:hidden}
+.meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:5;display:flex;align-items:center;gap:10px;pointer-events:none;color:#fff}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(255,255,255,.2);overflow:hidden}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#7C4DFF);transition:width .2s}
+.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem}
+.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(255,255,255,.95);border:3px solid #7C4DFF;border-radius:16px;padding:8px 12px;font-weight:900;max-width:85%;color:#3D2B5A}
+.toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.35rem;font-weight:900;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}.toast.bad{border-color:#FF6B9D;color:#9f1239}
+.overlay{position:fixed;inset:0;background:rgba(61,43,90,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.on{display:flex}
+.modal{width:min(440px,94vw);background:#fff;border:5px solid #FFD54F;border-radius:28px;padding:22px 16px;text-align:center;color:#3D2B5A}
+.modal h2{font-size:1.9rem;margin-bottom:6px}.modal p{font-weight:800;opacity:.8;margin-bottom:12px}
+.btn{min-height:54px;min-width:120px;padding:12px 16px;border-radius:999px;background:linear-gradient(135deg,#7C4DFF,#FF6B9D);color:#fff;font-size:1.15rem;font-weight:900}
+.btn.ghost{background:#fff;color:#3D2B5A;border:3px solid rgba(61,43,90,.12)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
+.confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.pulse{animation:pulse 1s ease-in-out infinite}
+.star-bg{position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,#5C6BC0,transparent 40%),radial-gradient(circle at 80% 60%,#7E57C2,transparent 35%);z-index:0;pointer-events:none}
+.station{position:absolute;inset:12% 8% 18% 8%;border-radius:28px;border:5px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:2}
+.target{width:120px;height:120px;border-radius:28px;border:5px solid #7C4DFF;background:#fff;display:grid;place-items:center;font-size:3rem;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.15);touch-action:none;color:#3D2B5A}
+.drop{width:min(240px,50vw);height:130px;border:5px dashed #69F0AE;border-radius:24px;background:rgba(105,240,174,.15);display:grid;place-items:center;font-weight:900;font-size:1.2rem;transition:.15s;color:#E8FFF3}
+.drop.hot{background:rgba(105,240,174,.35);border-style:solid;box-shadow:0 0 0 6px rgba(105,240,174,.25)}
+.zone{width:140px;height:140px;border-radius:50%;border:6px dashed #4FC3F7;background:rgba(79,195,247,.2);display:grid;place-items:center;font-size:2.6rem;transition:.15s}
+.zone.hot{border-color:#22c55e;border-style:solid;background:rgba(34,197,94,.3);transform:scale(1.08)}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti"></div>
+<div class="top">
+  <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
+  <div class="hint" id="hint">🚀 星球快遞</div>
+  <div class="row">
+    <button class="icon" id="btnSpeak" type="button">🔊</button>
+    <button class="icon" id="btnHub" type="button">🏠</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <div class="star-bg"></div>
+  <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
+  <div class="guide" id="guide">跟提示完成每一站</div>
+</div>
+<div class="overlay" id="win">
+  <div class="modal">
+    <div style="font-size:2.4rem" id="winMedal">🥇</div>
+    <h2>做得好！</h2>
+    <p id="winMsg">完成</p>
+    <div class="row">
+      <button class="btn ghost" id="btnRetry" type="button">再玩</button>
+      <button class="btn" id="btnCert" type="button">證書</button>
+      <button class="btn" id="btnNext" type="button">下一個</button>
+      <button class="btn ghost" id="btnHub2" type="button">主頁</button>
+    </div>
+  </div>
+</div>
+<script src="./reward.js"></script>
+<script src="./cert.js"></script>
+<script>
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('selectstart',e=>e.preventDefault());
+const NEED=5, GID='planet';
+const $=id=>document.getElementById(id);
+const stage=$('stage');
+let progress=0, didWin=false, audioCtx=null;
+function loadProfile(){
+  let who=null,name='';
+  try{
+    const p=new URLSearchParams(location.search);
+    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
+    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
+  }catch(_){}
+  if(!who) who={emoji:'🐱',name:'同學'};
+  $('av').textContent=who.emoji||'🐱';
+  $('whoName').textContent=name||who.name||'同學';
+  return name||who.name||'同學';
+}
+const displayName=loadProfile();
+function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+function tone(f,d=.12,t='sine',v=.2){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
+function sfxOk(){tone(523,.1);setTimeout(()=>tone(659,.1),70);setTimeout(()=>tone(784,.12),140)}
+function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
+function sfxBad(){tone(180,.14,'square',.1)}
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
+function toast(m,bad){const el=$('toast');el.textContent=m;el.classList.toggle('bad',!!bad);el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1100)}
+function confetti(){const box=$('confetti');box.innerHTML='';const cols=['#FF6B9D','#FFD54F','#69F0AE','#7C4DFF'];for(let i=0;i<30;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=cols[i%cols.length];el.style.animationDuration=(1+Math.random()*1.2)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2500)}
+function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';const R=window.MouseHubReward;$('mlab').textContent=(R&&R.fishBones)?R.fishBones(n,NEED):(n+'/'+NEED)}
+function bigCelebrate(done){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(61,43,90,.55)';
+  ov.innerHTML='<div style="font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#fff;text-align:center">🎉 太叻喇！</div>';
+  document.body.appendChild(ov);setTimeout(()=>{ov.remove();done&&done();},1800);
+}
+function win(){
+  didWin=true;
+  try{if(window.MouseHubReward) MouseHubReward.award(GID, progress, 'clear');}catch(_){}
+  confetti(); sfxWin();
+  if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
+  const next=window.MouseHubReward?MouseHubReward.nextAfter(GID):null;
+  const nb=$('btnNext');
+  if(nb){
+    if(next && next.id!==GID){ nb.style.display=''; nb.textContent='下一個：'+next.title; nb.onclick=()=>{location.href=MouseHubReward.gameUrl(next);}; }
+    else nb.style.display='none';
+  }
+  try{const c=MouseHubReward.loadCerts()[GID];$('winMedal').textContent=(c&&MouseHubReward.TIER_META[c.tier].medal)||'🥇';}catch(_){}
+  bigCelebrate(()=>{$('winMsg').textContent=displayName+' · 星球快遞';$('win').classList.add('on');});
+}
+const STEPS=['move','click','drag','right','click'];
+function hits(el,zone,pad=56){const a=el.getBoundingClientRect(),b=zone.getBoundingClientRect();const cx=(a.left+a.right)/2,cy=(a.top+a.bottom)/2;return cx>=b.left-pad&&cx<=b.right+pad&&cy>=b.top-pad&&cy<=b.bottom+pad}
+function clearPlay(){stage.querySelectorAll('.station,.target,.drop,.zone').forEach(e=>e.remove())}
+function advance(){setProgress(progress+1);if(progress>=NEED)setTimeout(win,350);else setTimeout(spawn,350)}
+function spawn(){
+  clearPlay(); if(progress>=NEED||didWin) return;
+  const kind=STEPS[progress%STEPS.length];
+  const st=document.createElement('div'); st.className='station'; stage.appendChild(st);
+  if(kind==='move'){
+    $('hint').innerHTML='移去 <b>星球</b>（唔使撳）';$('guide').textContent='郁滑鼠入藍色圈';
+    const z=document.createElement('div'); z.className='zone pulse'; z.textContent='🪐'; st.appendChild(z);
+    let inside=false;
+    const onMove=e=>{
+      if(didWin) return;
+      const r=z.getBoundingClientRect();
+      const hit=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+      z.classList.toggle('hot',hit);
+      if(hit&&!inside){inside=true;window.removeEventListener('pointermove',onMove);sfxOk();toast('到達！');z.remove();advance()}
+      else if(!hit) inside=false;
+    };
+    window.addEventListener('pointermove',onMove);
+  } else if(kind==='click'){
+    $('hint').innerHTML='左掣撳 <b>星星</b>';$('guide').textContent='左掣一點星星';
+    const t=document.createElement('button'); t.type='button'; t.className='target pulse'; t.textContent='⭐';
+    t.onclick=()=>{t.remove();sfxOk();toast('收集！');advance()};
+    st.appendChild(t);
+  } else if(kind==='drag'){
+    $('hint').innerHTML='拖 <b>包裹</b> 去站';$('guide').textContent='按住拖去綠色站';
+    const zone=document.createElement('div'); zone.className='drop'; zone.textContent='📦 放呢度'; st.appendChild(zone);
+    const el=document.createElement('div'); el.className='target pulse'; el.textContent='📮'; el.style.cursor='grab';
+    st.appendChild(el);
+    let ox=0,oy=0,dragging=false;
+    const detach=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)};
+    const down=e=>{if(e.button!=null&&e.button!==0)return;e.preventDefault();dragging=true;const r=el.getBoundingClientRect();ox=e.clientX-r.left;oy=e.clientY-r.top;el.style.position='fixed';el.style.left=r.left+'px';el.style.top=r.top+'px';el.style.zIndex='30';try{el.setPointerCapture(e.pointerId)}catch(_){}
+      el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);move(e)};
+    const move=e=>{if(!dragging||e.clientX==null)return;el.style.left=Math.max(0,Math.min(innerWidth-el.offsetWidth,e.clientX-ox))+'px';el.style.top=Math.max(0,Math.min(innerHeight-el.offsetHeight,e.clientY-oy))+'px';zone.classList.toggle('hot',hits(el,zone))};
+    const up=()=>{if(!dragging)return;dragging=false;detach();if(hits(el,zone)){el.remove();sfxOk();toast('送達！');advance()}else{sfxBad();toast('拖去站',true);el.style.position='';el.style.left='';el.style.top='';zone.classList.remove('hot')}};
+    el.addEventListener('pointerdown',down);
+  } else {
+    $('hint').innerHTML='右掣／兩指 開 <b>艙門</b>';$('guide').textContent='兩指撳＝右掣（或 Control+撳）';
+    const el=document.createElement('div'); el.className='target pulse'; el.textContent='🚪'; el.style.cursor='context-menu'; el.style.width='160px'; el.style.height='140px';
+    st.appendChild(el);
+    let opened=false,until=0;
+    const go=e=>{if(opened)return;opened=true;until=Date.now()+600;if(e){e.preventDefault();e.stopPropagation()}el.textContent='✨';setTimeout(()=>{el.remove();sfxOk();toast('開門！');advance()},220)};
+    el.addEventListener('pointerdown',e=>{if(e.button===2||e.ctrlKey)go(e)},true);
+    el.addEventListener('mousedown',e=>{if(e.button===2||e.ctrlKey)go(e)},true);
+    el.addEventListener('contextmenu',e=>go(e),true);
+    el.addEventListener('auxclick',e=>{if(e.button===2)go(e)},true);
+    el.addEventListener('click',e=>{if(opened||Date.now()<until){e.preventDefault();return}if(e.ctrlKey||e.metaKey){go(e);return}if(e.button===0){sfxBad();toast('兩指／右掣',true)}},true);
+  }
+}
+function start(){didWin=false;setProgress(0);spawn();if(window.MouseHubReward&&MouseHubReward.autoSpeak())speak('完成每一站')}
+$('btnHub').onclick=()=>location.href='./index.html';
+$('btnHub2').onclick=()=>location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl(GID):'./index.html'+(didWin?('?won='+GID):'');
+$('btnSpeak').onclick=()=>speak('完成每一站');
+$('btnCert').onclick=()=>MouseHubCert.showCert(GID);
+$('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
+window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
+start();
+</script>
+</body>
+</html>

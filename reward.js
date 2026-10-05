@@ -22,7 +22,11 @@
     gifts: { emoji: '🎁', name: '禮物' },
     chest: { emoji: '💎', name: '寶石' },
     stars: { emoji: '⭐', name: '星星' },
-    feeder: { emoji: '🐟', name: '魚魚' }
+    feeder: { emoji: '🐟', name: '魚魚' },
+    fish: { emoji: '🎣', name: '釣魚' },
+    pizza: { emoji: '🍕', name: '薄餅' },
+    planet: { emoji: '🚀', name: '快遞' },
+    duo: { emoji: '👯', name: '接力' }
   };
 
   /** Free pick — basic first, then skills */
@@ -35,6 +39,10 @@
     { id: 'gifts', title: '禮物拖拖', tag: '拖曳', emoji: '🎁', url: './gifts.html', group: 'skill', certName: '拖曳小達人' },
     { id: 'chest', title: '寶箱右掣', tag: '右掣', emoji: '📦', url: './chest.html', group: 'skill', certName: '開盒小達人' },
     { id: 'stars', title: '星空挑戰', tag: '混合', emoji: '✨', url: './stars.html', group: 'skill', certName: '星空小達人' },
+    { id: 'fish', title: '小貓釣魚', tag: '移+精準點', emoji: '🎣', url: './fish.html', group: 'fun', certName: '釣魚小達人' },
+    { id: 'pizza', title: '薄餅店', tag: '左+拖', emoji: '🍕', url: './pizza.html', group: 'fun', certName: '薄餅小達人' },
+    { id: 'planet', title: '星球快遞', tag: '混合Boss', emoji: '🚀', url: './planet.html', group: 'fun', certName: '快遞小達人' },
+    { id: 'duo', title: '雙人接力', tag: '左vs右', emoji: '👯', url: './duo.html', group: 'fun', certName: '接力小達人' },
     { id: 'feeder', title: '喵喵餵食館', tag: '左·拖·右', emoji: '🐱', url: 'https://ihateusingai-beep.github.io/mouse-feeder/', group: 'skill', certName: '餵食小達人' }
   ];
 

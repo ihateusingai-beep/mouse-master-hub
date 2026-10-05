@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>小貓釣魚｜將軍澳培智學校</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:"PingFang HK","Noto Sans TC",system-ui,sans-serif;color:#3D2B5A;
+background:linear-gradient(180deg,#E1F5FE,#B3E5FC);
+-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
+button{font:inherit;border:none;cursor:pointer}
+.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:rgba(255,255,255,.92);border-bottom:3px solid #0288D155}
+.who{display:flex;align-items:center;gap:8px;font-weight:900}
+.av{width:40px;height:40px;border-radius:50%;border:3px solid #0288D1;display:grid;place-items:center;font-size:1.3rem;background:#fff}
+.hint{flex:1;text-align:center;font-size:clamp(1.05rem,2.3vw,1.45rem);font-weight:900}
+.hint b{background:#FFD54F;padding:2px 8px;border-radius:8px}
+.icon{width:46px;height:46px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.15rem;font-weight:900}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stage{height:calc(100% - 60px);position:relative;overflow:hidden}
+.meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:5;display:flex;align-items:center;gap:10px;pointer-events:none}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(61,43,90,.12);overflow:hidden}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#0288D1);transition:width .2s}
+.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem}
+.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(255,255,255,.95);border:3px solid #0288D1;border-radius:16px;padding:8px 12px;font-weight:900;max-width:85%}
+.toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.35rem;font-weight:900;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}.toast.bad{border-color:#FF6B9D;color:#9f1239}
+.overlay{position:fixed;inset:0;background:rgba(61,43,90,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.on{display:flex}
+.modal{width:min(440px,94vw);background:#fff;border:5px solid #FFD54F;border-radius:28px;padding:22px 16px;text-align:center}
+.modal h2{font-size:1.9rem;margin-bottom:6px}.modal p{font-weight:800;opacity:.8;margin-bottom:12px}
+.btn{min-height:54px;min-width:120px;padding:12px 16px;border-radius:999px;background:linear-gradient(135deg,#0288D1,#FF6B9D);color:#fff;font-size:1.15rem;font-weight:900}
+.btn.ghost{background:#fff;color:#3D2B5A;border:3px solid rgba(61,43,90,.12)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
+.confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.water{position:absolute;inset:0;background:linear-gradient(180deg,#B3E5FC 0%,#4FC3F7 40%,#0288D1 100%)}
+.wave{position:absolute;left:0;right:0;height:40px;background:rgba(255,255,255,.25);border-radius:50%;animation:w 3s ease-in-out infinite}
+@keyframes w{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+.fish{position:absolute;font-size:3.2rem;line-height:1;cursor:pointer;z-index:4;transition:transform .08s;filter:drop-shadow(0 4px 6px rgba(0,0,0,.2));touch-action:manipulation;background:transparent;border:none}
+.fish.hot{transform:scale(1.2);filter:drop-shadow(0 0 12px #FFD54F)}
+.hook{position:fixed;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:4px solid #fff;background:#FF6B9D;pointer-events:none;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.bucket{position:absolute;right:12px;bottom:56px;width:100px;height:100px;border-radius:20px;background:rgba(255,255,255,.9);border:4px solid #FFD54F;display:grid;place-items:center;font-size:2.4rem;z-index:3;font-weight:900}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti"></div>
+<div class="top">
+  <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
+  <div class="hint" id="hint">移近魚 · 左掣 <b>釣</b></div>
+  <div class="row">
+    <button class="icon" id="btnSpeak" type="button">🔊</button>
+    <button class="icon" id="btnHub" type="button">🏠</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
+  <div class="guide" id="guide">滑鼠靠近游魚，再左掣一點！</div>
+  <div class="water" id="water"><div class="wave" style="top:8%"></div><div class="wave" style="top:40%;animation-delay:.5s"></div></div>
+  <div class="bucket" id="bucket">🧺</div>
+  <div class="hook" id="hook"></div>
+</div>
+<div class="overlay" id="win">
+  <div class="modal">
+    <div style="font-size:2.4rem" id="winMedal">🥇</div>
+    <h2>做得好！</h2>
+    <p id="winMsg">完成</p>
+    <div class="row">
+      <button class="btn ghost" id="btnRetry" type="button">再玩</button>
+      <button class="btn" id="btnCert" type="button">證書</button>
+      <button class="btn" id="btnNext" type="button">下一個</button>
+      <button class="btn ghost" id="btnHub2" type="button">主頁</button>
+    </div>
+  </div>
+</div>
+<script src="./reward.js"></script>
+<script src="./cert.js"></script>
+<script>
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('selectstart',e=>e.preventDefault());
+const NEED=5, GID='fish';
+const $=id=>document.getElementById(id);
+const stage=$('stage');
+let progress=0, didWin=false, audioCtx=null;
+function loadProfile(){
+  let who=null,name='';
+  try{
+    const p=new URLSearchParams(location.search);
+    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
+    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
+  }catch(_){}
+  if(!who) who={emoji:'🐱',name:'同學'};
+  $('av').textContent=who.emoji||'🐱';
+  $('whoName').textContent=name||who.name||'同學';
+  return name||who.name||'同學';
+}
+const displayName=loadProfile();
+function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+function tone(f,d=.12,t='sine',v=.2){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
+function sfxOk(){tone(523,.1);setTimeout(()=>tone(659,.1),70);setTimeout(()=>tone(784,.12),140)}
+function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
+function sfxBad(){tone(180,.14,'square',.1)}
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
+function toast(m,bad){const el=$('toast');el.textContent=m;el.classList.toggle('bad',!!bad);el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1100)}
+function confetti(){const box=$('confetti');box.innerHTML='';const cols=['#FF6B9D','#FFD54F','#69F0AE','#4FC3F7','#0288D1'];for(let i=0;i<30;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=cols[i%cols.length];el.style.animationDuration=(1+Math.random()*1.2)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2500)}
+function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';const R=window.MouseHubReward;$('mlab').textContent=(R&&R.fishBones)?R.fishBones(n,NEED):(n+'/'+NEED)}
+function bigCelebrate(done){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(61,43,90,.55)';
+  ov.innerHTML='<div style="font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#fff;text-align:center;text-shadow:0 4px 16px rgba(0,0,0,.35)">🎉 太叻喇！</div>';
+  document.body.appendChild(ov);setTimeout(()=>{ov.remove();done&&done();},1800);
+}
+function win(){
+  didWin=true;
+  try{if(window.MouseHubReward) MouseHubReward.award(GID, progress, 'clear');}catch(_){}
+  confetti(); sfxWin();
+  if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
+  const next=window.MouseHubReward?MouseHubReward.nextAfter(GID):null;
+  const nb=$('btnNext');
+  if(nb){
+    if(next && next.id!==GID){ nb.style.display=''; nb.textContent='下一個：'+next.title; nb.onclick=()=>{location.href=MouseHubReward.gameUrl(next);}; }
+    else nb.style.display='none';
+  }
+  try{const c=MouseHubReward.loadCerts()[GID];$('winMedal').textContent=(c&&MouseHubReward.TIER_META[c.tier].medal)||'🥇';}catch(_){}
+  bigCelebrate(()=>{$('winMsg').textContent=displayName+' · 小貓釣魚';$('win').classList.add('on');});
+}
+const fishes=['🐟','🐠','🐡','🦈','🐬'];
+let fishEl=null, raf=0, mx=innerWidth/2, my=innerHeight/2, hooked=false;
+const hook=$('hook');
+function clearFish(){if(fishEl){fishEl.remove();fishEl=null}if(raf){cancelAnimationFrame(raf);raf=0}}
+window.addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY;hook.style.left=mx+'px';hook.style.top=my+'px';checkHot()});
+function checkHot(){
+  if(!fishEl||didWin||hooked) return;
+  const r=fishEl.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  fishEl.classList.toggle('hot', Math.hypot(mx-cx, my-cy)<80);
+}
+function spawn(){
+  clearFish(); if(progress>=NEED||didWin) return; hooked=false;
+  fishEl=document.createElement('button'); fishEl.type='button'; fishEl.className='fish';
+  fishEl.textContent=fishes[progress%fishes.length];
+  let x=-10, dir=1, speed=0.32+Math.random()*0.28;
+  if(Math.random()<.5){x=110;dir=-1}
+  fishEl.style.left=x+'%'; fishEl.style.top=(18+Math.random()*50)+'%';
+  stage.appendChild(fishEl);
+  fishEl.addEventListener('click',e=>{e.preventDefault();tryCatch()});
+  fishEl.addEventListener('pointerdown',e=>{if(e.button===0){e.preventDefault();tryCatch()}});
+  function tick(){
+    if(!fishEl||didWin) return;
+    x+=dir*speed;
+    if(x>112||x<-12){ x=dir>0?-10:110; fishEl.style.top=(18+Math.random()*50)+'%'; }
+    fishEl.style.left=x+'%';
+    fishEl.style.transform=(dir<0?'scaleX(-1)':'')+(fishEl.classList.contains('hot')?' scale(1.2)':'');
+    checkHot();
+    raf=requestAnimationFrame(tick);
+  }
+  raf=requestAnimationFrame(tick);
+}
+function tryCatch(){
+  if(!fishEl||hooked||didWin) return;
+  const r=fishEl.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  if(Math.hypot(mx-cx,my-cy)>100){ sfxBad(); toast('移近再撳',true); return; }
+  hooked=true;
+  const emoji=fishEl.textContent;
+  clearFish();
+  $('bucket').textContent=emoji;
+  sfxOk(); toast('釣到！');
+  setProgress(progress+1);
+  if(progress>=NEED) setTimeout(win,350);
+  else setTimeout(spawn,450);
+}
+function start(){didWin=false;setProgress(0);spawn();if(window.MouseHubReward&&MouseHubReward.autoSpeak())speak('移近魚再撳')}
+$('btnHub').onclick=()=>location.href='./index.html';
+$('btnHub2').onclick=()=>location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl(GID):'./index.html'+(didWin?('?won='+GID):'');
+$('btnSpeak').onclick=()=>speak('移近魚再撳');
+$('btnCert').onclick=()=>MouseHubCert.showCert(GID);
+$('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
+window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
+start();
+</script>
+</body>
+</html>

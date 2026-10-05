@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>雙人接力｜將軍澳培智學校</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:"PingFang HK","Noto Sans TC",system-ui,sans-serif;color:#3D2B5A;
+background:linear-gradient(180deg,#E8EAF6,#F3E5F5);
+-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
+button{font:inherit;border:none;cursor:pointer}
+.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:rgba(255,255,255,.92);border-bottom:3px solid #7E57C255}
+.who{display:flex;align-items:center;gap:8px;font-weight:900}
+.av{width:40px;height:40px;border-radius:50%;border:3px solid #7E57C2;display:grid;place-items:center;font-size:1.3rem;background:#fff}
+.hint{flex:1;text-align:center;font-size:clamp(1.05rem,2.3vw,1.45rem);font-weight:900}
+.hint b{background:#FFD54F;padding:2px 8px;border-radius:8px}
+.icon{width:46px;height:46px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.15rem;font-weight:900}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stage{height:calc(100% - 60px);position:relative;overflow:hidden}
+.meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:5;display:flex;align-items:center;gap:10px;pointer-events:none}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(61,43,90,.12);overflow:hidden}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#7E57C2);transition:width .2s}
+.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem}
+.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(255,255,255,.95);border:3px solid #7E57C2;border-radius:16px;padding:8px 12px;font-weight:900;max-width:85%}
+.toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.35rem;font-weight:900;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}.toast.bad{border-color:#FF6B9D;color:#9f1239}
+.overlay{position:fixed;inset:0;background:rgba(61,43,90,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.on{display:flex}
+.modal{width:min(440px,94vw);background:#fff;border:5px solid #FFD54F;border-radius:28px;padding:22px 16px;text-align:center}
+.modal h2{font-size:1.9rem;margin-bottom:6px}.modal p{font-weight:800;opacity:.8;margin-bottom:12px}
+.btn{min-height:54px;min-width:120px;padding:12px 16px;border-radius:999px;background:linear-gradient(135deg,#7E57C2,#FF6B9D);color:#fff;font-size:1.15rem;font-weight:900}
+.btn.ghost{background:#fff;color:#3D2B5A;border:3px solid rgba(61,43,90,.12)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
+.confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.split{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:0;z-index:1}
+.side{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;border-right:4px dashed rgba(255,255,255,.5)}
+.side:last-child{border-right:none}
+.side.L{background:linear-gradient(180deg,#E3F2FD,#BBDEFB)}
+.side.R{background:linear-gradient(180deg,#F3E5F5,#E1BEE7)}
+.side h3{font-size:1.35rem;font-weight:900}
+.pad{width:min(200px,40vw);height:min(160px,28vh);border-radius:28px;border:6px solid #42A5F5;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-weight:900;font-size:1.25rem;cursor:pointer;user-select:none;touch-action:manipulation;box-shadow:0 10px 24px rgba(0,0,0,.12);transition:transform .05s}
+.side.R .pad{border-color:#AB47BC;cursor:context-menu}
+.pad .em{font-size:2.4rem;line-height:1}
+.pad.hit{transform:scale(.94);background:#FFF9C4}
+.pad.disabled{opacity:.45;pointer-events:none}
+.sc{font-size:2rem;font-weight:900}
+.timer{position:absolute;top:48px;left:50%;transform:translateX(-50%);z-index:6;font-size:clamp(1.8rem,5vw,2.6rem);font-weight:900;background:rgba(255,255,255,.95);padding:6px 18px;border-radius:999px;border:4px solid #FFD54F;pointer-events:none}
+.start-ov{position:absolute;inset:0;z-index:8;background:rgba(255,255,255,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:16px}
+.start-ov .story{font-size:1.35rem;font-weight:900;line-height:1.4}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti"></div>
+<div class="top">
+  <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
+  <div class="hint" id="hint">左掣 🆚 右掣 <b>接力</b></div>
+  <div class="row">
+    <button class="icon" id="btnSpeak" type="button">🔊</button>
+    <button class="icon" id="btnHub" type="button">🏠</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
+  <div class="guide" id="guide">左邊用左掣，右邊用右掣／兩指</div>
+  <div class="timer" id="timer">12</div>
+  <div class="split">
+    <div class="side L">
+      <h3>🔵 左 · 左掣</h3>
+      <div class="sc" id="scL">0</div>
+      <div class="pad disabled" id="padL"><span class="em">👆</span>左掣</div>
+    </div>
+    <div class="side R">
+      <h3>🟣 右 · 右掣</h3>
+      <div class="sc" id="scR">0</div>
+      <div class="pad disabled" id="padR"><span class="em">🖱️</span>右掣／兩指</div>
+    </div>
+  </div>
+  <div class="start-ov" id="startOv">
+    <div class="story">👯 雙人接力！<br>左邊左掣 · 右邊右掣<br>12 秒鬥多下</div>
+    <div id="count3" hidden style="font-size:3.5rem;font-weight:900;color:#7E57C2"></div>
+    <button class="btn" id="btnGo" type="button">開始！</button>
+  </div>
+</div>
+<div class="overlay" id="win">
+  <div class="modal">
+    <div style="font-size:2.4rem" id="winMedal">🥇</div>
+    <h2>做得好！</h2>
+    <p id="winMsg">完成</p>
+    <div class="row">
+      <button class="btn ghost" id="btnRetry" type="button">再玩</button>
+      <button class="btn" id="btnCert" type="button">證書</button>
+      <button class="btn" id="btnNext" type="button">下一個</button>
+      <button class="btn ghost" id="btnHub2" type="button">主頁</button>
+    </div>
+  </div>
+</div>
+<script src="./reward.js"></script>
+<script src="./cert.js"></script>
+<script>
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('selectstart',e=>e.preventDefault());
+const NEED=5, GID='duo', SECS=12;
+const $=id=>document.getElementById(id);
+const stage=$('stage');
+let progress=0, didWin=false, audioCtx=null;
+let leftS=0, rightS=0, leftT=SECS, timer=null, running=false;
+function loadProfile(){
+  let who=null,name='';
+  try{
+    const p=new URLSearchParams(location.search);
+    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
+    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
+  }catch(_){}
+  if(!who) who={emoji:'🐱',name:'同學'};
+  $('av').textContent=who.emoji||'🐱';
+  $('whoName').textContent=name||who.name||'同學';
+  return name||who.name||'同學';
+}
+const displayName=loadProfile();
+function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+function tone(f,d=.12,t='sine',v=.2){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
+function sfxOk(){tone(523,.1);setTimeout(()=>tone(659,.1),70);setTimeout(()=>tone(784,.12),140)}
+function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
+function sfxBad(){tone(180,.14,'square',.1)}
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
+function toast(m,bad){const el=$('toast');el.textContent=m;el.classList.toggle('bad',!!bad);el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1100)}
+function confetti(){const box=$('confetti');box.innerHTML='';const cols=['#FF6B9D','#FFD54F','#69F0AE','#7E57C2'];for(let i=0;i<30;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=cols[i%cols.length];el.style.animationDuration=(1+Math.random()*1.2)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2500)}
+function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';const R=window.MouseHubReward;$('mlab').textContent=(R&&R.fishBones)?R.fishBones(n,NEED):(n+'/'+NEED)}
+function bigCelebrate(done){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(61,43,90,.55)';
+  ov.innerHTML='<div style="font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#fff;text-align:center">🎉 太叻喇！</div>';
+  document.body.appendChild(ov);setTimeout(()=>{ov.remove();done&&done();},1800);
+}
+function renderScores(){$('scL').textContent=leftS;$('scR').textContent=rightS;$('timer').textContent=leftT}
+function hitL(e){if(!running)return;if(e){e.preventDefault();e.stopPropagation()}leftS++;$('padL').classList.add('hit');setTimeout(()=>$('padL').classList.remove('hit'),80);tone(660,.06);renderScores()}
+function hitR(e){if(!running)return;if(e){e.preventDefault();e.stopPropagation()}rightS++;$('padR').classList.add('hit');setTimeout(()=>$('padR').classList.remove('hit'),80);tone(520,.06,'triangle');renderScores()}
+function wire(){
+  const pl=$('padL'), pr=$('padR');
+  pl.addEventListener('pointerdown',e=>{if(e.button===0)hitL(e)},true);
+  pl.addEventListener('click',e=>{if(e.button===0)hitL(e)},true);
+  pr.addEventListener('pointerdown',e=>{if(e.button===2||e.ctrlKey)hitR(e)},true);
+  pr.addEventListener('mousedown',e=>{if(e.button===2||e.ctrlKey)hitR(e)},true);
+  pr.addEventListener('contextmenu',e=>hitR(e),true);
+  pr.addEventListener('auxclick',e=>{if(e.button===2)hitR(e)},true);
+  pr.addEventListener('click',e=>{if(!running)return;if(e.ctrlKey||e.metaKey){hitR(e);return}if(e.button===0){e.preventDefault();sfxBad();toast('右邊要右掣／兩指',true)}},true);
+}
+function tick(){leftT--;renderScores();if(leftT<=0)finish()}
+function finish(){
+  if(didWin)return; didWin=true; running=false; clearInterval(timer);
+  $('padL').classList.add('disabled');$('padR').classList.add('disabled');
+  const total=leftS+rightS;
+  setProgress(Math.min(NEED, Math.max(1, Math.floor(total/3)||1)));
+  try{if(window.MouseHubReward) MouseHubReward.award(GID, Math.max(total,1), 'race');}catch(_){}
+  confetti(); sfxWin();
+  if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
+  const next=window.MouseHubReward?MouseHubReward.nextAfter(GID):null;
+  const nb=$('btnNext');
+  if(nb){ if(next&&next.id!==GID){nb.style.display='';nb.textContent='下一個：'+next.title;nb.onclick=()=>{location.href=MouseHubReward.gameUrl(next)}} else nb.style.display='none' }
+  try{const c=MouseHubReward.loadCerts()[GID];$('winMedal').textContent=(c&&MouseHubReward.TIER_META[c.tier].medal)||'🥇'}catch(_){}
+  bigCelebrate(()=>{$('winMsg').textContent=displayName+' · 左'+leftS+' 右'+rightS+' · 合共'+total;$('win').classList.add('on')});
+}
+function begin(){
+  didWin=false; leftS=0; rightS=0; leftT=SECS; running=true;
+  $('padL').classList.remove('disabled');$('padR').classList.remove('disabled');
+  $('startOv').style.display='none';
+  setProgress(0); renderScores();
+  clearInterval(timer); timer=setInterval(tick,1000);
+}
+function setupStart(){
+  wire();
+  $('btnGo').onclick=()=>{
+    const c=$('count3'); const go=$('btnGo'); const story=$('startOv').querySelector('.story');
+    go.hidden=true; story.hidden=true; c.hidden=false;
+    let n=3; c.textContent=n;
+    const iv=setInterval(()=>{
+      n--;
+      if(n>0){c.textContent=n;tone(400+n*80,.1)}
+      else{clearInterval(iv);c.textContent='GO!';tone(880,.15);setTimeout(begin,300)}
+    },500);
+  };
+}
+function start(){didWin=false;setProgress(0);setupStart();if(window.MouseHubReward&&MouseHubReward.autoSpeak())speak('左掣同右掣一齊撳')}
+$('btnHub').onclick=()=>location.href='./index.html';
+$('btnHub2').onclick=()=>location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl(GID):'./index.html'+(didWin?('?won='+GID):'');
+$('btnSpeak').onclick=()=>speak('左掣同右掣一齊撳');
+$('btnCert').onclick=()=>MouseHubCert.showCert(GID);
+$('btnRetry').onclick=()=>{$('win').classList.remove('on');$('startOv').style.display='flex';$('btnGo').hidden=false;const st=$('startOv').querySelector('.story');if(st)st.hidden=false;$('count3').hidden=true;start()};
+window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
+start();
+</script>
+</body>
+</html>

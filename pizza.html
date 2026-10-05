@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>薄餅店｜將軍澳培智學校</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:"PingFang HK","Noto Sans TC",system-ui,sans-serif;color:#3D2B5A;
+background:linear-gradient(180deg,#FFF3E0,#FFE0B2 50%,#FFCCBC);
+-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
+button{font:inherit;border:none;cursor:pointer}
+.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:rgba(255,255,255,.92);border-bottom:3px solid #FF6D0055}
+.who{display:flex;align-items:center;gap:8px;font-weight:900}
+.av{width:40px;height:40px;border-radius:50%;border:3px solid #FF6D00;display:grid;place-items:center;font-size:1.3rem;background:#fff}
+.hint{flex:1;text-align:center;font-size:clamp(1.05rem,2.3vw,1.45rem);font-weight:900}
+.hint b{background:#FFD54F;padding:2px 8px;border-radius:8px}
+.icon{width:46px;height:46px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.15rem;font-weight:900}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stage{height:calc(100% - 60px);position:relative;overflow:hidden}
+.meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:5;display:flex;align-items:center;gap:10px;pointer-events:none}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(61,43,90,.12);overflow:hidden}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#FF6D00);transition:width .2s}
+.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem}
+.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(255,255,255,.95);border:3px solid #FF6D00;border-radius:16px;padding:8px 12px;font-weight:900;max-width:85%}
+.toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.35rem;font-weight:900;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}.toast.bad{border-color:#FF6B9D;color:#9f1239}
+.overlay{position:fixed;inset:0;background:rgba(61,43,90,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.on{display:flex}
+.modal{width:min(440px,94vw);background:#fff;border:5px solid #FFD54F;border-radius:28px;padding:22px 16px;text-align:center}
+.modal h2{font-size:1.9rem;margin-bottom:6px}.modal p{font-weight:800;opacity:.8;margin-bottom:12px}
+.btn{min-height:54px;min-width:120px;padding:12px 16px;border-radius:999px;background:linear-gradient(135deg,#FF6D00,#FF6B9D);color:#fff;font-size:1.15rem;font-weight:900}
+.btn.ghost{background:#fff;color:#3D2B5A;border:3px solid rgba(61,43,90,.12)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
+.confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.pulse{animation:pulse 1s ease-in-out infinite}
+.board{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:min(260px,55vw);height:min(260px,55vw);border-radius:50%;
+background:radial-gradient(circle at 40% 35%,#FFE082,#FFB300 55%,#F57C00);border:8px solid #E65100;box-shadow:0 12px 28px rgba(0,0,0,.2);z-index:2;
+display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:4px;padding:18%}
+.board .topping{font-size:1.8rem;line-height:1;animation:pop .25s ease}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.tray{position:absolute;left:8px;bottom:70px;display:flex;gap:10px;z-index:4;flex-wrap:wrap;max-width:55%}
+.chip{width:72px;height:72px;border-radius:18px;border:4px solid #FF8A65;background:#fff;font-size:2rem;display:grid;place-items:center;cursor:pointer;font-weight:900;box-shadow:0 6px 14px rgba(0,0,0,.12)}
+.chip:active{transform:scale(.94)}
+.oven{position:absolute;right:10px;bottom:70px;width:min(160px,34vw);height:130px;border-radius:20px;border:5px dashed #8D6E63;background:rgba(141,110,99,.15);
+display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.15rem;text-align:center;z-index:3;transition:.15s}
+.oven.hot{background:rgba(255,87,34,.25);border-color:#FF5722;border-style:solid;box-shadow:0 0 0 6px rgba(255,87,34,.2)}
+.pizza-drag{position:absolute;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,#FFE082,#FFB300);border:5px solid #E65100;
+display:grid;place-items:center;font-size:2.2rem;cursor:grab;z-index:10;touch-action:none;box-shadow:0 8px 18px rgba(0,0,0,.2)}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti"></div>
+<div class="top">
+  <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
+  <div class="hint" id="hint">左掣加料 → 拖去 <b>焗爐</b></div>
+  <div class="row">
+    <button class="icon" id="btnSpeak" type="button">🔊</button>
+    <button class="icon" id="btnHub" type="button">🏠</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
+  <div class="guide" id="guide">先加 3 樣配料，再拖去焗</div>
+</div>
+<div class="overlay" id="win">
+  <div class="modal">
+    <div style="font-size:2.4rem" id="winMedal">🥇</div>
+    <h2>做得好！</h2>
+    <p id="winMsg">完成</p>
+    <div class="row">
+      <button class="btn ghost" id="btnRetry" type="button">再玩</button>
+      <button class="btn" id="btnCert" type="button">證書</button>
+      <button class="btn" id="btnNext" type="button">下一個</button>
+      <button class="btn ghost" id="btnHub2" type="button">主頁</button>
+    </div>
+  </div>
+</div>
+<script src="./reward.js"></script>
+<script src="./cert.js"></script>
+<script>
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('selectstart',e=>e.preventDefault());
+const NEED=5, GID='pizza';
+const $=id=>document.getElementById(id);
+const stage=$('stage');
+let progress=0, didWin=false, audioCtx=null;
+function loadProfile(){
+  let who=null,name='';
+  try{
+    const p=new URLSearchParams(location.search);
+    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
+    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
+  }catch(_){}
+  if(!who) who={emoji:'🐱',name:'同學'};
+  $('av').textContent=who.emoji||'🐱';
+  $('whoName').textContent=name||who.name||'同學';
+  return name||who.name||'同學';
+}
+const displayName=loadProfile();
+function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+function tone(f,d=.12,t='sine',v=.2){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
+function sfxOk(){tone(523,.1);setTimeout(()=>tone(659,.1),70);setTimeout(()=>tone(784,.12),140)}
+function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
+function sfxBad(){tone(180,.14,'square',.1)}
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
+function toast(m,bad){const el=$('toast');el.textContent=m;el.classList.toggle('bad',!!bad);el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1100)}
+function confetti(){const box=$('confetti');box.innerHTML='';const cols=['#FF6B9D','#FFD54F','#69F0AE','#FF6D00'];for(let i=0;i<30;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=cols[i%cols.length];el.style.animationDuration=(1+Math.random()*1.2)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2500)}
+function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';const R=window.MouseHubReward;$('mlab').textContent=(R&&R.fishBones)?R.fishBones(n,NEED):(n+'/'+NEED)}
+function bigCelebrate(done){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(61,43,90,.55)';
+  ov.innerHTML='<div style="font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#fff;text-align:center">🎉 太叻喇！</div>';
+  document.body.appendChild(ov);setTimeout(()=>{ov.remove();done&&done();},1800);
+}
+function win(){
+  didWin=true;
+  try{if(window.MouseHubReward) MouseHubReward.award(GID, progress, 'clear');}catch(_){}
+  confetti(); sfxWin();
+  if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
+  const next=window.MouseHubReward?MouseHubReward.nextAfter(GID):null;
+  const nb=$('btnNext');
+  if(nb){
+    if(next && next.id!==GID){ nb.style.display=''; nb.textContent='下一個：'+next.title; nb.onclick=()=>{location.href=MouseHubReward.gameUrl(next);}; }
+    else nb.style.display='none';
+  }
+  try{const c=MouseHubReward.loadCerts()[GID];$('winMedal').textContent=(c&&MouseHubReward.TIER_META[c.tier].medal)||'🥇';}catch(_){}
+  bigCelebrate(()=>{$('winMsg').textContent=displayName+' · 薄餅店';$('win').classList.add('on');});
+}
+const TOPS=[{e:'🍅',n:'番茄'},{e:'🧀',n:'芝士'},{e:'🍄',n:'蘑菇'},{e:'🫒',n:'橄欖'},{e:'🥓',n:'肉'}];
+let phase='add', added=0, needTop=3;
+function hits(el,zone,pad=48){const a=el.getBoundingClientRect(),b=zone.getBoundingClientRect();const cx=(a.left+a.right)/2,cy=(a.top+a.bottom)/2;return cx>=b.left-pad&&cx<=b.right+pad&&cy>=b.top-pad&&cy<=b.bottom+pad}
+function clearPlay(){stage.querySelectorAll('.tray,.board,.oven,.pizza-drag').forEach(e=>e.remove())}
+function setHint(h,g){$('hint').innerHTML=h;$('guide').textContent=g}
+function spawn(){
+  clearPlay(); if(progress>=NEED||didWin) return;
+  phase='add'; added=0; needTop=3;
+  setHint('左掣加 <b>配料</b>','撳下面配料，加滿 3 樣');
+  const board=document.createElement('div'); board.className='board'; board.id='board'; stage.appendChild(board);
+  const tray=document.createElement('div'); tray.className='tray';
+  TOPS.forEach(t=>{
+    const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=t.e;
+    b.onclick=()=>{
+      if(phase!=='add'||didWin) return;
+      const s=document.createElement('span'); s.className='topping'; s.textContent=t.e; board.appendChild(s);
+      added++; tone(500+added*80,.08); toast(t.n+'！');
+      if(added>=needTop) setTimeout(toDrag,280);
+    };
+    tray.appendChild(b);
+  });
+  stage.appendChild(tray);
+}
+function toDrag(){
+  phase='drag';
+  setHint('拖薄餅去 <b>焗爐</b>','按住薄餅，拖去右邊焗爐');
+  const tray=stage.querySelector('.tray'); if(tray) tray.remove();
+  const oven=document.createElement('div'); oven.className='oven'; oven.id='oven'; oven.innerHTML='🔥<br>焗爐'; stage.appendChild(oven);
+  const board=$('board');
+  const r=board.getBoundingClientRect(), sr=stage.getBoundingClientRect();
+  board.remove();
+  const el=document.createElement('div'); el.className='pizza-drag pulse'; el.textContent='🍕';
+  el.style.left=(r.left-sr.left)+'px'; el.style.top=(r.top-sr.top)+'px';
+  stage.appendChild(el);
+  enableDrag(el, oven, ()=>{
+    el.remove(); oven.textContent='🍕 香！'; sfxOk(); toast('出爐！');
+    setProgress(progress+1);
+    if(progress>=NEED) setTimeout(win,400);
+    else setTimeout(spawn,500);
+  });
+}
+function enableDrag(el,zone,onOk){
+  let ox=0,oy=0,dragging=false;
+  const detach=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)};
+  const down=e=>{if(e.button!=null&&e.button!==0)return;e.preventDefault();dragging=true;const r=el.getBoundingClientRect();ox=e.clientX-r.left;oy=e.clientY-r.top;el.style.position='fixed';el.style.left=r.left+'px';el.style.top=r.top+'px';el.style.zIndex='30';el.classList.remove('pulse');try{el.setPointerCapture(e.pointerId)}catch(_){}
+    el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);move(e)};
+  const move=e=>{if(!dragging||e.clientX==null)return;el.style.left=Math.max(0,Math.min(innerWidth-el.offsetWidth,e.clientX-ox))+'px';el.style.top=Math.max(0,Math.min(innerHeight-el.offsetHeight,e.clientY-oy))+'px';zone.classList.toggle('hot',hits(el,zone))};
+  const up=e=>{if(!dragging)return;dragging=false;detach();try{if(e&&e.pointerId!=null)el.releasePointerCapture(e.pointerId)}catch(_){}
+    if(hits(el,zone)) onOk(); else {sfxBad();toast('拖去焗爐',true);zone.classList.remove('hot')}};
+  el.addEventListener('pointerdown',down);
+}
+function start(){didWin=false;setProgress(0);spawn();if(window.MouseHubReward&&MouseHubReward.autoSpeak())speak('加配料再拖去焗爐')}
+$('btnHub').onclick=()=>location.href='./index.html';
+$('btnHub2').onclick=()=>location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl(GID):'./index.html'+(didWin?('?won='+GID):'');
+$('btnSpeak').onclick=()=>speak('加配料再拖去焗爐');
+$('btnCert').onclick=()=>MouseHubCert.showCert(GID);
+$('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
+window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
+start();
+</script>
+</body>
+</html>

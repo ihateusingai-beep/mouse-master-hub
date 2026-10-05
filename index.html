@@ -178,6 +178,9 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
 
   <div class="sec-title">🎮 練習關（自由揀）</div>
   <div class="grid" id="gridSkill"></div>
+
+  <div class="sec-title">🎉 趣味關（新）</div>
+  <div class="grid" id="gridFun"></div>
 </main>
 
 <footer class="foot">將軍澳培智學校 · 電腦科 · 小一／小二 · 每關完成可攞證書</footer>
@@ -301,8 +304,10 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
 
   function renderGames() {
     const certs = R.loadCerts();
-    ['basic', 'skill'].forEach(group => {
-      const grid = document.getElementById(group === 'basic' ? 'gridBasic' : 'gridSkill');
+    const map = { basic: 'gridBasic', skill: 'gridSkill', fun: 'gridFun' };
+    ['basic', 'skill', 'fun'].forEach(group => {
+      const grid = document.getElementById(map[group]);
+      if (!grid) return;
       grid.innerHTML = '';
       R.GAMES.filter(g => g.group === group).forEach(g => {
         const c = certs[g.id];
