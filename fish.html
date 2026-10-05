@@ -57,7 +57,7 @@ button{font:inherit;border:none;cursor:pointer}
 <div class="stage" id="stage">
   <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
   <div class="guide" id="guide">滑鼠靠近游魚，再左掣一點！</div>
-  <div class="water" id="water"><div class="wave" style="top:8%"></div><div class="wave" style="top:40%;animation-delay:.5s"></div></div>
+  <div class="water"><div class="wave" style="top:8%"></div><div class="wave" style="top:40%;animation-delay:.5s"></div></div>
   <div class="bucket" id="bucket">🧺</div>
   <div class="hook" id="hook"></div>
 </div>
@@ -76,108 +76,72 @@ button{font:inherit;border:none;cursor:pointer}
 </div>
 <script src="./reward.js"></script>
 <script src="./cert.js"></script>
+<script src="./common.js"></script>
 <script>
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('selectstart',e=>e.preventDefault());
-const NEED=5, GID='fish';
-const $=id=>document.getElementById(id);
-const stage=$('stage');
-let progress=0, didWin=false, audioCtx=null;
-function loadProfile(){
-  let who=null,name='';
-  try{
-    const p=new URLSearchParams(location.search);
-    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
-    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
-  }catch(_){}
-  if(!who) who={emoji:'🐱',name:'同學'};
-  $('av').textContent=who.emoji||'🐱';
-  $('whoName').textContent=name||who.name||'同學';
-  return name||who.name||'同學';
+const C = MouseHubCommon, NEED = 5, GID = 'fish';
+const $ = C.$, stage = $('stage'), fishes = ['🐟','🐠','🐡','🦈','🐬'];
+let progress = 0, didWin = false, fishEl = null, raf = 0, mx = innerWidth/2, my = innerHeight/2, hooked = false;
+const displayName = C.loadProfile();
+C.lockSEN(); C.armAudioOnce();
+const hook = $('hook');
+window.addEventListener('pointermove', e => {
+  mx = e.clientX; my = e.clientY;
+  hook.style.left = mx + 'px'; hook.style.top = my + 'px';
+  checkHot();
+});
+function checkHot() {
+  if (!fishEl || didWin || hooked) return;
+  const r = fishEl.getBoundingClientRect();
+  const d = Math.hypot(mx - (r.left + r.width/2), my - (r.top + r.height/2));
+  fishEl.classList.toggle('hot', d < 80);
 }
-const displayName=loadProfile();
-function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
-function tone(f,d=.12,t='sine',v=.2){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
-function sfxOk(){tone(523,.1);setTimeout(()=>tone(659,.1),70);setTimeout(()=>tone(784,.12),140)}
-function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
-function sfxBad(){tone(180,.14,'square',.1)}
-function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
-function toast(m,bad){const el=$('toast');el.textContent=m;el.classList.toggle('bad',!!bad);el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1100)}
-function confetti(){const box=$('confetti');box.innerHTML='';const cols=['#FF6B9D','#FFD54F','#69F0AE','#4FC3F7','#0288D1'];for(let i=0;i<30;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=cols[i%cols.length];el.style.animationDuration=(1+Math.random()*1.2)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2500)}
-function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';const R=window.MouseHubReward;$('mlab').textContent=(R&&R.fishBones)?R.fishBones(n,NEED):(n+'/'+NEED)}
-function bigCelebrate(done){
-  const ov=document.createElement('div');
-  ov.style.cssText='position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(61,43,90,.55)';
-  ov.innerHTML='<div style="font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#fff;text-align:center;text-shadow:0 4px 16px rgba(0,0,0,.35)">🎉 太叻喇！</div>';
-  document.body.appendChild(ov);setTimeout(()=>{ov.remove();done&&done();},1800);
+function clearFish() {
+  if (fishEl) { fishEl.remove(); fishEl = null; }
+  if (raf) { cancelAnimationFrame(raf); raf = 0; }
 }
-function win(){
-  didWin=true;
-  try{if(window.MouseHubReward) MouseHubReward.award(GID, progress, 'clear');}catch(_){}
-  confetti(); sfxWin();
-  if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
-  const next=window.MouseHubReward?MouseHubReward.nextAfter(GID):null;
-  const nb=$('btnNext');
-  if(nb){
-    if(next && next.id!==GID){ nb.style.display=''; nb.textContent='下一個：'+next.title; nb.onclick=()=>{location.href=MouseHubReward.gameUrl(next);}; }
-    else nb.style.display='none';
-  }
-  try{const c=MouseHubReward.loadCerts()[GID];$('winMedal').textContent=(c&&MouseHubReward.TIER_META[c.tier].medal)||'🥇';}catch(_){}
-  bigCelebrate(()=>{$('winMsg').textContent=displayName+' · 小貓釣魚';$('win').classList.add('on');});
-}
-const fishes=['🐟','🐠','🐡','🦈','🐬'];
-let fishEl=null, raf=0, mx=innerWidth/2, my=innerHeight/2, hooked=false;
-const hook=$('hook');
-function clearFish(){if(fishEl){fishEl.remove();fishEl=null}if(raf){cancelAnimationFrame(raf);raf=0}}
-window.addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY;hook.style.left=mx+'px';hook.style.top=my+'px';checkHot()});
-function checkHot(){
-  if(!fishEl||didWin||hooked) return;
-  const r=fishEl.getBoundingClientRect();
-  const cx=r.left+r.width/2, cy=r.top+r.height/2;
-  fishEl.classList.toggle('hot', Math.hypot(mx-cx, my-cy)<80);
-}
-function spawn(){
-  clearFish(); if(progress>=NEED||didWin) return; hooked=false;
-  fishEl=document.createElement('button'); fishEl.type='button'; fishEl.className='fish';
-  fishEl.textContent=fishes[progress%fishes.length];
-  let x=-10, dir=1, speed=0.32+Math.random()*0.28;
-  if(Math.random()<.5){x=110;dir=-1}
-  fishEl.style.left=x+'%'; fishEl.style.top=(18+Math.random()*50)+'%';
+function spawn() {
+  clearFish(); if (progress >= NEED || didWin) return; hooked = false;
+  fishEl = document.createElement('button');
+  fishEl.type = 'button'; fishEl.className = 'fish';
+  fishEl.textContent = fishes[progress % fishes.length];
+  let x = -10, dir = 1, speed = 0.32 + Math.random() * 0.28;
+  if (Math.random() < 0.5) { x = 110; dir = -1; }
+  fishEl.style.left = x + '%'; fishEl.style.top = (18 + Math.random() * 50) + '%';
   stage.appendChild(fishEl);
-  fishEl.addEventListener('click',e=>{e.preventDefault();tryCatch()});
-  fishEl.addEventListener('pointerdown',e=>{if(e.button===0){e.preventDefault();tryCatch()}});
-  function tick(){
-    if(!fishEl||didWin) return;
-    x+=dir*speed;
-    if(x>112||x<-12){ x=dir>0?-10:110; fishEl.style.top=(18+Math.random()*50)+'%'; }
-    fishEl.style.left=x+'%';
-    fishEl.style.transform=(dir<0?'scaleX(-1)':'')+(fishEl.classList.contains('hot')?' scale(1.2)':'');
+  fishEl.addEventListener('click', e => { e.preventDefault(); tryCatch(); });
+  fishEl.addEventListener('pointerdown', e => { if (e.button === 0) { e.preventDefault(); tryCatch(); } });
+  (function tick() {
+    if (!fishEl || didWin) return;
+    x += dir * speed;
+    if (x > 112 || x < -12) { x = dir > 0 ? -10 : 110; fishEl.style.top = (18 + Math.random() * 50) + '%'; }
+    fishEl.style.left = x + '%';
+    fishEl.style.transform = (dir < 0 ? 'scaleX(-1)' : '') + (fishEl.classList.contains('hot') ? ' scale(1.2)' : '');
     checkHot();
-    raf=requestAnimationFrame(tick);
+    raf = requestAnimationFrame(tick);
+  })();
+}
+function tryCatch() {
+  if (!fishEl || hooked || didWin) return;
+  const r = fishEl.getBoundingClientRect();
+  if (Math.hypot(mx - (r.left + r.width/2), my - (r.top + r.height/2)) > 100) {
+    C.sfxBad(); C.toast('移近再撳', true); return;
   }
-  raf=requestAnimationFrame(tick);
-}
-function tryCatch(){
-  if(!fishEl||hooked||didWin) return;
-  const r=fishEl.getBoundingClientRect();
-  const cx=r.left+r.width/2, cy=r.top+r.height/2;
-  if(Math.hypot(mx-cx,my-cy)>100){ sfxBad(); toast('移近再撳',true); return; }
-  hooked=true;
-  const emoji=fishEl.textContent;
+  hooked = true;
+  const emoji = fishEl.textContent;
   clearFish();
-  $('bucket').textContent=emoji;
-  sfxOk(); toast('釣到！');
-  setProgress(progress+1);
-  if(progress>=NEED) setTimeout(win,350);
-  else setTimeout(spawn,450);
+  $('bucket').textContent = emoji;
+  C.sfxOk(); C.toast('釣到！');
+  progress += 1; C.setProgress(progress, NEED);
+  if (progress >= NEED) setTimeout(win, 350); else setTimeout(spawn, 450);
 }
-function start(){didWin=false;setProgress(0);spawn();if(window.MouseHubReward&&MouseHubReward.autoSpeak())speak('移近魚再撳')}
-$('btnHub').onclick=()=>location.href='./index.html';
-$('btnHub2').onclick=()=>location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl(GID):'./index.html'+(didWin?('?won='+GID):'');
-$('btnSpeak').onclick=()=>speak('移近魚再撳');
-$('btnCert').onclick=()=>MouseHubCert.showCert(GID);
-$('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
-window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
+function win() {
+  C.finishClear({ gid: GID, progress, label: '小貓釣魚', displayName, setDidWin: v => { didWin = v; } });
+}
+function start() {
+  didWin = false; progress = 0; C.setProgress(0, NEED); spawn();
+  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('移近魚再撳');
+}
+C.wireChrome({ gid: GID, speakText: '移近魚再撳', didWin: () => didWin, onRetry: start });
 start();
 </script>
 </body>

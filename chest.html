@@ -71,84 +71,39 @@ button{font:inherit;border:none;cursor:pointer}
 </div>
 <script src="./reward.js"></script>
 <script src="./cert.js"></script>
+<script src="./common.js"></script>
 <script>
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('selectstart',e=>e.preventDefault());
-const NEED=5, HUB='./index.html';
-const $=id=>document.getElementById(id);
-const stage=$('stage');
-let progress=0, didWin=false, audioCtx=null;
-function loadProfile(){
-  let who=null,name='';
-  try{
-    const p=new URLSearchParams(location.search);
-    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
-    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
-  }catch(_){}
-  if(!who) who={emoji:'🐱',name:'同學'};
-  $('av').textContent=who.emoji||'🐱';
-  $('whoName').textContent=name||who.name||'同學';
-  return name||who.name||'同學';
+const C = MouseHubCommon, NEED = 5, GID = 'chest';
+const $ = C.$, stage = $('stage');
+let progress = 0, didWin = false;
+const displayName = C.loadProfile();
+C.lockSEN(); C.armAudioOnce();
+function setProgress(n) {
+  progress = n; C.setProgress(n, NEED);
+  const lab = $('mlab'); if (lab) { lab.style.letterSpacing = '2px'; lab.style.fontSize = '1.2rem'; }
 }
-const displayName=loadProfile();
-function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
-function tone(f,d=.12,t='sine',v=.2){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
-function sfxOk(){tone(523,.1);setTimeout(()=>tone(659,.1),70);setTimeout(()=>tone(784,.12),140)}
-function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
-function sfxBad(){tone(180,.14,'square',.1)}
-function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
-function toast(m,bad){const el=$('toast');el.textContent=m;el.classList.toggle('bad',!!bad);el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1100)}
-function confetti(){const box=$('confetti');box.innerHTML='';const cols=['#B388FF','#FFD54F','#69F0AE','#FF6B9D'];for(let i=0;i<28;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=cols[i%cols.length];el.style.animationDuration=(1.1+Math.random()*1.2)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2500)}
-function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';const R=window.MouseHubReward;$('mlab').textContent=(R&&R.fishBones)?R.fishBones(n,NEED):(n+'/'+NEED);$('mlab').style.letterSpacing='2px';$('mlab').style.fontSize='1.2rem'}
-function bigCelebrate(done){
-  const ov=document.createElement('div');
-  ov.style.cssText='position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(61,43,90,.55)';
-  ov.innerHTML='<div style="font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#fff;text-align:center;text-shadow:0 4px 16px rgba(0,0,0,.35)">🎉 太叻喇！<br><span style="font-size:1.15em">😻</span></div>';
-  document.body.appendChild(ov);
-  setTimeout(()=>{ov.remove();done&&done();},2000);
+function win() {
+  C.finishClear({ gid: GID, progress, label: '寶箱右掣', displayName, setDidWin: v => { didWin = v; } });
 }
-function win(){ didWin=true;
-  try{ if(window.MouseHubReward) MouseHubReward.award('chest', progress, 'clear'); }catch(_e){}
-  confetti(); sfxWin();
-  if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
-  const next=window.MouseHubReward?MouseHubReward.nextAfter('chest'):null;
-  const nb=$('btnNext');
-  if(nb){
-    if(next && next.id!=='chest'){ nb.style.display=''; nb.textContent='下一個：'+next.title; nb.onclick=()=>{ location.href=MouseHubReward.gameUrl(next); }; }
-    else { nb.style.display='none'; }
-  }
-  bigCelebrate(()=>{
-    $('winMsg').textContent=displayName+' · 寶箱右掣';
-    $('win').classList.add('on');
+function spawn() {
+  stage.querySelectorAll('.chest').forEach(el => el.remove());
+  if (progress >= NEED) return;
+  const el = document.createElement('div'); el.className = 'chest pulse'; el.textContent = '📦';
+  el.style.left = (28 + Math.random() * 28) + '%'; el.style.top = (26 + Math.random() * 28) + '%';
+  stage.appendChild(el);
+  C.bindRight(el, () => {
+    el.textContent = '💎'; el.classList.remove('pulse'); C.tone(880, 0.1);
+    setTimeout(() => {
+      el.remove(); C.sfxOk(); setProgress(progress + 1);
+      if (progress >= NEED) setTimeout(win, 300); else setTimeout(spawn, 300);
+    }, 250);
   });
 }
-function bindRight(el,onOk){
-  let opened=false,until=0;
-  const go=e=>{if(opened)return;opened=true;until=Date.now()+600;if(e){e.preventDefault();e.stopPropagation()}onOk()};
-  el.addEventListener('pointerdown',e=>{if(e.button===2||e.ctrlKey)go(e)},true);
-  el.addEventListener('mousedown',e=>{if(e.button===2||e.ctrlKey)go(e)},true);
-  el.addEventListener('contextmenu',e=>go(e),true);
-  el.addEventListener('auxclick',e=>{if(e.button===2)go(e)},true);
-  el.addEventListener('click',e=>{
-    if(opened||Date.now()<until){e.preventDefault();return}
-    if(e.ctrlKey||e.metaKey){go(e);return}
-    if(e.button===0){sfxBad();toast('兩指／右掣',true)}
-  },true);
+function start() {
+  didWin = false; setProgress(0); spawn();
+  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('右掣開盒');
 }
-function spawn(){
-  stage.querySelectorAll('.chest').forEach(el=>el.remove());
-  if(progress>=NEED) return;
-  const el=document.createElement('div');el.className='chest pulse';el.textContent='📦';
-  el.style.left=(28+Math.random()*28)+'%';el.style.top=(26+Math.random()*28)+'%';
-  stage.appendChild(el);
-  bindRight(el,()=>{el.textContent='💎';el.classList.remove('pulse');tone(880,.1);setTimeout(()=>{el.remove();sfxOk();setProgress(progress+1);if(progress>=NEED)setTimeout(win,300);else setTimeout(spawn,300)},250)});
-}
-function start(){ didWin=false; setProgress(0);spawn();if(window.MouseHubReward&&MouseHubReward.autoSpeak())speak('右掣開盒')}
-$('btnHub').onclick=()=>{location.href='./index.html'};$('btnHub2').onclick=()=>{location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl('chest'):'./index.html'+(didWin?('?won=chest'):'')};
-$('btnSpeak').onclick=()=>speak('右掣開盒');
-$('btnCert').onclick=()=>MouseHubCert.showCert('chest');
-$('btnRetry').onclick=()=>{$('win').classList.remove('on');start()};
-window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
+C.wireChrome({ gid: GID, speakText: '右掣開盒', didWin: () => didWin, onRetry: start });
 start();
 </script>
 </body>

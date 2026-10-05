@@ -99,97 +99,100 @@ button{font:inherit;border:none;cursor:pointer}
 </div>
 <script src="./reward.js"></script>
 <script src="./cert.js"></script>
+<script src="./common.js"></script>
 <script>
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('selectstart',e=>e.preventDefault());
-const NEED=5, GID='duo', SECS=12;
-const $=id=>document.getElementById(id);
-const stage=$('stage');
-let progress=0, didWin=false, audioCtx=null;
-let leftS=0, rightS=0, leftT=SECS, timer=null, running=false;
-function loadProfile(){
-  let who=null,name='';
-  try{
-    const p=new URLSearchParams(location.search);
-    name=(p.get('name')||localStorage.getItem('mouse_hub_name')||'').trim();
-    who=JSON.parse(localStorage.getItem('mouse_hub_who')||'null');
-  }catch(_){}
-  if(!who) who={emoji:'🐱',name:'同學'};
-  $('av').textContent=who.emoji||'🐱';
-  $('whoName').textContent=name||who.name||'同學';
-  return name||who.name||'同學';
+const C = MouseHubCommon, NEED = 5, GID = 'duo', SECS = 12;
+const $ = C.$;
+let progress = 0, didWin = false, leftS = 0, rightS = 0, leftT = SECS, timer = null, running = false, wired = false;
+const displayName = C.loadProfile();
+C.lockSEN(); C.armAudioOnce();
+function renderScores() { $('scL').textContent = leftS; $('scR').textContent = rightS; $('timer').textContent = leftT; }
+function hitL(e) {
+  if (!running) return; if (e) { e.preventDefault(); e.stopPropagation(); }
+  leftS++; $('padL').classList.add('hit'); setTimeout(() => $('padL').classList.remove('hit'), 80);
+  C.tone(660, 0.06); renderScores();
 }
-const displayName=loadProfile();
-function ctx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
-function tone(f,d=.12,t='sine',v=.2){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(_){}}
-function sfxOk(){tone(523,.1);setTimeout(()=>tone(659,.1),70);setTimeout(()=>tone(784,.12),140)}
-function sfxWin(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,'triangle',.2),i*80))}
-function sfxBad(){tone(180,.14,'square',.1)}
-function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-HK';u.rate=.92;speechSynthesis.speak(u)}catch(_){}}
-function toast(m,bad){const el=$('toast');el.textContent=m;el.classList.toggle('bad',!!bad);el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1100)}
-function confetti(){const box=$('confetti');box.innerHTML='';const cols=['#FF6B9D','#FFD54F','#69F0AE','#7E57C2'];for(let i=0;i<30;i++){const el=document.createElement('i');el.style.left=Math.random()*100+'vw';el.style.background=cols[i%cols.length];el.style.animationDuration=(1+Math.random()*1.2)+'s';box.appendChild(el)}setTimeout(()=>box.innerHTML='',2500)}
-function setProgress(n){progress=n;$('fill').style.width=Math.min(100,n/NEED*100)+'%';const R=window.MouseHubReward;$('mlab').textContent=(R&&R.fishBones)?R.fishBones(n,NEED):(n+'/'+NEED)}
-function bigCelebrate(done){
-  const ov=document.createElement('div');
-  ov.style.cssText='position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(61,43,90,.55)';
-  ov.innerHTML='<div style="font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#fff;text-align:center">🎉 太叻喇！</div>';
-  document.body.appendChild(ov);setTimeout(()=>{ov.remove();done&&done();},1800);
+function hitR(e) {
+  if (!running) return; if (e) { e.preventDefault(); e.stopPropagation(); }
+  rightS++; $('padR').classList.add('hit'); setTimeout(() => $('padR').classList.remove('hit'), 80);
+  C.tone(520, 0.06, 'triangle'); renderScores();
 }
-function renderScores(){$('scL').textContent=leftS;$('scR').textContent=rightS;$('timer').textContent=leftT}
-function hitL(e){if(!running)return;if(e){e.preventDefault();e.stopPropagation()}leftS++;$('padL').classList.add('hit');setTimeout(()=>$('padL').classList.remove('hit'),80);tone(660,.06);renderScores()}
-function hitR(e){if(!running)return;if(e){e.preventDefault();e.stopPropagation()}rightS++;$('padR').classList.add('hit');setTimeout(()=>$('padR').classList.remove('hit'),80);tone(520,.06,'triangle');renderScores()}
-function wire(){
-  const pl=$('padL'), pr=$('padR');
-  pl.addEventListener('pointerdown',e=>{if(e.button===0)hitL(e)},true);
-  pl.addEventListener('click',e=>{if(e.button===0)hitL(e)},true);
-  pr.addEventListener('pointerdown',e=>{if(e.button===2||e.ctrlKey)hitR(e)},true);
-  pr.addEventListener('mousedown',e=>{if(e.button===2||e.ctrlKey)hitR(e)},true);
-  pr.addEventListener('contextmenu',e=>hitR(e),true);
-  pr.addEventListener('auxclick',e=>{if(e.button===2)hitR(e)},true);
-  pr.addEventListener('click',e=>{if(!running)return;if(e.ctrlKey||e.metaKey){hitR(e);return}if(e.button===0){e.preventDefault();sfxBad();toast('右邊要右掣／兩指',true)}},true);
+function wire() {
+  if (wired) return; wired = true;
+  const pl = $('padL'), pr = $('padR');
+  pl.addEventListener('pointerdown', e => { if (e.button === 0) hitL(e); }, true);
+  pl.addEventListener('click', e => { if (e.button === 0) hitL(e); }, true);
+  pr.addEventListener('pointerdown', e => { if (e.button === 2 || e.ctrlKey) hitR(e); }, true);
+  pr.addEventListener('mousedown', e => { if (e.button === 2 || e.ctrlKey) hitR(e); }, true);
+  pr.addEventListener('contextmenu', e => hitR(e), true);
+  pr.addEventListener('auxclick', e => { if (e.button === 2) hitR(e); }, true);
+  pr.addEventListener('click', e => {
+    if (!running) return;
+    if (e.ctrlKey || e.metaKey) { hitR(e); return; }
+    if (e.button === 0) { e.preventDefault(); C.sfxBad(); C.toast('右邊要右掣／兩指', true); }
+  }, true);
 }
-function tick(){leftT--;renderScores();if(leftT<=0)finish()}
-function finish(){
-  if(didWin)return; didWin=true; running=false; clearInterval(timer);
-  $('padL').classList.add('disabled');$('padR').classList.add('disabled');
-  const total=leftS+rightS;
-  setProgress(Math.min(NEED, Math.max(1, Math.floor(total/3)||1)));
-  try{if(window.MouseHubReward) MouseHubReward.award(GID, Math.max(total,1), 'race');}catch(_){}
-  confetti(); sfxWin();
-  if(window.MouseHubReward&&MouseHubReward.autoSpeak()) speak('做得好');
-  const next=window.MouseHubReward?MouseHubReward.nextAfter(GID):null;
-  const nb=$('btnNext');
-  if(nb){ if(next&&next.id!==GID){nb.style.display='';nb.textContent='下一個：'+next.title;nb.onclick=()=>{location.href=MouseHubReward.gameUrl(next)}} else nb.style.display='none' }
-  try{const c=MouseHubReward.loadCerts()[GID];$('winMedal').textContent=(c&&MouseHubReward.TIER_META[c.tier].medal)||'🥇'}catch(_){}
-  bigCelebrate(()=>{$('winMsg').textContent=displayName+' · 左'+leftS+' 右'+rightS+' · 合共'+total;$('win').classList.add('on')});
+function finish() {
+  if (didWin) return; didWin = true; running = false; clearInterval(timer);
+  $('padL').classList.add('disabled'); $('padR').classList.add('disabled');
+  const total = leftS + rightS;
+  progress = Math.min(NEED, Math.max(1, Math.floor(total / 3) || 1));
+  C.setProgress(progress, NEED);
+  try { MouseHubReward.award(GID, Math.max(total, 1), 'race'); } catch (_) {}
+  C.confetti(); C.sfxWin();
+  if (MouseHubReward.autoSpeak()) C.speak('做得好');
+  const next = MouseHubReward.nextAfter(GID);
+  const nb = $('btnNext');
+  if (nb) {
+    if (next && next.id !== GID) {
+      nb.style.display = ''; nb.textContent = '下一個：' + next.title;
+      nb.onclick = () => { location.href = MouseHubReward.gameUrl(next); };
+    } else nb.style.display = 'none';
+  }
+  try {
+    const c = MouseHubReward.loadCerts()[GID];
+    $('winMedal').textContent = (c && MouseHubReward.TIER_META[c.tier].medal) || '🥇';
+  } catch (_) {}
+  C.bigCelebrate(() => {
+    $('winMsg').textContent = displayName + ' · 左' + leftS + ' 右' + rightS + ' · 合共' + total;
+    $('win').classList.add('on');
+  });
 }
-function begin(){
-  didWin=false; leftS=0; rightS=0; leftT=SECS; running=true;
-  $('padL').classList.remove('disabled');$('padR').classList.remove('disabled');
-  $('startOv').style.display='none';
-  setProgress(0); renderScores();
-  clearInterval(timer); timer=setInterval(tick,1000);
+function begin() {
+  didWin = false; leftS = 0; rightS = 0; leftT = SECS; running = true;
+  $('padL').classList.remove('disabled'); $('padR').classList.remove('disabled');
+  $('startOv').style.display = 'none';
+  C.setProgress(0, NEED); renderScores();
+  clearInterval(timer); timer = setInterval(() => { leftT--; renderScores(); if (leftT <= 0) finish(); }, 1000);
 }
-function setupStart(){
+function setupStart() {
   wire();
-  $('btnGo').onclick=()=>{
-    const c=$('count3'); const go=$('btnGo'); const story=$('startOv').querySelector('.story');
-    go.hidden=true; story.hidden=true; c.hidden=false;
-    let n=3; c.textContent=n;
-    const iv=setInterval(()=>{
+  $('btnGo').onclick = () => {
+    const c = $('count3'), go = $('btnGo'), story = $('startOv').querySelector('.story');
+    go.hidden = true; story.hidden = true; c.hidden = false;
+    let n = 3; c.textContent = n;
+    const iv = setInterval(() => {
       n--;
-      if(n>0){c.textContent=n;tone(400+n*80,.1)}
-      else{clearInterval(iv);c.textContent='GO!';tone(880,.15);setTimeout(begin,300)}
-    },500);
+      if (n > 0) { c.textContent = n; C.tone(400 + n * 80, 0.1); }
+      else { clearInterval(iv); c.textContent = 'GO!'; C.tone(880, 0.15); setTimeout(begin, 300); }
+    }, 500);
   };
 }
-function start(){didWin=false;setProgress(0);setupStart();if(window.MouseHubReward&&MouseHubReward.autoSpeak())speak('左掣同右掣一齊撳')}
-$('btnHub').onclick=()=>location.href='./index.html';
-$('btnHub2').onclick=()=>location.href=(didWin&&window.MouseHubReward)?MouseHubReward.hubWonUrl(GID):'./index.html'+(didWin?('?won='+GID):'');
-$('btnSpeak').onclick=()=>speak('左掣同右掣一齊撳');
-$('btnCert').onclick=()=>MouseHubCert.showCert(GID);
-$('btnRetry').onclick=()=>{$('win').classList.remove('on');$('startOv').style.display='flex';$('btnGo').hidden=false;const st=$('startOv').querySelector('.story');if(st)st.hidden=false;$('count3').hidden=true;start()};
-window.addEventListener('pointerdown',()=>{try{ctx()}catch(_){}},{once:true});
+function start() {
+  didWin = false; C.setProgress(0, NEED); setupStart();
+  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('左掣同右掣一齊撳');
+}
+C.wireChrome({
+  gid: GID, speakText: '左掣同右掣一齊撳', didWin: () => didWin,
+  onRetry: () => {
+    $('win').classList.remove('on');
+    $('startOv').style.display = 'flex';
+    $('btnGo').hidden = false;
+    const st = $('startOv').querySelector('.story'); if (st) st.hidden = false;
+    $('count3').hidden = true;
+    start();
+  }
+});
 start();
 </script>
 </body>
