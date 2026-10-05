@@ -6,26 +6,29 @@
 <title>太空入侵｜將軍澳培智學校</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:"PingFang HK","Noto Sans TC",system-ui,sans-serif;color:#E8F5E9;
-background:linear-gradient(180deg,#0D1B2A,#1B2838 50%,#0D1B2A);
+html,body{height:100%;font-family:"PingFang HK","Noto Sans TC",system-ui,sans-serif;color:#E0F7FA;
+background:#050B18;
 -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
 button{font:inherit;border:none;cursor:pointer}
-.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:rgba(13,27,42,.92);border-bottom:3px solid #00E5FF55;color:#E0F7FA}
+.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:linear-gradient(180deg,#0A1628,#07101C);border-bottom:2px solid #00E5FF66;color:#E0F7FA;box-shadow:0 0 24px rgba(0,229,255,.15)}
 .who{display:flex;align-items:center;gap:8px;font-weight:900}
-.av{width:40px;height:40px;border-radius:50%;border:3px solid #00E5FF;display:grid;place-items:center;font-size:1.3rem;background:#102A43}
+.av{width:40px;height:40px;border-radius:50%;border:3px solid #00E5FF;display:grid;place-items:center;font-size:1.3rem;background:#102A43;box-shadow:0 0 12px #00E5FF55}
 .hint{flex:1;text-align:center;font-size:clamp(1.05rem,2.3vw,1.45rem);font-weight:900}
-.hint b{background:#FFD54F;color:#3D2B5A;padding:2px 8px;border-radius:8px}
-.icon{width:46px;height:46px;border-radius:14px;background:#102A43;border:3px solid #00E5FF55;font-size:1.15rem;font-weight:900;color:#E0F7FA}
+.hint b{background:#FFD54F;color:#1A237E;padding:2px 8px;border-radius:8px}
+.icon{width:46px;height:46px;border-radius:14px;background:#102A43;border:2px solid #00E5FF66;font-size:1.15rem;font-weight:900;color:#E0F7FA}
 .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.stage{height:calc(100% - 60px);position:relative;overflow:hidden}
+.stage{height:calc(100% - 60px);position:relative;overflow:hidden;background:
+radial-gradient(ellipse 80% 50% at 50% 0%,#1A237E55,transparent 60%),
+linear-gradient(180deg,#050B18 0%,#0D1B2A 50%,#06101C 100%)}
+.stage::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,229,255,.03) 3px 4px);pointer-events:none;z-index:9}
 .meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:5;display:flex;align-items:center;gap:10px;pointer-events:none}
-.meter{flex:1;height:16px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden}
-.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#00E5FF);transition:width .2s}
-.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem;color:#E0F7FA}
-.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(16,42,67,.95);border:3px solid #00E5FF;border-radius:16px;padding:8px 12px;font-weight:900;max-width:85%;color:#E0F7FA}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden;border:1px solid #00E5FF44}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#00E5FF);transition:width .2s;box-shadow:0 0 10px #00E5FF}
+.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem;color:#E0F7FA;text-shadow:0 0 8px #00E5FF}
+.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(10,22,40,.92);border:2px solid #00E5FF;border-radius:16px;padding:8px 12px;font-weight:900;max-width:88%;color:#E0F7FA;box-shadow:0 0 16px #00E5FF33}
 .toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.35rem;font-weight:900;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%) scale(1)}.toast.bad{border-color:#FF6B9D;color:#9f1239}
-.overlay{position:fixed;inset:0;background:rgba(13,27,42,.65);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay{position:fixed;inset:0;background:rgba(5,11,24,.7);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
 .overlay.on{display:flex}
 .modal{width:min(440px,94vw);background:#fff;border:5px solid #FFD54F;border-radius:28px;padding:22px 16px;text-align:center;color:#3D2B5A}
 .modal h2{font-size:1.9rem;margin-bottom:6px}.modal p{font-weight:800;opacity:.8;margin-bottom:12px}
@@ -34,15 +37,19 @@ button{font:inherit;border:none;cursor:pointer}
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
 .confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
-.stars{position:absolute;inset:0;background:radial-gradient(2px 2px at 20% 30%,#fff,transparent),radial-gradient(2px 2px at 70% 20%,#fff,transparent),radial-gradient(1px 1px at 40% 70%,#fff,transparent),radial-gradient(2px 2px at 85% 60%,#fff,transparent);opacity:.55;pointer-events:none}
-.alien{position:absolute;font-size:clamp(2.2rem,8vw,3.2rem);line-height:1;cursor:default;z-index:3;filter:drop-shadow(0 0 8px #69F0AE);transition:transform .08s,opacity .15s;user-select:none}
-.alien.dead{opacity:0;transform:scale(1.4)}
-.ship{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:2.8rem;line-height:1;z-index:6;filter:drop-shadow(0 0 10px #00E5FF);pointer-events:none}
-.laser{position:absolute;width:6px;height:22px;border-radius:4px;background:linear-gradient(#fff,#FFD54F);box-shadow:0 0 10px #FFD54F;z-index:5;pointer-events:none}
-.cross{position:fixed;width:28px;height:28px;margin:-14px 0 0 -14px;border:3px solid #00E5FF;border-radius:50%;pointer-events:none;z-index:20;box-shadow:0 0 0 2px rgba(0,229,255,.25)}
-.cross::before,.cross::after{content:"";position:absolute;background:#00E5FF}
-.cross::before{left:50%;top:4px;bottom:4px;width:2px;transform:translateX(-50%)}
-.cross::after{top:50%;left:4px;right:4px;height:2px;transform:translateY(-50%)}
+.stars{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.7;
+background-image:radial-gradient(1.5px 1.5px at 12% 18%,#fff,transparent),radial-gradient(2px 2px at 28% 42%,#fff,transparent),radial-gradient(1px 1px at 55% 12%,#fff,transparent),radial-gradient(2px 2px at 72% 38%,#A5F3FC,transparent),radial-gradient(1px 1px at 88% 22%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 68%,#fff,transparent),radial-gradient(2px 2px at 65% 78%,#fff,transparent),radial-gradient(1px 1px at 18% 82%,#fff,transparent)}
+.alien{position:absolute;font-size:clamp(2rem,7vw,2.9rem);line-height:1;z-index:3;filter:drop-shadow(0 0 10px #69F0AE);transition:opacity .12s,transform .12s;user-select:none;will-change:transform}
+.alien.dead{opacity:0;transform:scale(1.5) rotate(15deg);filter:drop-shadow(0 0 20px #FFD54F)}
+.ship-wrap{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:6;pointer-events:none;display:flex;flex-direction:column;align-items:center}
+.ship{font-size:2.8rem;line-height:1;filter:drop-shadow(0 0 14px #00E5FF);animation:hover 1.6s ease-in-out infinite}
+@keyframes hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.ship-glow{width:48px;height:10px;border-radius:50%;background:radial-gradient(ellipse,#00E5FF88,transparent);margin-top:-4px}
+.laser{position:absolute;width:5px;height:24px;border-radius:4px;background:linear-gradient(#fff,#00E5FF 40%,#FFD54F);box-shadow:0 0 14px #00E5FF,0 0 6px #FFD54F;z-index:5;pointer-events:none}
+.boom{position:absolute;font-size:1.8rem;z-index:7;pointer-events:none;animation:boom .4s ease forwards}
+@keyframes boom{0%{opacity:1;transform:scale(.5)}100%{opacity:0;transform:scale(1.8)}}
+.hud-line{position:absolute;left:8%;right:8%;bottom:70px;height:2px;background:linear-gradient(90deg,transparent,#00E5FF55,transparent);z-index:2;pointer-events:none}
+.wave{position:absolute;top:42px;left:50%;transform:translateX(-50%);font-weight:900;font-size:.95rem;color:#00E5FF;letter-spacing:2px;z-index:5;pointer-events:none;text-shadow:0 0 8px #00E5FF;opacity:.85}
 </style>
 </head>
 <body>
@@ -50,18 +57,19 @@ button{font:inherit;border:none;cursor:pointer}
 <div class="confetti" id="confetti"></div>
 <div class="top">
   <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
-  <div class="hint" id="hint">移準外星人 · 左掣 <b>射</b></div>
+  <div class="hint" id="hint">移船對準 · 左掣 <b>射</b></div>
   <div class="row">
     <button class="icon" id="btnSpeak" type="button">🔊</button>
     <button class="icon" id="btnHub" type="button">🏠</button>
   </div>
 </div>
 <div class="stage" id="stage">
-  <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
-  <div class="guide" id="guide">移滑鼠對準，左掣發射！</div>
   <div class="stars"></div>
-  <div class="ship" id="ship">🚀</div>
-  <div class="cross" id="cross"></div>
+  <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
+  <div class="wave" id="wave">WAVE 1</div>
+  <div class="hud-line"></div>
+  <div class="guide" id="guide">左右移對準外星人，左掣發射！</div>
+  <div class="ship-wrap" id="shipWrap"><div class="ship">🚀</div><div class="ship-glow"></div></div>
 </div>
 <div class="overlay" id="win">
   <div class="modal">
@@ -81,103 +89,114 @@ button{font:inherit;border:none;cursor:pointer}
 <script src="./common.js"></script>
 <script>
 const C = MouseHubCommon, NEED = 5, GID = 'invaders';
-const $ = C.$, stage = $('stage'), ship = $('ship'), cross = $('cross');
-const ALIENS = ['👾','👽','🛸','🟣','🟢'];
-let progress = 0, didWin = false, mx = innerWidth/2, my = innerHeight/2;
-let alienEl = null, laser = null, raf = 0, cool = 0;
+const $ = C.$, stage = $('stage'), shipWrap = $('shipWrap');
+const FACES = ['👾','👽','🛸','🟣','🟢','👾'];
+let progress = 0, didWin = false, shipX = 0.5, aliens = [], lasers = [], raf = 0, cool = 0, march = 1, marchT = 0;
 const displayName = C.loadProfile();
 C.lockSEN(); C.armAudioOnce();
 
 window.addEventListener('pointermove', e => {
-  mx = e.clientX; my = e.clientY;
-  cross.style.left = mx + 'px'; cross.style.top = my + 'px';
   const r = stage.getBoundingClientRect();
-  const x = Math.max(24, Math.min(r.width - 24, e.clientX - r.left));
-  ship.style.left = x + 'px';
+  shipX = Math.max(0.08, Math.min(0.92, (e.clientX - r.left) / r.width));
+  shipWrap.style.left = (shipX * 100) + '%';
 });
 stage.addEventListener('click', e => { e.preventDefault(); shoot(); });
 stage.addEventListener('pointerdown', e => { if (e.button === 0) { e.preventDefault(); shoot(); } });
 
-function clearAlien() {
-  if (alienEl) { alienEl.remove(); alienEl = null; }
+function clearField() {
+  aliens.forEach(a => a.el && a.el.remove());
+  lasers.forEach(l => l.el && l.el.remove());
+  aliens = []; lasers = [];
   if (raf) { cancelAnimationFrame(raf); raf = 0; }
 }
-function spawn() {
-  clearAlien();
-  if (progress >= NEED || didWin) return;
-  alienEl = document.createElement('div');
-  alienEl.className = 'alien';
-  alienEl.textContent = ALIENS[progress % ALIENS.length];
-  let x = 10 + Math.random() * 70, y = 14 + Math.random() * 18;
-  let dx = (Math.random() < 0.5 ? -1 : 1) * (0.18 + Math.random() * 0.16);
-  alienEl.style.left = x + '%'; alienEl.style.top = y + '%';
-  stage.appendChild(alienEl);
-  (function tick() {
-    if (!alienEl || didWin) return;
-    x += dx;
-    if (x > 88 || x < 6) { dx *= -1; y = Math.min(42, y + 3); }
-    alienEl.style.left = x + '%'; alienEl.style.top = y + '%';
-    raf = requestAnimationFrame(tick);
-  })();
+function spawnWave() {
+  const r = stage.getBoundingClientRect();
+  const cols = Math.min(5, 3 + Math.floor(progress / 2));
+  const gap = Math.min(78, (r.width - 40) / cols);
+  const start = (r.width - gap * (cols - 1)) / 2;
+  const y0 = 72 + (progress % 2) * 8;
+  for (let i = 0; i < cols; i++) {
+    const el = document.createElement('div');
+    el.className = 'alien';
+    el.textContent = FACES[(progress + i) % FACES.length];
+    const x = start + i * gap, y = y0 + (i % 2) * 12;
+    el.style.left = x + 'px'; el.style.top = y + 'px';
+    stage.appendChild(el);
+    aliens.push({ el, x, y, alive: true, wiggle: i * 0.4 });
+  }
+  $('wave').textContent = 'WAVE ' + (Math.floor(progress / 2) + 1);
+  march = 1; marchT = 0;
+}
+function ensure() {
+  if (!didWin && progress < NEED && aliens.filter(a => a.alive).length === 0) spawnWave();
 }
 function shoot() {
   if (didWin || progress >= NEED || Date.now() < cool) return;
-  cool = Date.now() + 220;
-  if (laser) { laser.remove(); laser = null; }
+  cool = Date.now() + 240;
   const r = stage.getBoundingClientRect();
-  const sx = parseFloat(ship.style.left) || r.width / 2;
-  const sy = r.height - 50;
-  laser = document.createElement('div');
-  laser.className = 'laser';
-  laser.style.left = (sx - 3) + 'px';
-  laser.style.top = sy + 'px';
-  stage.appendChild(laser);
-  C.tone(880, 0.06, 'square', 0.08);
-  let ly = sy;
-  const aimX = mx - r.left, aimY = my - r.top;
-  const hit = (() => {
-    if (!alienEl) return false;
-    const a = alienEl.getBoundingClientRect();
-    const acx = a.left + a.width/2 - r.left, acy = a.top + a.height/2 - r.top;
-    // generous SEN hit: laser path near alien OR crosshair on alien
-    const dCross = Math.hypot(aimX - acx, aimY - acy);
-    const dLaser = Math.abs(sx - acx);
-    return dCross < 70 || (dLaser < 55 && aimY < acy + 40);
-  })();
-  const step = () => {
-    if (!laser) return;
-    ly -= 28;
-    laser.style.top = ly + 'px';
-    if (ly < -30) { laser.remove(); laser = null; if (!hit) { C.sfxBad(); C.toast('對準再射', true); } return; }
-    if (hit && ly < (alienEl ? (alienEl.getBoundingClientRect().top - r.top + 40) : 0)) {
-      laser.remove(); laser = null;
-      if (alienEl) {
-        alienEl.classList.add('dead');
-        const gone = alienEl;
-        setTimeout(() => { if (gone.parentNode) gone.remove(); }, 160);
-        alienEl = null;
-      }
-      C.sfxOk(); C.toast('擊落！');
-      progress += 1; C.setProgress(progress, NEED);
-      if (progress >= NEED) setTimeout(win, 350); else setTimeout(spawn, 420);
-      return;
+  const sx = shipX * r.width;
+  const el = document.createElement('div'); el.className = 'laser';
+  el.style.left = (sx - 2.5) + 'px'; el.style.top = (r.height - 78) + 'px';
+  stage.appendChild(el);
+  lasers.push({ el, x: sx, y: r.height - 78 });
+  C.tone(920, 0.05, 'square', 0.07);
+}
+function kill(a) {
+  a.alive = false; a.el.classList.add('dead');
+  const boom = document.createElement('div'); boom.className = 'boom'; boom.textContent = '✨';
+  boom.style.left = a.x + 'px'; boom.style.top = a.y + 'px';
+  stage.appendChild(boom); setTimeout(() => boom.remove(), 420);
+  setTimeout(() => { if (a.el.parentNode) a.el.remove(); }, 140);
+  C.sfxOk(); C.toast('擊落！');
+  progress += 1; C.setProgress(progress, NEED);
+  if (progress >= NEED) setTimeout(win, 300); else ensure();
+}
+function tick(t) {
+  if (didWin) return;
+  const r = stage.getBoundingClientRect();
+  marchT += 1;
+  const step = (marchT % 28 === 0);
+  let hitEdge = false;
+  aliens.forEach(a => {
+    if (!a.alive) return;
+    if (step) {
+      a.x += march * (10 + progress * 1.5);
+      if (a.x < 16 || a.x > r.width - 48) hitEdge = true;
     }
-    requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
+    a.wiggle += 0.08;
+    a.el.style.left = a.x + 'px';
+    a.el.style.top = (a.y + Math.sin(a.wiggle) * 3) + 'px';
+  });
+  if (step && hitEdge) {
+    march *= -1;
+    aliens.forEach(a => { if (a.alive) a.y = Math.min(r.height * 0.55, a.y + 14); });
+  }
+  lasers = lasers.filter(L => {
+    L.y -= 14;
+    L.el.style.top = L.y + 'px';
+    if (L.y < -20) { L.el.remove(); return false; }
+    for (const a of aliens) {
+      if (!a.alive) continue;
+      if (Math.abs((a.x + 22) - L.x) < 36 && Math.abs((a.y + 22) - L.y) < 32) {
+        L.el.remove(); kill(a); return false;
+      }
+    }
+    return true;
+  });
+  raf = requestAnimationFrame(tick);
 }
 function win() {
-  clearAlien();
+  clearField();
   C.finishClear({ gid: GID, progress, label: '太空入侵', displayName, setDidWin: v => { didWin = v; } });
 }
 function start() {
-  clearAlien(); if (laser) { laser.remove(); laser = null; }
+  clearField();
   didWin = false; progress = 0; cool = 0; C.setProgress(0, NEED);
-  ship.style.left = (stage.getBoundingClientRect().width / 2) + 'px';
-  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('移準再射');
-  spawn();
+  shipX = 0.5; shipWrap.style.left = '50%';
+  spawnWave(); raf = requestAnimationFrame(tick);
+  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('移船再射');
 }
-C.wireChrome({ gid: GID, speakText: '移準再射', didWin: () => didWin, onRetry: start });
+C.wireChrome({ gid: GID, speakText: '移船再射', didWin: () => didWin, onRetry: start });
 start();
 </script>
 </body>

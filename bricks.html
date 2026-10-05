@@ -7,25 +7,29 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:"PingFang HK","Noto Sans TC",system-ui,sans-serif;color:#3D2B5A;
-background:linear-gradient(180deg,#F3E5F5,#E1BEE7 40%,#CE93D8);
+background:#1A1040;
 -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
 button{font:inherit;border:none;cursor:pointer}
-.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:rgba(255,255,255,.92);border-bottom:3px solid #AB47BC55}
+.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:rgba(255,255,255,.95);border-bottom:3px solid #CE93D8;box-shadow:0 4px 16px rgba(0,0,0,.2)}
 .who{display:flex;align-items:center;gap:8px;font-weight:900}
-.av{width:40px;height:40px;border-radius:50%;border:3px solid #8E24AA;display:grid;place-items:center;font-size:1.3rem;background:#fff}
+.av{width:40px;height:40px;border-radius:50%;border:3px solid #AB47BC;display:grid;place-items:center;font-size:1.3rem;background:#F3E5F5}
 .hint{flex:1;text-align:center;font-size:clamp(1.05rem,2.3vw,1.45rem);font-weight:900}
 .hint b{background:#FFD54F;padding:2px 8px;border-radius:8px}
 .icon{width:46px;height:46px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.15rem;font-weight:900}
 .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.stage{height:calc(100% - 60px);position:relative;overflow:hidden;background:linear-gradient(180deg,#4A148C 0%,#6A1B9A 35%,#311B92 100%)}
+.stage{height:calc(100% - 60px);position:relative;overflow:hidden;
+background:
+radial-gradient(ellipse 90% 40% at 50% 0%,#7B1FA255,transparent 55%),
+linear-gradient(180deg,#2D1B69 0%,#1A1040 45%,#0D0820 100%)}
+.stage::before{content:"";position:absolute;inset:0;background:radial-gradient(1px 1px at 20% 30%,#fff8,transparent),radial-gradient(1.5px 1.5px at 70% 20%,#fff6,transparent),radial-gradient(1px 1px at 40% 70%,#fff5,transparent),radial-gradient(1px 1px at 85% 55%,#fff4,transparent);pointer-events:none;opacity:.6}
 .meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:5;display:flex;align-items:center;gap:10px;pointer-events:none}
-.meter{flex:1;height:16px;border-radius:999px;background:rgba(255,255,255,.18);overflow:hidden}
-.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#FFD54F);transition:width .2s}
-.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem;color:#fff}
-.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(255,255,255,.95);border:3px solid #AB47BC;border-radius:16px;padding:8px 12px;font-weight:900;max-width:85%;color:#3D2B5A}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(255,255,255,.14);overflow:hidden;border:1px solid #E1BEE788}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#FFD54F,#FF6B9D);transition:width .2s;box-shadow:0 0 10px #FFD54F}
+.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem;color:#fff;text-shadow:0 0 8px #CE93D8}
+.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(255,255,255,.96);border:3px solid #AB47BC;border-radius:16px;padding:8px 12px;font-weight:900;max-width:88%;color:#3D2B5A;box-shadow:0 6px 16px rgba(0,0,0,.2)}
 .toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.35rem;font-weight:900;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%) scale(1)}.toast.bad{border-color:#FF6B9D;color:#9f1239}
-.overlay{position:fixed;inset:0;background:rgba(61,43,90,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay{position:fixed;inset:0;background:rgba(26,16,64,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
 .overlay.on{display:flex}
 .modal{width:min(440px,94vw);background:#fff;border:5px solid #FFD54F;border-radius:28px;padding:22px 16px;text-align:center}
 .modal h2{font-size:1.9rem;margin-bottom:6px}.modal p{font-weight:800;opacity:.8;margin-bottom:12px}
@@ -34,9 +38,23 @@ button{font:inherit;border:none;cursor:pointer}
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
 .confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
-.brick{position:absolute;border-radius:10px;border:3px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:1.2rem;font-weight:900;color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.25);z-index:2}
-.paddle{position:absolute;bottom:28px;height:22px;width:120px;border-radius:999px;background:linear-gradient(90deg,#FFD54F,#FF6B9D);border:3px solid #fff;z-index:4;box-shadow:0 4px 14px rgba(0,0,0,.3);left:50%;transform:translateX(-50%)}
-.ball{position:absolute;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,#FFD54F 50%,#FF8F00);border:2px solid #fff;z-index:5;box-shadow:0 0 12px #FFD54F;left:50%;top:60%}
+.brick{position:absolute;border-radius:10px;border:2px solid rgba(255,255,255,.4);display:grid;place-items:center;font-size:1.05rem;font-weight:900;color:#fff;z-index:2;
+box-shadow:inset 0 2px 0 rgba(255,255,255,.35),inset 0 -3px 0 rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.25);transition:opacity .15s,transform .15s}
+.brick.gold{border-color:#FFD54F;box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 0 16px #FFD54F88,0 4px 10px rgba(0,0,0,.25);animation:goldPulse 1.2s ease-in-out infinite}
+@keyframes goldPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2)}}
+.brick.pop{opacity:0;transform:scale(1.25) rotate(8deg)}
+.paddle{position:absolute;bottom:30px;height:20px;width:130px;border-radius:999px;z-index:4;left:50%;
+background:linear-gradient(180deg,#FFE082,#FF6B9D 55%,#C2185B);border:3px solid #fff;
+box-shadow:0 0 18px #FF6B9D88,0 6px 14px rgba(0,0,0,.35)}
+.paddle::before{content:"";position:absolute;left:18%;right:18%;top:3px;height:5px;border-radius:999px;background:rgba(255,255,255,.45)}
+.ball{position:absolute;width:24px;height:24px;border-radius:50%;z-index:5;left:50%;top:60%;
+background:radial-gradient(circle at 32% 28%,#fff 0%,#FFECB3 28%,#FFD54F 55%,#FF8F00 100%);
+border:2px solid #fff;box-shadow:0 0 16px #FFD54F,0 0 4px #fff}
+.trail{position:absolute;width:10px;height:10px;border-radius:50%;background:#FFD54F88;pointer-events:none;z-index:4;animation:tr .35s ease forwards}
+@keyframes tr{to{opacity:0;transform:scale(.2)}}
+.go-hint{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);z-index:6;font-weight:900;font-size:1.15rem;color:#FFD54F;text-shadow:0 2px 8px rgba(0,0,0,.5);pointer-events:none;animation:blink 1s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.4}50%{opacity:1}}
+.go-hint.hide{display:none}
 </style>
 </head>
 <body>
@@ -44,7 +62,7 @@ button{font:inherit;border:none;cursor:pointer}
 <div class="confetti" id="confetti"></div>
 <div class="top">
   <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
-  <div class="hint" id="hint">左右移擋板 · 打 <b>磚</b></div>
+  <div class="hint" id="hint">移擋板 · 打爆 <b>金磚</b></div>
   <div class="row">
     <button class="icon" id="btnSpeak" type="button">🔊</button>
     <button class="icon" id="btnHub" type="button">🏠</button>
@@ -52,7 +70,8 @@ button{font:inherit;border:none;cursor:pointer}
 </div>
 <div class="stage" id="stage">
   <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
-  <div class="guide" id="guide">移滑鼠左右，擋板接球打磚！</div>
+  <div class="guide" id="guide">撳一下開波 · 移擋板接球 · 專打金磚！</div>
+  <div class="go-hint" id="goHint">👆 撳一下開波</div>
   <div class="paddle" id="paddle"></div>
   <div class="ball" id="ball"></div>
 </div>
@@ -74,10 +93,10 @@ button{font:inherit;border:none;cursor:pointer}
 <script src="./common.js"></script>
 <script>
 const C = MouseHubCommon, NEED = 5, GID = 'bricks';
-const $ = C.$, stage = $('stage'), paddle = $('paddle'), ball = $('ball');
-const COLORS = ['#EF5350','#FFA726','#FFEE58','#66BB6A','#42A5F5','#AB47BC'];
+const $ = C.$, stage = $('stage'), paddle = $('paddle'), ball = $('ball'), goHint = $('goHint');
+const COLORS = ['#EF5350','#FFA726','#FFEE58','#66BB6A','#42A5F5','#AB47BC','#EC407A'];
 let progress = 0, didWin = false, raf = 0, bricks = [];
-let bx = 0, by = 0, vx = 3.2, vy = -4.2, px = 0, pw = 120, running = false;
+let bx = 0, by = 0, vx = 3.2, vy = -4.2, px = 0, pw = 130, running = false, trailT = 0;
 const displayName = C.loadProfile();
 C.lockSEN(); C.armAudioOnce();
 
@@ -87,7 +106,7 @@ window.addEventListener('pointermove', e => {
   paddle.style.left = px + 'px';
   paddle.style.transform = 'none';
   if (!running && !didWin) {
-    bx = px + pw / 2 - 11;
+    bx = px + pw / 2 - 12;
     ball.style.left = bx + 'px';
   }
 });
@@ -95,106 +114,106 @@ stage.addEventListener('click', () => { if (!running && !didWin) launch(); });
 stage.addEventListener('pointerdown', e => { if (e.button === 0 && !running && !didWin) launch(); });
 
 function clearBricks() {
-  bricks.forEach(b => b.el.remove());
-  bricks = [];
+  bricks.forEach(b => b.el.remove()); bricks = [];
 }
 function spawnBricks() {
   clearBricks();
   const r = stage.getBoundingClientRect();
-  const cols = 5, rows = 2;
-  const gap = 8;
+  const cols = 6, rows = 3, gap = 7;
   const bw = (r.width - 24 - gap * (cols - 1)) / cols;
-  const bh = 36;
-  const top = 48;
+  const bh = 32, top = 50;
+  // gold targets: 5 positions spread
+  const goldIdx = new Set();
+  while (goldIdx.size < NEED) goldIdx.add(Math.floor(Math.random() * (cols * rows)));
+  let idx = 0;
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      // only 5 target bricks total for NEED=5 — first 5 only
-      if (bricks.length >= NEED) break;
       const el = document.createElement('div');
       el.className = 'brick';
-      el.textContent = '🧱';
-      el.style.width = bw + 'px';
-      el.style.height = bh + 'px';
+      const isGold = goldIdx.has(idx);
+      if (isGold) { el.classList.add('gold'); el.textContent = '⭐'; }
+      else el.textContent = '🧱';
+      el.style.width = bw + 'px'; el.style.height = bh + 'px';
       el.style.left = (12 + col * (bw + gap)) + 'px';
       el.style.top = (top + row * (bh + gap)) + 'px';
-      el.style.background = COLORS[bricks.length % COLORS.length];
+      el.style.background = isGold
+        ? 'linear-gradient(180deg,#FFE082,#FFB300)'
+        : COLORS[(row * cols + col) % COLORS.length];
       stage.appendChild(el);
-      bricks.push({ el, alive: true });
+      bricks.push({ el, alive: true, gold: isGold });
+      idx++;
     }
   }
 }
 function launch() {
   if (running || didWin) return;
-  running = true;
+  running = true; goHint.classList.add('hide');
   const r = stage.getBoundingClientRect();
-  bx = px + pw / 2 - 11;
-  by = r.height - 70;
-  vx = (Math.random() < 0.5 ? -1 : 1) * (2.8 + Math.random() * 1.2);
-  vy = -4.0 - Math.random() * 0.8;
+  bx = px + pw / 2 - 12; by = r.height - 72;
+  vx = (Math.random() < 0.5 ? -1 : 1) * (3.0 + Math.random());
+  vy = -4.2 - Math.random() * 0.6;
+  C.tone(660, 0.06, 'triangle', 0.1);
   loop();
 }
 function resetBall() {
   running = false;
   if (raf) { cancelAnimationFrame(raf); raf = 0; }
+  goHint.classList.remove('hide');
   const r = stage.getBoundingClientRect();
-  pw = Math.max(100, Math.min(160, r.width * 0.22));
+  pw = Math.max(110, Math.min(170, r.width * 0.24));
   paddle.style.width = pw + 'px';
   px = (r.width - pw) / 2;
-  paddle.style.left = px + 'px';
-  paddle.style.transform = 'none';
-  bx = px + pw / 2 - 11;
-  by = r.height - 70;
-  ball.style.left = bx + 'px';
-  ball.style.top = by + 'px';
+  paddle.style.left = px + 'px'; paddle.style.transform = 'none';
+  bx = px + pw / 2 - 12; by = r.height - 72;
+  ball.style.left = bx + 'px'; ball.style.top = by + 'px';
+}
+function spark(x, y) {
+  const t = document.createElement('div'); t.className = 'trail';
+  t.style.left = x + 'px'; t.style.top = y + 'px';
+  stage.appendChild(t); setTimeout(() => t.remove(), 360);
 }
 function loop() {
   if (!running || didWin) return;
   const r = stage.getBoundingClientRect();
   bx += vx; by += vy;
-  // walls
-  if (bx <= 0) { bx = 0; vx = Math.abs(vx); C.tone(400, 0.04, 'sine', 0.06); }
-  if (bx + 22 >= r.width) { bx = r.width - 22; vx = -Math.abs(vx); C.tone(400, 0.04, 'sine', 0.06); }
-  if (by <= 0) { by = 0; vy = Math.abs(vy); C.tone(400, 0.04, 'sine', 0.06); }
-  // paddle
-  const py = r.height - 50;
-  if (by + 22 >= py && by + 22 <= py + 28 && bx + 22 >= px && bx <= px + pw) {
-    by = py - 22;
-    vy = -Math.abs(vy);
-    const hit = ((bx + 11) - (px + pw / 2)) / (pw / 2);
-    vx = hit * 4.5;
-    C.tone(520, 0.05, 'triangle', 0.08);
+  trailT++;
+  if (trailT % 3 === 0) spark(bx + 7, by + 7);
+  if (bx <= 0) { bx = 0; vx = Math.abs(vx); C.tone(380, 0.04, 'sine', 0.05); }
+  if (bx + 24 >= r.width) { bx = r.width - 24; vx = -Math.abs(vx); C.tone(380, 0.04, 'sine', 0.05); }
+  if (by <= 0) { by = 0; vy = Math.abs(vy); C.tone(380, 0.04, 'sine', 0.05); }
+  const py = r.height - 52;
+  if (vy > 0 && by + 24 >= py && by + 24 <= py + 26 && bx + 24 >= px && bx <= px + pw) {
+    by = py - 24; vy = -Math.abs(vy) * 1.02;
+    const hit = ((bx + 12) - (px + pw / 2)) / (pw / 2);
+    vx = hit * 5.2; C.tone(540, 0.05, 'triangle', 0.09);
   }
-  // miss
-  if (by > r.height + 10) {
-    C.sfxBad(); C.toast('接住波！', true);
-    resetBall();
-    return;
+  if (by > r.height + 12) {
+    C.sfxBad(); C.toast('接住波！', true); resetBall(); return;
   }
-  // bricks
   for (const b of bricks) {
     if (!b.alive) continue;
     const br = b.el.getBoundingClientRect();
-    const sx = r.left, sy = r.top;
-    const left = br.left - sx, top = br.top - sy, right = br.right - sx, bottom = br.bottom - sy;
-    if (bx + 22 > left && bx < right && by + 22 > top && by < bottom) {
-      b.alive = false;
-      b.el.style.opacity = '0';
-      b.el.style.transform = 'scale(1.2)';
+    const left = br.left - r.left, top = br.top - r.top, right = br.right - r.left, bottom = br.bottom - r.top;
+    if (bx + 24 > left && bx < right && by + 24 > top && by < bottom) {
+      b.alive = false; b.el.classList.add('pop');
       setTimeout(() => b.el.remove(), 160);
-      vy = -vy;
-      C.sfxOk(); C.toast('打中！');
-      progress += 1; C.setProgress(progress, NEED);
-      if (progress >= NEED) {
-        running = false;
-        ball.style.left = bx + 'px'; ball.style.top = by + 'px';
-        setTimeout(win, 280);
-        return;
+      // bounce
+      const cx = (left + right) / 2, cy = (top + bottom) / 2;
+      if (Math.abs((bx + 12) - cx) > Math.abs((by + 12) - cy)) vx = -vx; else vy = -vy;
+      if (b.gold) {
+        C.sfxOk(); C.toast('金磚！');
+        progress += 1; C.setProgress(progress, NEED);
+        if (progress >= NEED) {
+          running = false; ball.style.left = bx + 'px'; ball.style.top = by + 'px';
+          setTimeout(win, 280); return;
+        }
+      } else {
+        C.tone(320, 0.05, 'square', 0.06); C.toast('普通磚');
       }
       break;
     }
   }
-  ball.style.left = bx + 'px';
-  ball.style.top = by + 'px';
+  ball.style.left = bx + 'px'; ball.style.top = by + 'px';
   raf = requestAnimationFrame(loop);
 }
 function win() {
@@ -204,14 +223,12 @@ function win() {
 function start() {
   if (raf) cancelAnimationFrame(raf);
   didWin = false; progress = 0; running = false;
-  C.setProgress(0, NEED);
-  spawnBricks();
-  resetBall();
-  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('移擋板接波');
+  C.setProgress(0, NEED); spawnBricks(); resetBall();
+  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('移擋板打金磚');
 }
-C.wireChrome({ gid: GID, speakText: '移擋板接波', didWin: () => didWin, onRetry: start });
+C.wireChrome({ gid: GID, speakText: '移擋板打金磚', didWin: () => didWin, onRetry: start });
 start();
-window.addEventListener('resize', () => { if (!running) resetBall(); });
+window.addEventListener('resize', () => { if (!running) { spawnBricks(); resetBall(); } });
 </script>
 </body>
 </html>
