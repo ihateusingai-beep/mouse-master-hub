@@ -30,7 +30,9 @@
     moles: { emoji: '🐹', name: '地鼠' },
     invaders: { emoji: '👾', name: '入侵' },
     frog: { emoji: '🐸', name: '過路' },
-    bricks: { emoji: '🧱', name: '磚塊' }
+    bricks: { emoji: '🧱', name: '磚塊' },
+    magnet: { emoji: '🧲', name: '磁鐵' },
+    waves: { emoji: '🌊', name: '波浪' }
   };
 
   /** Free pick — basic first, then skills */
@@ -51,6 +53,8 @@
     { id: 'invaders', title: '太空入侵', tag: '移+射', emoji: '👾', url: './invaders.html', group: 'fun', certName: '太空小達人' },
     { id: 'frog', title: '過馬路', tag: '移準', emoji: '🐸', url: './frog.html', group: 'fun', certName: '過路小達人' },
     { id: 'bricks', title: '打磚塊', tag: '擋板', emoji: '🧱', url: './bricks.html', group: 'fun', certName: '磚塊小達人' },
+    { id: 'magnet', title: '磁鐵花園', tag: '拖曳', emoji: '🧲', url: './magnet.html', group: 'fun', certName: '磁鐵小達人' },
+    { id: 'waves', title: '波浪導航', tag: '移動', emoji: '🌊', url: './waves.html', group: 'fun', certName: '波浪小達人' },
     { id: 'feeder', title: '喵喵餵食館', tag: '左·拖·右', emoji: '🐱', url: 'https://ihateusingai-beep.github.io/mouse-feeder/', group: 'skill', certName: '餵食小達人' }
   ];
 
@@ -85,6 +89,11 @@
 
   /** score → tier: gold/silver/bronze */
   function tierFromScore(score, mode) {
+    mode = mode || 'clear';
+    // explicit diff modes (retro 初/中/高 — all open, no lock)
+    if (mode === 'easy' || mode === 'bronze') return 'bronze';
+    if (mode === 'mid' || mode === 'silver') return 'silver';
+    if (mode === 'hard' || mode === 'gold') return 'gold';
     score = Number(score) || 0;
     if (mode === 'race') {
       if (score >= 20) return 'gold';

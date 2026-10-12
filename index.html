@@ -137,6 +137,56 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
   background: linear-gradient(135deg, #FF6B9D, #FF9D7A); color: #fff; font-weight: 900; font-size: 1.1rem; margin: 4px;
 }
 .won-box .btn.ghost { background: #fff; color: #3D2B5A; border: 3px solid rgba(61,43,90,.12); }
+
+/* ── Teacher PIN modal ── */
+#pinOv {
+  position: fixed; inset: 0; z-index: 90;
+  background: rgba(61,43,90,.55);
+  display: none; align-items: center; justify-content: center; padding: 16px;
+}
+#pinOv.on { display: flex; }
+#pinBox {
+  width: min(340px, 94vw);
+  background: #fff; border-radius: 22px;
+  border: 5px solid #426eb4; padding: 22px 18px; text-align: center;
+}
+#pinBox h2 { font-size: 1.4rem; margin-bottom: 12px; color: #426eb4; }
+#pinBox p { font-weight: 700; opacity: .7; margin-bottom: 16px; font-size: .95rem; }
+#pinInput {
+  width: 100%; min-height: 52px; border-radius: 14px;
+  border: 3px solid #426eb4; padding: 8px 12px;
+  font-size: 1.4rem; text-align: center; letter-spacing: 6px;
+  font-weight: 900; outline: none; margin-bottom: 14px;
+  color: #3D2B5A;
+}
+#pinInput:focus { border-color: #FF6B9D; }
+#pinHint { font-size: .8rem; color: #e74c3c; font-weight: 700; min-height: 18px; margin-bottom: 10px; }
+#pinBox .pin-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+#pinBox .pin-btns button {
+  min-height: 48px; min-width: 100px; padding: 8px 16px;
+  border-radius: 999px; font-weight: 900; font-size: 1rem; cursor: pointer;
+}
+#pinBox .pin-btns .ok { background: #426eb4; color: #fff; border: none; }
+#pinBox .pin-btns .cancel { background: #fff; color: #3D2B5A; border: 3px solid rgba(61,43,90,.15); }
+
+/* Teacher panel locked state */
+.teacher details[locked] > * { opacity: .4; pointer-events: none; }
+.teacher details[locked] > summary { opacity: 1; cursor: not-allowed; }
+.teacher-lock-btn {
+  margin-top: 10px; display: flex; gap: 6px; align-items: center;
+  justify-content: center; flex-wrap: wrap;
+}
+.teacher-lock-btn button {
+  min-height: 36px; padding: 4px 12px; border-radius: 999px;
+  font-weight: 900; font-size: .82rem; cursor: pointer; border: 2px solid;
+}
+.teacher-lock-btn .set { background: #426eb4; color: #fff; border-color: #426eb4; }
+.teacher-lock-btn .clear { background: #fff; color: #e74c3c; border-color: #e74c3c; }
+.teacher-lock-btn .locked-badge {
+  background: #e74c3c; color: #fff; border-color: #e74c3c; border-radius: 999px;
+  padding: 4px 10px; font-weight: 900; font-size: .82rem;
+}
+
 @media (max-width: 520px) {
   .grid { grid-template-columns: 1fr 1fr; }
 }
@@ -145,7 +195,7 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
 <body>
 <header class="top">
   <div class="brand">
-    <img class="school-logo" src="https://www.puichi.edu.hk/it-school/php/webcms/files/upload/tinymce//1a__pui_chi_logo_png_1791177564.png" alt="將軍澳培智學校校徽" width="72" height="72" decoding="async">
+    <img class="school-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiB3aWR0aD0iNzIiIGhlaWdodD0iNzIiPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiIHJ5PSI1MCIgZmlsbD0iIzQyNkVCNCIvPjxlbGxpcHNlIGN4PSI1MCIgY3k9IjUwIiByeD0iNDUiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIvPjxlbGxpcHNlIGN4PSI1MCIgY3k9IjUwIiByeD0iNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGNkI1NSIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTI1IDc1IFE1MCA4NSA3NSA3NSBMNzUgNDUgUTUwIDU1IDI1IDQ1IFoiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjkiLz48dGV4dCB4PSI1MCIgeT0iNTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPkPBvO+4pD88L3RleHQ+PHBvbHlnbiBwb2ludHM9IjUwLDIyIDUyLDI3IDU3LDI3IDUzLDMxIDU1LDM2IDUwLDMzIDQ1LDM2IDQ3LDMxIDQzLDI3IDQ4LDI3IiBmaWxsPSIjRjVCNzAwIi8+PC9zdmc+" alt="將軍澳培智學校校徽" width="72" height="72" decoding="async">
     <div class="brand-text">
       <div class="school">將軍澳培智學校</div>
       <div class="logo">🖱️ 滑鼠小達人</div>
@@ -196,11 +246,31 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
 </div>
 
 <div class="teacher">
-  <details>
-    <summary>老師角</summary>
-    <label><input type="checkbox" id="chkAutoSpeak"> 入遊戲自動讀</label>
-    <p style="margin-top:8px;opacity:.7;line-height:1.35">自由選關。金≥20下／移5；銀≥12／移3；其餘銅。</p>
+  <details id="teacherPanel">
+    <summary id="teacherSummary">🔒 老師專區</summary>
+    <div id="teacherContent">
+      <label><input type="checkbox" id="chkAutoSpeak"> 入遊戲自動讀</label>
+      <p style="margin-top:8px;opacity:.7;line-height:1.35">自由選關。金≥20下／移5；銀≥12／移3；其餘銅。</p>
+      <div class="teacher-lock-btn" id="lockBtns">
+        <button type="button" class="set" id="btnSetPin">🔑 設定 PIN</button>
+        <button type="button" class="clear" id="btnClearPin">✕ 清除 PIN</button>
+      </div>
+    </div>
   </details>
+</div>
+
+<!-- PIN unlock modal -->
+<div id="pinOv">
+  <div id="pinBox">
+    <h2>🔑 老師專區</h2>
+    <p id="pinPrompt">請輸入 PIN 解鎖</p>
+    <input id="pinInput" type="password" maxlength="6" inputmode="numeric" autocomplete="off" placeholder="····">
+    <div id="pinHint"></div>
+    <div class="pin-btns">
+      <button type="button" class="ok" id="pinOk">確定</button>
+      <button type="button" class="cancel" id="pinCancel">取消</button>
+    </div>
+  </div>
 </div>
 
 <script src="./reward.js"></script>
@@ -359,6 +429,99 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
     if (lastWon) MouseHubCert.showCert(lastWon);
   };
 
+  /* ── Teacher PIN ── */
+  const LS_PIN = 'mouse_hub_teacher_pin';
+  let pinOpen = false;
+
+  function hasPin() { return !!localStorage.getItem(LS_PIN); }
+
+  function renderLockBtn() {
+    const btns = document.getElementById('lockBtns');
+    const locked = hasPin() && !pinOpen;
+    if (locked) {
+      btns.innerHTML = '<span class="locked-badge">🔒 已上鎖</span>';
+    } else if (hasPin()) {
+      btns.innerHTML =
+        '<button type="button" class="set" id="btnSetPin">🔑 更改 PIN</button>' +
+        '<button type="button" class="clear" id="btnClearPin">✕ 清除 PIN</button>';
+      rebindLockBtns();
+    } else {
+      btns.innerHTML = '<button type="button" class="set" id="btnSetPin">🔑 設定 PIN</button>';
+      rebindLockBtns();
+    }
+    document.getElementById('teacherPanel').locked = locked ? '' : null;
+  }
+
+  function rebindLockBtns() {
+    const s = document.getElementById('btnSetPin');
+    const c = document.getElementById('btnClearPin');
+    if (s) s.onclick = () => openPinModal('set');
+    if (c) c.onclick = () => {
+      if (confirm('確定清除 PIN？清除後任何人可開教師專區。')) {
+        localStorage.removeItem(LS_PIN);
+        pinOpen = false;
+        renderLockBtn();
+      }
+    };
+  }
+
+  function openPinModal(mode) {
+    /* mode: 'set' | 'unlock' */
+    document.getElementById('pinPrompt').textContent =
+      mode === 'set' ? '設定 4-6 位數 PIN' : '請輸入 PIN 解鎖';
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinHint').textContent = '';
+    document.getElementById('pinOv').classList.add('on');
+    setTimeout(() => document.getElementById('pinInput').focus(), 50);
+    window.__pinMode = mode;
+  }
+
+  function closePinModal() {
+    document.getElementById('pinOv').classList.remove('on');
+    window.__pinMode = null;
+  }
+
+  document.getElementById('pinOk').onclick = function () {
+    const val = document.getElementById('pinInput').value.trim();
+    const hint = document.getElementById('pinHint');
+    const mode = window.__pinMode;
+    if (!val || !/^\d{4,6}$/.test(val)) {
+      hint.textContent = '請輸入 4-6 位數字';
+      return;
+    }
+    if (mode === 'set') {
+      localStorage.setItem(LS_PIN, val);
+      pinOpen = true;
+      hint.textContent = '✅ PIN 已設定！';
+      setTimeout(() => { closePinModal(); renderLockBtn(); }, 800);
+    } else {
+      const stored = localStorage.getItem(LS_PIN);
+      if (val === stored) {
+        pinOpen = true;
+        closePinModal();
+        renderLockBtn();
+      } else {
+        hint.textContent = '❌ PIN 錯誤';
+        document.getElementById('pinInput').value = '';
+      }
+    }
+  };
+
+  document.getElementById('pinCancel').onclick = closePinModal;
+
+  document.getElementById('pinInput').onkeydown = function (e) {
+    if (e.key === 'Enter') document.getElementById('pinOk').click();
+    if (e.key === 'Escape') closePinModal();
+  };
+
+  document.getElementById('teacherPanel').addEventListener('toggle', function () {
+    if (hasPin() && !pinOpen && this.open) {
+      this.open = false;
+      openPinModal('unlock');
+    }
+  });
+
+  /* ── Teacher panel auto-speak toggle ── */
   const chk = document.getElementById('chkAutoSpeak');
   chk.checked = R.autoSpeak();
   chk.onchange = () => R.setAutoSpeak(chk.checked);
@@ -371,6 +534,7 @@ body { display: flex; flex-direction: column; min-height: 100%; overflow-y: auto
   renderPet();
   renderStickers();
   renderGames();
+  renderLockBtn();
 
   const won = new URLSearchParams(location.search).get('won');
   if (won && R.STICKER_META[won]) setTimeout(() => showWon(won), 120);

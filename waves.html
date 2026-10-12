@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>波浪導航</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:"PingFang HK","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;color:#0D47A1;
+background:#0288D1;
+-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none;overflow:hidden}
+button{font:inherit;border:none;cursor:pointer}
+.top{height:64px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:rgba(255,255,255,.9);border-bottom:3px solid rgba(2,136,209,.3);z-index:20;position:relative}
+.who{display:flex;align-items:center;gap:8px;font-weight:900;font-size:1.1rem}
+.who .av{width:42px;height:42px;border-radius:50%;border:3px solid #0288D1;background:#fff;display:grid;place-items:center;font-size:1.4rem}
+.hint{flex:1;text-align:center;font-size:clamp(1.1rem,2.4vw,1.55rem);font-weight:900;color:#01579B}
+.hint b{background:#B3E5FC;padding:2px 8px;border-radius:8px}
+.icon{width:48px;height:48px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.25rem;font-weight:900}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stage{height:calc(100% - 64px);position:relative;overflow:hidden}
+.meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:15;display:flex;align-items:center;gap:10px}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(255,255,255,.35);overflow:hidden}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#00E5FF);transition:width .2s}
+.m-lab{font-weight:900;min-width:4.5rem;background:#fff;border-radius:999px;padding:2px 10px;border:2px solid rgba(2,136,209,.2)}
+.guide{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:15;background:rgba(255,255,255,.95);border:3px solid #FFD54F;border-radius:16px;padding:8px 16px;font-weight:900;font-size:1rem;text-align:center;white-space:nowrap}
+.toast{position:fixed;left:50%;top:16%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.4rem;font-weight:900;padding:12px 22px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}
+.toast.bad{border-color:#FF6B9D;color:#9f1239}
+.overlay{position:fixed;inset:0;background:rgba(2,136,209,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.on{display:flex}
+.modal{width:min(440px,94vw);background:#fff;border:5px solid #FFD54F;border-radius:28px;padding:24px 18px;text-align:center}
+.modal h2{font-size:2rem;margin-bottom:6px}
+.modal p{font-weight:800;opacity:.8;margin-bottom:14px}
+.btn{min-height:56px;min-width:140px;padding:12px 20px;border-radius:999px;background:linear-gradient(135deg,#0288D1,#01579B);color:#fff;font-size:1.2rem;font-weight:900}
+.btn.ghost{background:#fff;color:#01579B;border:3px solid rgba(2,136,209,.2)}
+/* fish */
+.fish{position:absolute;width:80px;height:55px;display:flex;align-items:center;justify-content:center;font-size:3rem;z-index:10;pointer-events:none;
+transition:top .08s linear;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+/* obstacles */
+.obs{position:absolute;display:flex;align-items:center;justify-content:center;font-size:2.6rem;z-index:8;pointer-events:none;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+/* bubbles */
+.bubble{position:absolute;border-radius:50%;background:rgba(255,255,255,.55);border:2px solid rgba(255,255,255,.8);pointer-events:none;z-index:3;animation:bubbleUp linear forwards}
+@keyframes bubbleUp{to{transform:translateY(-120vh);opacity:0}}
+/* seaweed */
+.seaweed{position:absolute;bottom:0;pointer-events:none;z-index:2;opacity:.6;font-size:3rem;transform-origin:bottom center;animation:sway 3s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+/* waves at bottom */
+.wave-bg{position:absolute;bottom:0;left:0;right:0;height:60px;z-index:2;pointer-events:none;overflow:hidden}
+.wave-bg::before{content:'';position:absolute;bottom:0;left:-10%;width:120%;height:100%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60'%3E%3Cpath d='M0 30 Q150 0 300 30 Q450 60 600 30 Q750 0 900 30 Q1050 60 1200 30' fill='none' stroke='%23ffffff30' stroke-width='3'/%3E%3C/svg%3E") repeat-x;background-size:600px 60px;animation:waveAnim 4s linear infinite}
+@keyframes waveAnim{to{transform:translateX(-600px)}}
+/* progress trail */
+.trail{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,rgba(255,255,255,.15),rgba(255,255,255,.05));transition:width .3s;z-index:1;pointer-events:none}
+/* hit flash */
+.hit-flash{position:fixed;inset:0;background:rgba(244,67,54,.4);z-index:35;pointer-events:none;opacity:0;transition:opacity .1s}
+.hit-flash.on{opacity:1}
+/* safe zone indicator */
+.safe-zone{position:absolute;right:0;top:0;bottom:0;width:60px;background:linear-gradient(90deg,transparent,rgba(105,240,174,.15));z-index:6;pointer-events:none}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
+.confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti"></div>
+<div class="hit-flash" id="hitFlash"></div>
+<div class="top">
+  <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
+  <div class="hint">上下移動滑鼠，帶 <b>🐟</b> 避開障礙物</div>
+  <div class="row">
+    <button class="icon" id="btnSpeak" type="button">🔊</button>
+    <button class="icon" id="btnHub" type="button">🏠</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <div class="trail" id="trail"></div>
+  <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
+  <div class="guide">移動滑鼠控制 🐟 上下</div>
+  <div class="wave-bg"></div>
+  <div class="safe-zone"></div>
+</div>
+<div class="overlay" id="win">
+  <div class="modal">
+    <div style="font-size:2.4rem">🐟🌊</div>
+    <h2>安全抵達！</h2>
+    <p id="winMsg">太叻喇！</p>
+    <div class="row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn ghost" id="btnRetry" type="button">再玩</button>
+      <button class="btn" id="btnCert" type="button">證書</button>
+      <button class="btn" id="btnNext" type="button">下一個</button>
+      <button class="btn ghost" id="btnHub2" type="button">主頁</button>
+    </div>
+  </div>
+</div>
+<script src="./reward.js"></script>
+<script src="./cert.js"></script>
+<script src="./common.js"></script>
+<script>
+(function() {
+  var C = MouseHubCommon, NEED = 5, GID = 'waves';
+  var $ = C.$;
+  var stage, trail, hitFlash;
+  var fishEl, fishY = 50;
+  var SCROLL_SPEED = 1.4;
+  var SCROLL_PX_NEED = 3800;
+  var scrollX = 0;
+  var progress = 0;
+  var didWin = false;
+  var gameRunning = false;
+  var obstacles = [];
+  var ticker = null;
+  var lastTs = 0;
+  var hitCooldown = 0;
+
+  function loadDisplayName() {
+    try {
+      var p = new URLSearchParams(location.search);
+      var name = (p.get('name') || localStorage.getItem('mouse_hub_name') || '').trim();
+      var who = JSON.parse(localStorage.getItem('mouse_hub_who') || 'null') || {};
+      return name || who.name || '同學';
+    } catch(_) { return '同學'; }
+  }
+
+  function setProgress(n) {
+    progress = n; C.setProgress(n, NEED);
+    var lab = $('mlab');
+    if (lab) { lab.style.letterSpacing='2px'; lab.style.fontSize='1.2rem'; }
+  }
+
+  function win() {
+    gameRunning = false;
+    if (ticker) { clearInterval(ticker); ticker = null; }
+    C.finishClear({ gid: GID, progress, label: '波浪導航', displayName: loadDisplayName(), setDidWin: function(v) { didWin = v; } });
+  }
+
+  function flashHit() {
+    if (!hitFlash) return;
+    hitFlash.classList.add('on');
+    setTimeout(function() { hitFlash.classList.remove('on'); }, 120);
+  }
+
+  function spawnBubble(x, y) {
+    var b = document.createElement('div');
+    b.className = 'bubble';
+    var r = 4 + Math.random() * 8;
+    b.style.width = b.style.height = (r * 2) + 'px';
+    b.style.left = x + 'px';
+    b.style.top = y + 'px';
+    b.style.animationDuration = (2 + Math.random() * 2) + 's';
+    stage.appendChild(b);
+    setTimeout(function() { b.remove(); }, 4000);
+  }
+
+  function spawnObstacle() {
+    if (!gameRunning || progress >= NEED) return;
+    var types = ['log', 'rock', 'turtle'];
+    var type = types[Math.floor(Math.random() * types.length)];
+    var icons = { log: '🪵', rock: '🪨', turtle: '🐢' };
+
+    var el = document.createElement('div');
+    el.className = 'obs';
+    el.textContent = icons[type];
+    el.style.fontSize = (type === 'turtle' ? '2.8rem' : '2.4rem');
+
+    var w = type === 'turtle' ? 80 : 70;
+    var h = type === 'turtle' ? 70 : 65;
+    var stageH = stage.offsetHeight || 500;
+    var yPx = stageH * (10 + Math.random() * 65) / 100;
+
+    el.style.width = w + 'px';
+    el.style.height = h + 'px';
+    el.style.top = yPx + 'px';
+    el.style.right = '-100px';
+    stage.appendChild(el);
+
+    obstacles.push({ el: el, x: stage.offsetWidth + 100, y: yPx, w: w, h: h });
+  }
+
+  function removeObstacle(obs) {
+    obs.el.remove();
+    var idx = obstacles.indexOf(obs);
+    if (idx >= 0) obstacles.splice(idx, 1);
+  }
+
+  function tick(ts) {
+    if (!gameRunning || !stage) return;
+    var dt = lastTs ? Math.min(ts - lastTs, 50) : 16;
+    lastTs = ts;
+
+    var stageW = stage.offsetWidth;
+    var stageH = stage.offsetHeight || 500;
+    var fishW = 80, fishH = 55;
+    var fishX = stageW * 0.12;
+    var fishPxY = stageH * fishY / 100;
+
+    var toRemove = [];
+    for (var i = 0; i < obstacles.length; i++) {
+      var obs = obstacles[i];
+      obs.x -= SCROLL_SPEED * (dt / 16);
+      obs.el.style.right = (stageW - obs.x) + 'px';
+
+      if (obs.x + obs.w < 0) {
+        toRemove.push(obs);
+        continue;
+      }
+
+      if (hitCooldown <= 0) {
+        var fishLeft = fishX, fishRight = fishX + fishW;
+        var fishTop = fishPxY, fishBottom = fishPxY + fishH;
+        var obsLeft = obs.x - obs.w;
+        var obsRight = obs.x;
+        var obsTop = obs.y, obsBottom = obs.y + obs.h;
+
+        if (fishRight > obsLeft + 8 && fishLeft < obsRight - 8 &&
+            fishBottom > obsTop + 6 && fishTop < obsBottom - 6) {
+          hitCooldown = 25;
+          flashHit();
+          C.sfxBad();
+          C.toast('撞到嘞！', true);
+        }
+      }
+    }
+    toRemove.forEach(removeObstacle);
+
+    scrollX += SCROLL_SPEED * (dt / 16);
+    var pct = Math.min(100, scrollX / SCROLL_PX_NEED * 100);
+    if (trail) trail.style.width = pct + '%';
+
+    var newProg = Math.floor(pct / (100 / NEED));
+    if (newProg > progress) {
+      setProgress(newProg);
+      C.sfxOk();
+    }
+    if (progress >= NEED && gameRunning) {
+      setTimeout(win, 300);
+      return;
+    }
+
+    if (Math.random() < 0.012 && obstacles.length < 4) spawnObstacle();
+    if (Math.random() < 0.04) spawnBubble(fishX + 40, fishPxY + 20);
+    if (hitCooldown > 0) hitCooldown--;
+    if (fishEl) fishEl.style.top = fishPxY + 'px';
+  }
+
+  function startGame() {
+    if (ticker) { clearInterval(ticker); ticker = null; }
+    obstacles.forEach(function(o) { o.el.remove(); });
+    obstacles.length = 0;
+    scrollX = 0;
+    progress = 0;
+    didWin = false;
+    lastTs = 0;
+    hitCooldown = 0;
+    gameRunning = true;
+
+    if (trail) trail.style.width = '0%';
+    setProgress(0);
+
+    if (fishEl) fishEl.remove();
+    var stageW = stage.offsetWidth || 800;
+    var stageH = stage.offsetHeight || 500;
+    fishEl = document.createElement('div');
+    fishEl.className = 'fish';
+    fishEl.textContent = '🐟';
+    fishEl.style.left = (stageW * 0.12) + 'px';
+    fishEl.style.top = (stageH * fishY / 100) + 'px';
+    stage.appendChild(fishEl);
+
+    setTimeout(function() { if (gameRunning && progress < NEED) spawnObstacle(); }, 1500);
+    setTimeout(function() { if (gameRunning && progress < NEED) spawnObstacle(); }, 3000);
+
+    ticker = setInterval(function() { tick(performance.now()); }, 16);
+    if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('帶小魚避開障礙物');
+  }
+
+  function handleMouseMove(e) {
+    if (!gameRunning || !stage) return;
+    var rect = stage.getBoundingClientRect();
+    fishY = Math.max(5, Math.min(88, (e.clientY - rect.top) / stage.offsetHeight * 100));
+  }
+
+  function placeDecor() {
+    var SW = ['🌿','🌱','🪸'];
+    for (var i = 0; i < 10; i++) {
+      var sw = document.createElement('div');
+      sw.className = 'seaweed';
+      sw.textContent = SW[i % SW.length];
+      sw.style.left = (5 + i * 10) + '%';
+      sw.style.fontSize = (1.5 + Math.random() * 2) + 'rem';
+      sw.style.animationDelay = (Math.random() * 2) + 's';
+      sw.style.opacity = 0.35 + Math.random() * 0.35;
+      stage.appendChild(sw);
+    }
+    for (var j = 0; j < 12; j++) {
+      var b = document.createElement('div');
+      b.className = 'bubble';
+      var r = 5 + Math.random() * 12;
+      b.style.width = b.style.height = (r * 2) + 'px';
+      b.style.left = (Math.random() * 100) + '%';
+      b.style.top = (20 + Math.random() * 70) + '%';
+      b.style.animationDuration = (4 + Math.random() * 4) + 's';
+      b.style.animationDelay = (Math.random() * 5) + 's';
+      stage.appendChild(b);
+    }
+  }
+
+  function init() {
+    stage = $('stage');
+    trail = $('trail');
+    hitFlash = $('hitFlash');
+    C.lockSEN();
+    C.armAudioOnce();
+    C.loadProfile();
+    placeDecor();
+    startGame();
+  }
+
+  C.wireChrome({ gid: GID, speakText: '帶小魚避開障礙物', didWin: function() { return didWin; }, onRetry: startGame });
+
+  stage = $('stage');
+  stage.addEventListener('mousemove', handleMouseMove);
+  stage.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    var t = e.touches[0];
+    handleMouseMove({ clientY: t.clientY });
+  }, { passive: false });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,6 +1,27 @@
 /* shared printable cert — school printer safe */
 (function (global) {
-  var LOGO = 'https://www.puichi.edu.hk/it-school/php/webcms/files/upload/tinymce//1a__pui_chi_logo_png_1791177564.png';
+  /* Inline SVG school crest for 将军澳培智学校 (Tseung Kwan O Pui Chi School).
+     Eliminates the external PNG dependency so certs work offline / on filtered networks.
+     SVG rendered at ~72×72px, scales cleanly to any print size. */
+  var LOGO_SVG = [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="80" height="80">',
+    /* Circle background — school blue */
+    '<circle cx="50" cy="50" r="46" fill="#426EB4" stroke="#2A4A80" stroke-width="3"/>',
+    /* White inner ring */
+    '<circle cx="50" cy="50" r="40" fill="none" stroke="white" stroke-width="2"/>',
+    /* Stylised book / open-pages symbol in white */
+    '<path d="M28 62 Q50 72 72 62 L72 38 Q50 48 28 38 Z" fill="white" opacity="0.9"/>',
+    '<path d="M28 62 Q50 52 72 62 L72 52 Q50 62 28 52 Z" fill="#426EB4" opacity="0.6"/>',
+    /* Centre divide line */
+    '<line x1="50" y1="38" x2="50" y2="62" stroke="#2A4A80" stroke-width="1.5"/>',
+    /* Chinese character hint: 培 (cultivate) stylised strokes */
+    '<text x="50" y="46" text-anchor="middle" font-size="16" font-weight="bold" fill="white" font-family="sans-serif">培</text>',
+    /* Small star accent top */
+    '<polygon points="50,22 52,27 57,27 53,31 55,36 50,33 45,36 47,31 43,27 48,27" fill="#F5B700"/>',
+    '</svg>'
+  ].join('');
+  var LOGO_DATA_URL = 'data:image/svg+xml;base64,' + btoa(LOGO_SVG);
+
   var printFrame = null;
   var printTimer = null;
 
@@ -80,7 +101,7 @@
     return (
       '<div class="sheet ' + esc(data.tier) + '">' +
         '<div class="school-row">' +
-          '<img src="' + LOGO + '" alt="校徽" width="80" height="80">' +
+          '<img src="' + LOGO_DATA_URL + '" alt="將軍澳培智學校校徽" width="80" height="80">' +
           '<div class="school-name">將軍澳培智學校</div>' +
         '</div>' +
         '<div class="medal">' + esc(data.medal) + '</div>' +
@@ -314,7 +335,7 @@
     sheet.className = tier;
     sheet.innerHTML =
       '<div class="school-row">' +
-        '<img src="' + LOGO + '" alt="校徽" width="64" height="64" decoding="async">' +
+        '<img src="' + LOGO_DATA_URL + '" alt="將軍澳培智學校校徽" width="64" height="64" decoding="async">' +
         '<div class="school-name">將軍澳培智學校</div>' +
       '</div>' +
       '<div class="medal">' + tm.medal + '</div>' +

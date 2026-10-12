@@ -10,23 +10,28 @@ html,body{height:100%;font-family:"PingFang HK","Noto Sans TC",system-ui,sans-se
 background:#050B18;
 -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
 button{font:inherit;border:none;cursor:pointer}
-.top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:linear-gradient(180deg,#0A1628,#07101C);border-bottom:2px solid #00E5FF66;color:#E0F7FA;box-shadow:0 0 24px rgba(0,229,255,.15)}
+.top{height:56px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;background:linear-gradient(180deg,#0A1628,#07101C);border-bottom:2px solid #00E5FF66;color:#E0F7FA;box-shadow:0 0 24px rgba(0,229,255,.15)}
 .who{display:flex;align-items:center;gap:8px;font-weight:900}
-.av{width:40px;height:40px;border-radius:50%;border:3px solid #00E5FF;display:grid;place-items:center;font-size:1.3rem;background:#102A43;box-shadow:0 0 12px #00E5FF55}
-.hint{flex:1;text-align:center;font-size:clamp(1.05rem,2.3vw,1.45rem);font-weight:900}
+.av{width:38px;height:38px;border-radius:50%;border:3px solid #00E5FF;display:grid;place-items:center;font-size:1.2rem;background:#102A43;box-shadow:0 0 12px #00E5FF55}
+.hint{flex:1;text-align:center;font-size:clamp(.95rem,2.1vw,1.3rem);font-weight:900}
 .hint b{background:#FFD54F;color:#1A237E;padding:2px 8px;border-radius:8px}
-.icon{width:46px;height:46px;border-radius:14px;background:#102A43;border:2px solid #00E5FF66;font-size:1.15rem;font-weight:900;color:#E0F7FA}
+.icon{width:44px;height:44px;border-radius:14px;background:#102A43;border:2px solid #00E5FF66;font-size:1.1rem;font-weight:900;color:#E0F7FA}
 .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.stage{height:calc(100% - 60px);position:relative;overflow:hidden;background:
+.diffbar{height:48px;display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 10px;background:#07101C;border-bottom:1px solid #00E5FF33}
+.diffbtn{min-height:40px;min-width:72px;padding:6px 14px;border-radius:999px;font-weight:900;font-size:1.05rem;background:#102A43;color:#90CAF9;border:2px solid #00E5FF44}
+.diffbtn.on{background:linear-gradient(135deg,#00BCD4,#7C4DFF);color:#fff;border-color:#FFD54F;box-shadow:0 0 14px #00E5FF66}
+.stage{height:calc(100% - 104px);position:relative;overflow:hidden;background:
 radial-gradient(ellipse 80% 50% at 50% 0%,#1A237E55,transparent 60%),
 linear-gradient(180deg,#050B18 0%,#0D1B2A 50%,#06101C 100%)}
+.stage.shake{animation:shake .22s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .stage::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,229,255,.03) 3px 4px);pointer-events:none;z-index:9}
 .meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:5;display:flex;align-items:center;gap:10px;pointer-events:none}
 .meter{flex:1;height:16px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden;border:1px solid #00E5FF44}
 .meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69F0AE,#00E5FF);transition:width .2s;box-shadow:0 0 10px #00E5FF}
-.m-lab{font-weight:900;letter-spacing:1px;font-size:1.1rem;color:#E0F7FA;text-shadow:0 0 8px #00E5FF}
-.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(10,22,40,.92);border:2px solid #00E5FF;border-radius:16px;padding:8px 12px;font-weight:900;max-width:88%;color:#E0F7FA;box-shadow:0 0 16px #00E5FF33}
-.toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.35rem;font-weight:900;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.m-lab{font-weight:900;letter-spacing:1px;font-size:1.05rem;color:#E0F7FA;text-shadow:0 0 8px #00E5FF}
+.guide{position:absolute;left:12px;bottom:12px;z-index:5;background:rgba(10,22,40,.92);border:2px solid #00E5FF;border-radius:16px;padding:8px 12px;font-weight:900;max-width:70%;color:#E0F7FA;box-shadow:0 0 16px #00E5FF33}
+.toast{position:fixed;left:50%;top:16%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.35rem;font-weight:900;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
 .toast.show{opacity:1;transform:translateX(-50%) scale(1)}.toast.bad{border-color:#FF6B9D;color:#9f1239}
 .overlay{position:fixed;inset:0;background:rgba(5,11,24,.7);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
 .overlay.on{display:flex}
@@ -40,16 +45,31 @@ linear-gradient(180deg,#050B18 0%,#0D1B2A 50%,#06101C 100%)}
 .stars{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.7;
 background-image:radial-gradient(1.5px 1.5px at 12% 18%,#fff,transparent),radial-gradient(2px 2px at 28% 42%,#fff,transparent),radial-gradient(1px 1px at 55% 12%,#fff,transparent),radial-gradient(2px 2px at 72% 38%,#A5F3FC,transparent),radial-gradient(1px 1px at 88% 22%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 68%,#fff,transparent),radial-gradient(2px 2px at 65% 78%,#fff,transparent),radial-gradient(1px 1px at 18% 82%,#fff,transparent)}
 .alien{position:absolute;font-size:clamp(2rem,7vw,2.9rem);line-height:1;z-index:3;filter:drop-shadow(0 0 10px #69F0AE);transition:opacity .12s,transform .12s;user-select:none;will-change:transform}
+.alien.fast{filter:drop-shadow(0 0 14px #FF6B9D)}
 .alien.dead{opacity:0;transform:scale(1.5) rotate(15deg);filter:drop-shadow(0 0 20px #FFD54F)}
 .ship-wrap{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:6;pointer-events:none;display:flex;flex-direction:column;align-items:center}
-.ship{font-size:2.8rem;line-height:1;filter:drop-shadow(0 0 14px #00E5FF);animation:hover 1.6s ease-in-out infinite}
+.ship{font-size:2.8rem;line-height:1;filter:drop-shadow(0 0 14px #00E5FF);animation:hover 1.6s ease-in-out infinite;transform-origin:50% 70%}
 @keyframes hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .ship-glow{width:48px;height:10px;border-radius:50%;background:radial-gradient(ellipse,#00E5FF88,transparent);margin-top:-4px}
 .laser{position:absolute;width:5px;height:24px;border-radius:4px;background:linear-gradient(#fff,#00E5FF 40%,#FFD54F);box-shadow:0 0 14px #00E5FF,0 0 6px #FFD54F;z-index:5;pointer-events:none}
+.laser.big{width:8px;height:30px;box-shadow:0 0 20px #FFD54F,0 0 10px #00E5FF}
 .boom{position:absolute;font-size:1.8rem;z-index:7;pointer-events:none;animation:boom .4s ease forwards}
 @keyframes boom{0%{opacity:1;transform:scale(.5)}100%{opacity:0;transform:scale(1.8)}}
+.pop{position:absolute;z-index:8;font-weight:900;font-size:1.2rem;color:#FFD54F;text-shadow:0 0 8px #00E5FF;pointer-events:none;animation:pop .55s ease forwards}
+@keyframes pop{0%{opacity:1;transform:translateY(0) scale(.8)}100%{opacity:0;transform:translateY(-36px) scale(1.2)}}
 .hud-line{position:absolute;left:8%;right:8%;bottom:70px;height:2px;background:linear-gradient(90deg,transparent,#00E5FF55,transparent);z-index:2;pointer-events:none}
 .wave{position:absolute;top:42px;left:50%;transform:translateX(-50%);font-weight:900;font-size:.95rem;color:#00E5FF;letter-spacing:2px;z-index:5;pointer-events:none;text-shadow:0 0 8px #00E5FF;opacity:.85}
+.combo{position:absolute;top:64px;right:12px;z-index:6;font-size:clamp(1.1rem,3vw,1.55rem);font-weight:900;color:#FFD54F;text-shadow:0 0 10px #FF6B9D,0 2px 0 #1A237E;opacity:0;transform:scale(.8);transition:.15s;pointer-events:none}
+.combo.on{opacity:1;transform:scale(1.12)}
+.wave-clear{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%) scale(.85);z-index:12;background:rgba(10,22,40,.92);border:3px solid #FFD54F;color:#FFD54F;font-weight:900;font-size:clamp(1.3rem,4vw,1.8rem);padding:14px 22px;border-radius:20px;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 0 30px #00E5FF55}
+.wave-clear.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.sweep{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(0,229,255,.25),transparent);z-index:11;pointer-events:none;opacity:0}
+.sweep.on{animation:sweep .55s ease forwards}
+@keyframes sweep{0%{opacity:0;transform:translateX(-40%)}40%{opacity:1}100%{opacity:0;transform:translateX(40%)}}
+.aimbar{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);z-index:8;display:none;gap:10px}
+.aimbar.on{display:flex}
+.aimbtn{width:64px;height:52px;border-radius:16px;background:#102A43;border:3px solid #00E5FF;color:#E0F7FA;font-size:1.5rem;font-weight:900;box-shadow:0 0 12px #00E5FF44}
+.aimbtn.on{background:linear-gradient(135deg,#00BCD4,#FFD54F);color:#1A237E;border-color:#FFD54F}
 </style>
 </head>
 <body>
@@ -57,19 +77,32 @@ background-image:radial-gradient(1.5px 1.5px at 12% 18%,#fff,transparent),radial
 <div class="confetti" id="confetti"></div>
 <div class="top">
   <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
-  <div class="hint" id="hint">移船對準 · 左掣 <b>射</b></div>
+  <div class="hint" id="hint">移船對準 · <b>射</b></div>
   <div class="row">
     <button class="icon" id="btnSpeak" type="button">🔊</button>
     <button class="icon" id="btnHub" type="button">🏠</button>
   </div>
 </div>
+<div class="diffbar" id="diffbar" role="group" aria-label="難度">
+  <button class="diffbtn on" type="button" data-diff="easy">初</button>
+  <button class="diffbtn" type="button" data-diff="mid">中</button>
+  <button class="diffbtn" type="button" data-diff="hard">高</button>
+</div>
 <div class="stage" id="stage">
   <div class="stars"></div>
   <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
-  <div class="wave" id="wave">WAVE 1</div>
+  <div class="wave" id="wave">WAVE 1/2</div>
+  <div class="combo" id="combo">連撃 ×2</div>
   <div class="hud-line"></div>
-  <div class="guide" id="guide">左右移對準外星人，左掣發射！</div>
-  <div class="ship-wrap" id="shipWrap"><div class="ship">🚀</div><div class="ship-glow"></div></div>
+  <div class="guide" id="guide">左右移 · 自動射！</div>
+  <div class="wave-clear" id="waveClear">WAVE CLEAR!</div>
+  <div class="sweep" id="sweep"></div>
+  <div class="ship-wrap" id="shipWrap"><div class="ship" id="ship">🚀</div><div class="ship-glow"></div></div>
+  <div class="aimbar" id="aimbar">
+    <button class="aimbtn" type="button" data-aim="-1">↖</button>
+    <button class="aimbtn on" type="button" data-aim="0">↑</button>
+    <button class="aimbtn" type="button" data-aim="1">↗</button>
+  </div>
 </div>
 <div class="overlay" id="win">
   <div class="modal">
@@ -88,20 +121,68 @@ background-image:radial-gradient(1.5px 1.5px at 12% 18%,#fff,transparent),radial
 <script src="./cert.js"></script>
 <script src="./common.js"></script>
 <script>
-const C = MouseHubCommon, NEED = 5, GID = 'invaders';
-const $ = C.$, stage = $('stage'), shipWrap = $('shipWrap');
+const C = MouseHubCommon, GID = 'invaders';
+const $ = C.$, stage = $('stage'), shipWrap = $('shipWrap'), ship = $('ship');
 const FACES = ['👾','👽','🛸','🟣','🟢','👾'];
-let progress = 0, didWin = false, shipX = 0.5, aliens = [], lasers = [], raf = 0, cool = 0, march = 1, marchT = 0;
+const DIFF = {
+  easy: { label: '初', need: 5, waves: 2, cols: 3, auto: true, snap: false, multi: 1, cool: 420, laser: 11, combo: false, march: 9, fastChance: 0, speak: '移船對準，自動射', hint: '左右移 · <b>自動射</b>', guide: '左右移對準 · 子彈自己射！' },
+  mid:  { label: '中', need: 7, waves: 3, cols: 4, auto: false, snap: false, multi: 1, cool: 240, laser: 14, combo: true, march: 11, fastChance: 0, speak: '移船再射', hint: '移船對準 · 左掣 <b>射</b>', guide: '左右移對準 · 左掣發射！' },
+  hard: { label: '高', need: 9, waves: 4, cols: 5, auto: false, snap: true, multi: 3, cool: 180, laser: 15, combo: true, march: 13, fastChance: 0.28, speak: '轉方向再射', hint: '3向瞄 · 左掣 <b>連射</b>', guide: '撳 ↖↑↗ 轉瞄準 · 左掣連撃射！' }
+};
+let diffKey = 'easy', cfg = DIFF.easy;
+let progress = 0, didWin = false, shipX = 0.5, aliens = [], lasers = [], raf = 0, cool = 0;
+let waveIdx = 0, streak = 0, lastKill = 0, aim = 0, autoT = 0;
 const displayName = C.loadProfile();
 C.lockSEN(); C.armAudioOnce();
 
+try {
+  const saved = localStorage.getItem('mh_invaders_diff');
+  if (saved && DIFF[saved]) diffKey = saved;
+} catch (_) {}
+
+function applyDiffUI() {
+  cfg = DIFF[diffKey];
+  document.querySelectorAll('.diffbtn').forEach(b => b.classList.toggle('on', b.dataset.diff === diffKey));
+  $('hint').innerHTML = cfg.hint;
+  $('guide').textContent = cfg.guide;
+  $('aimbar').classList.toggle('on', cfg.snap);
+  document.querySelectorAll('.aimbtn').forEach(b => b.classList.toggle('on', +b.dataset.aim === aim));
+  ship.style.transform = 'rotate(' + (aim * 18) + 'deg)';
+  C.wireChrome({ gid: GID, speakText: cfg.speak, didWin: () => didWin, onRetry: start });
+}
+
+document.querySelectorAll('.diffbtn').forEach(b => {
+  b.onclick = () => {
+    if (b.dataset.diff === diffKey && !didWin) return;
+    diffKey = b.dataset.diff;
+    try { localStorage.setItem('mh_invaders_diff', diffKey); } catch (_) {}
+    start();
+  };
+});
+document.querySelectorAll('.aimbtn').forEach(b => {
+  b.addEventListener('pointerdown', e => {
+    e.preventDefault(); e.stopPropagation();
+    aim = +b.dataset.aim;
+    document.querySelectorAll('.aimbtn').forEach(x => x.classList.toggle('on', +x.dataset.aim === aim));
+    ship.style.transform = 'rotate(' + (aim * 18) + 'deg)';
+    C.tone(700 + aim * 80, 0.05, 'sine', 0.08);
+  });
+});
+
 window.addEventListener('pointermove', e => {
+  if (e.target && e.target.closest && e.target.closest('.diffbar,.aimbar')) return;
   const r = stage.getBoundingClientRect();
   shipX = Math.max(0.08, Math.min(0.92, (e.clientX - r.left) / r.width));
   shipWrap.style.left = (shipX * 100) + '%';
 });
-stage.addEventListener('click', e => { e.preventDefault(); shoot(); });
-stage.addEventListener('pointerdown', e => { if (e.button === 0) { e.preventDefault(); shoot(); } });
+function tryShoot(e) {
+  if (cfg.auto) return;
+  if (e && e.target && e.target.closest && e.target.closest('.diffbar,.aimbar,.top')) return;
+  if (e) e.preventDefault();
+  shoot();
+}
+stage.addEventListener('click', tryShoot);
+stage.addEventListener('pointerdown', e => { if (e.button === 0) tryShoot(e); });
 
 function clearField() {
   aliens.forEach(a => a.el && a.el.remove());
@@ -111,73 +192,138 @@ function clearField() {
 }
 function spawnWave() {
   const r = stage.getBoundingClientRect();
-  const cols = Math.min(5, 3 + Math.floor(progress / 2));
+  const cols = cfg.cols;
   const gap = Math.min(78, (r.width - 40) / cols);
   const start = (r.width - gap * (cols - 1)) / 2;
-  const y0 = 72 + (progress % 2) * 8;
+  const y0 = 72 + (waveIdx % 2) * 8;
   for (let i = 0; i < cols; i++) {
     const el = document.createElement('div');
     el.className = 'alien';
-    el.textContent = FACES[(progress + i) % FACES.length];
+    const fast = Math.random() < cfg.fastChance;
+    if (fast) el.classList.add('fast');
+    el.textContent = fast ? '☄️' : FACES[(waveIdx + i) % FACES.length];
     const x = start + i * gap, y = y0 + (i % 2) * 12;
     el.style.left = x + 'px'; el.style.top = y + 'px';
     stage.appendChild(el);
-    aliens.push({ el, x, y, alive: true, wiggle: i * 0.4 });
+    aliens.push({ el, x, y, alive: true, wiggle: i * 0.4, fast: fast, spd: fast ? 1.55 : 1 });
   }
-  $('wave').textContent = 'WAVE ' + (Math.floor(progress / 2) + 1);
-  march = 1; marchT = 0;
+  waveIdx += 1;
+  $('wave').textContent = 'WAVE ' + waveIdx + '/' + cfg.waves;
 }
 function ensure() {
-  if (!didWin && progress < NEED && aliens.filter(a => a.alive).length === 0) spawnWave();
+  if (didWin || progress >= cfg.need) return;
+  if (aliens.filter(a => a.alive).length === 0) {
+    if (waveIdx >= cfg.waves && progress >= cfg.need) { setTimeout(win, 200); return; }
+    if (waveIdx >= cfg.waves) {
+      // still need kills: respawn extra wave
+      showWaveClear();
+      setTimeout(spawnWave, 700);
+    } else {
+      showWaveClear();
+      setTimeout(spawnWave, 700);
+    }
+  }
+}
+function showWaveClear() {
+  const el = $('waveClear');
+  el.classList.add('on');
+  C.tone(880, 0.08, 'triangle', 0.1);
+  setTimeout(() => el.classList.remove('on'), 750);
+}
+function shake() {
+  stage.classList.remove('shake'); void stage.offsetWidth; stage.classList.add('shake');
+}
+function showCombo() {
+  const el = $('combo');
+  if (!cfg.combo || streak < 2) { el.classList.remove('on'); return; }
+  el.textContent = '連撃 ×' + streak + (streak >= 3 ? ' 🔥' : '');
+  el.classList.add('on');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('on'), 900);
+  if (streak >= 3) {
+    const sw = $('sweep');
+    sw.classList.remove('on'); void sw.offsetWidth; sw.classList.add('on');
+  }
+}
+function scorePop(x, y, txt) {
+  const p = document.createElement('div'); p.className = 'pop'; p.textContent = txt;
+  p.style.left = x + 'px'; p.style.top = y + 'px';
+  stage.appendChild(p); setTimeout(() => p.remove(), 560);
 }
 function shoot() {
-  if (didWin || progress >= NEED || Date.now() < cool) return;
-  cool = Date.now() + 240;
+  if (didWin || progress >= cfg.need || Date.now() < cool) return;
+  cool = Date.now() + cfg.cool;
   const r = stage.getBoundingClientRect();
   const sx = shipX * r.width;
-  const el = document.createElement('div'); el.className = 'laser';
-  el.style.left = (sx - 2.5) + 'px'; el.style.top = (r.height - 78) + 'px';
-  stage.appendChild(el);
-  lasers.push({ el, x: sx, y: r.height - 78 });
+  const n = cfg.multi;
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement('div');
+    el.className = 'laser' + (n > 1 ? ' big' : '');
+    const spread = (i - (n - 1) / 2) * 10;
+    const ang = (cfg.snap ? aim : 0) * 0.55;
+    const dx = Math.sin(ang) * cfg.laser + spread * 0.15;
+    const dy = -Math.cos(ang) * cfg.laser;
+    el.style.left = (sx - 2.5 + spread) + 'px'; el.style.top = (r.height - 78) + 'px';
+    if (ang) el.style.transform = 'rotate(' + (aim * 18) + 'deg)';
+    stage.appendChild(el);
+    lasers.push({ el, x: sx + spread, y: r.height - 78, dx, dy, big: n > 1 });
+  }
   C.tone(920, 0.05, 'square', 0.07);
 }
 function kill(a) {
   a.alive = false; a.el.classList.add('dead');
-  const boom = document.createElement('div'); boom.className = 'boom'; boom.textContent = '✨';
+  const boom = document.createElement('div'); boom.className = 'boom'; boom.textContent = streak >= 3 ? '💥' : '✨';
   boom.style.left = a.x + 'px'; boom.style.top = a.y + 'px';
   stage.appendChild(boom); setTimeout(() => boom.remove(), 420);
   setTimeout(() => { if (a.el.parentNode) a.el.remove(); }, 140);
-  C.sfxOk(); C.toast('擊落！');
-  progress += 1; C.setProgress(progress, NEED);
-  if (progress >= NEED) setTimeout(win, 300); else ensure();
+  const now = Date.now();
+  streak = (cfg.combo && now - lastKill < 1600) ? streak + 1 : 1;
+  lastKill = now; showCombo(); shake();
+  C.sfxOk();
+  C.toast(streak >= 3 ? '連撃爆擊！' : (streak >= 2 ? '連撃！' : '擊落！'));
+  scorePop(a.x, a.y, streak >= 2 ? '+' + streak : '+1');
+  progress += 1; C.setProgress(progress, cfg.need);
+  if (progress >= cfg.need) setTimeout(win, 300); else ensure();
 }
 function tick(t) {
   if (didWin) return;
   const r = stage.getBoundingClientRect();
-  marchT += 1;
-  const step = (marchT % 28 === 0);
+  if (cfg.auto && Date.now() >= cool) shoot();
   let hitEdge = false;
   aliens.forEach(a => {
     if (!a.alive) return;
-    if (step) {
-      a.x += march * (10 + progress * 1.5);
-      if (a.x < 16 || a.x > r.width - 48) hitEdge = true;
+    if ((Math.floor(t / 16) % 28) === 0) {
+      a.x += (cfg.march * a.spd) * (a._dir || 1) * 0.08;
     }
+  });
+  // simpler march: use shared march dir
+  if (!tick._m) tick._m = 1;
+  tick._n = (tick._n || 0) + 1;
+  if (tick._n % 28 === 0) {
+    aliens.forEach(a => {
+      if (!a.alive) return;
+      a.x += tick._m * (cfg.march * 0.9 + progress * 0.4) * a.spd;
+      if (a.x < 16 || a.x > r.width - 48) hitEdge = true;
+    });
+    if (hitEdge) {
+      tick._m *= -1;
+      aliens.forEach(a => { if (a.alive) a.y = Math.min(r.height * 0.52, a.y + 12); });
+    }
+  }
+  aliens.forEach(a => {
+    if (!a.alive) return;
     a.wiggle += 0.08;
     a.el.style.left = a.x + 'px';
     a.el.style.top = (a.y + Math.sin(a.wiggle) * 3) + 'px';
   });
-  if (step && hitEdge) {
-    march *= -1;
-    aliens.forEach(a => { if (a.alive) a.y = Math.min(r.height * 0.55, a.y + 14); });
-  }
   lasers = lasers.filter(L => {
-    L.y -= 14;
-    L.el.style.top = L.y + 'px';
-    if (L.y < -20) { L.el.remove(); return false; }
+    L.x += L.dx; L.y += L.dy;
+    L.el.style.left = (L.x - 2.5) + 'px'; L.el.style.top = L.y + 'px';
+    if (L.y < -30 || L.x < -40 || L.x > r.width + 40) { L.el.remove(); return false; }
+    const pad = L.big ? 42 : 36;
     for (const a of aliens) {
       if (!a.alive) continue;
-      if (Math.abs((a.x + 22) - L.x) < 36 && Math.abs((a.y + 22) - L.y) < 32) {
+      if (Math.abs((a.x + 22) - L.x) < pad && Math.abs((a.y + 22) - L.y) < 34) {
         L.el.remove(); kill(a); return false;
       }
     }
@@ -187,16 +333,32 @@ function tick(t) {
 }
 function win() {
   clearField();
-  C.finishClear({ gid: GID, progress, label: '太空入侵', displayName, setDidWin: v => { didWin = v; } });
+  C.finishClear({
+    gid: GID,
+    progress: cfg.need,
+    mode: diffKey,
+    label: '太空入侵·' + cfg.label,
+    displayName,
+    setDidWin: v => { didWin = v; }
+  });
 }
 function start() {
   clearField();
-  didWin = false; progress = 0; cool = 0; C.setProgress(0, NEED);
+  applyDiffUI();
+  didWin = false; progress = 0; cool = 0; waveIdx = 0; streak = 0; lastKill = 0;
+  tick._m = 1; tick._n = 0;
+  aim = 0;
+  document.querySelectorAll('.aimbtn').forEach(b => b.classList.toggle('on', +b.dataset.aim === 0));
+  ship.style.transform = 'rotate(0deg)';
+  C.setProgress(0, cfg.need);
   shipX = 0.5; shipWrap.style.left = '50%';
-  spawnWave(); raf = requestAnimationFrame(tick);
-  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('移船再射');
+  $('combo').classList.remove('on');
+  $('waveClear').classList.remove('on');
+  spawnWave();
+  raf = requestAnimationFrame(tick);
+  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak(cfg.speak);
 }
-C.wireChrome({ gid: GID, speakText: '移船再射', didWin: () => didWin, onRetry: start });
+applyDiffUI();
 start();
 </script>
 </body>

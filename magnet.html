@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>磁鐵花園</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:"PingFang HK","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;color:#2D5016;
+background:linear-gradient(180deg,#A8E063 0%,#56AB2F 60%,#3D7A1A 100%);
+-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
+button{font:inherit;border:none;cursor:pointer}
+.top{height:64px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:rgba(255,255,255,.88);border-bottom:3px solid rgba(45,80,22,.2)}
+.who{display:flex;align-items:center;gap:8px;font-weight:900;font-size:1.1rem}
+.who .av{width:42px;height:42px;border-radius:50%;border:3px solid #56AB2F;background:#fff;display:grid;place-items:center;font-size:1.4rem}
+.hint{flex:1;text-align:center;font-size:clamp(1.15rem,2.4vw,1.6rem);font-weight:900;color:#2D5016}
+.hint b{background:#FFD54F;padding:2px 8px;border-radius:8px}
+.icon{width:48px;height:48px;border-radius:14px;background:#fff;border:3px solid rgba(61,43,90,.12);font-size:1.25rem;font-weight:900}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.stage{height:calc(100% - 64px);position:relative;overflow:hidden;cursor:default}
+.meter-wrap{position:absolute;left:12px;right:12px;top:10px;z-index:5;display:flex;align-items:center;gap:10px}
+.meter{flex:1;height:16px;border-radius:999px;background:rgba(45,80,22,.2);overflow:hidden}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#FFD54F,#FF9800);transition:width .2s}
+.m-lab{font-weight:900;min-width:4.5rem;background:#fff;border-radius:999px;padding:2px 10px;border:2px solid rgba(45,80,22,.15)}
+.guide{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:5;background:rgba(255,255,255,.95);border:3px solid #FFD54F;border-radius:16px;padding:8px 16px;font-weight:900;font-size:1rem;text-align:center;white-space:nowrap}
+.toast{position:fixed;left:50%;top:16%;transform:translateX(-50%) scale(.92);background:#fff;border:4px solid #22c55e;color:#166534;font-size:1.4rem;font-weight:900;padding:12px 22px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}
+.toast.bad{border-color:#FF6B9D;color:#9f1239}
+.overlay{position:fixed;inset:0;background:rgba(45,80,22,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.on{display:flex}
+.modal{width:min(440px,94vw);background:#fff;border:5px solid #FFD54F;border-radius:28px;padding:24px 18px;text-align:center}
+.modal h2{font-size:2rem;margin-bottom:6px}
+.modal p{font-weight:800;opacity:.8;margin-bottom:14px}
+.btn{min-height:56px;min-width:140px;padding:12px 20px;border-radius:999px;background:linear-gradient(135deg,#56AB2F,#2D7A0F);color:#fff;font-size:1.2rem;font-weight:900}
+.btn.ghost{background:#fff;color:#2D5016;border:3px solid rgba(45,80,22,.2)}
+/* magnet */
+.magnet{position:absolute;width:90px;height:90px;display:grid;place-items:center;border-radius:20px;background:#fff;border:4px solid #E53935;box-shadow:0 6px 18px rgba(0,0,0,.18);font-size:3rem;cursor:grab;z-index:8;touch-action:none;user-select:none;transition:transform .08s}
+.magnet:active{cursor:grabbing;transform:scale(1.05)}
+/* pot */
+.flower-pot{position:absolute;width:130px;height:140px;right:8%;bottom:10%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;z-index:4;transition:.15s}
+.flower-pot.hot .pot-body{background:rgba(255,152,0,.3);box-shadow:0 0 0 8px rgba(255,152,0,.2)}
+.pot-body{width:110px;height:80px;background:#D84315;border-radius:8px 8px 18px 18px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;border:4px solid #BF360C;transition:.15s;position:relative;overflow:hidden}
+.pot-label{font-weight:900;font-size:1rem;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);position:absolute;bottom:4px;width:100%;text-align:center}
+/* bug */
+.bug{position:absolute;width:70px;height:70px;display:grid;place-items:center;font-size:2.6rem;z-index:5;pointer-events:none;transition:top .12s,left .12s;filter:drop-shadow(0 4px 6px rgba(0,0,0,.2))}
+.bug.attract{animation:attractBug .3s ease-in-out infinite alternate}
+@keyframes attractBug{from{transform:scale(1)}to{transform:scale(1.15)}}
+.bug.caught{animation:catchSpin .5s ease-in forwards;pointer-events:none}
+@keyframes catchSpin{to{transform:scale(0) rotate(360deg);opacity:0}}
+.pulse{animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
+.confetti i{position:absolute;top:-16px;width:10px;height:16px;border-radius:3px;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+/* decoration */
+.leaf{position:absolute;z-index:1;pointer-events:none;opacity:.6;font-size:3rem}
+/* flower on pot */
+.flower-row{display:flex;gap:4px;margin-bottom:-6px;position:relative;z-index:6}
+.flower-stem{width:6px;height:28px;background:#4CAF50;border-radius:3px;margin:0 auto;position:relative;top:8px}
+.flower-head{font-size:1.8rem;filter:drop-shadow(0 2px 3px rgba(0,0,0,.2))}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti"></div>
+<div class="top">
+  <div class="who"><div class="av" id="av">🐱</div><span id="whoName">同學</span></div>
+  <div class="hint">拖 <b>🧲</b> 去搵蟲蟲</div>
+  <div class="row">
+    <button class="icon" id="btnSpeak" type="button">🔊</button>
+    <button class="icon" id="btnHub" type="button">🏠</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <div class="meter-wrap"><div class="meter"><i id="fill"></i></div><div class="m-lab" id="mlab">0/5</div></div>
+  <div class="guide">🧲 吸住蟲蟲，帶去花盆！</div>
+  <!-- flower pot drop zone -->
+  <div class="flower-pot" id="pot">
+    <div class="flower-row" id="flowerRow"></div>
+    <div class="flower-stem"></div>
+    <div class="pot-body">
+      <span id="potCount" style="font-size:1.4rem;font-weight:900;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4)">0</span>
+      <span class="pot-label">🌸 花盆</span>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="win">
+  <div class="modal">
+    <div style="font-size:2.4rem">🧲🌸</div>
+    <h2>花園清理完成！</h2>
+    <p id="winMsg">太棒喇！</p>
+    <div class="row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn ghost" id="btnRetry" type="button">再玩</button>
+      <button class="btn" id="btnCert" type="button">證書</button>
+      <button class="btn" id="btnNext" type="button">下一個</button>
+      <button class="btn ghost" id="btnHub2" type="button">主頁</button>
+    </div>
+  </div>
+</div>
+<script src="./reward.js"></script>
+<script src="./cert.js"></script>
+<script src="./common.js"></script>
+<script>
+const C = MouseHubCommon, NEED = 5, GID = 'magnet';
+const $ = C.$, stage = $('stage'), pot = $('pot'), potCount = $('potCount'), flowerRow = $('flowerRow');
+const BUGS = ['🐛','🐞','🦋','🐝','🐜','🐌','🦗','🪲'];
+const FLOWERS = ['🌷','🌸','🌺','🌻','🌼','💐'];
+const FLOWERS_COLLECTED = [];
+let progress = 0, didWin = false, magnet = null, potEl = pot;
+
+function loadDisplayName() {
+  try {
+    var p = new URLSearchParams(location.search);
+    var name = (p.get('name') || localStorage.getItem('mouse_hub_name') || '').trim();
+    var who = JSON.parse(localStorage.getItem('mouse_hub_who') || 'null') || {};
+    return name || who.name || '同學';
+  } catch(_) { return '同學'; }
+}
+
+function setProgress(n) {
+  progress = n; C.setProgress(n, NEED);
+  const lab = $('mlab');
+  if (lab) { lab.style.letterSpacing='2px'; lab.style.fontSize='1.2rem'; }
+}
+
+function addFlower() {
+  FLOWERS_COLLECTED.push(FLOWERS[FLOWERS_COLLECTED.length % FLOWERS.length]);
+  flowerRow.innerHTML = '';
+  FLOWERS_COLLECTED.slice(-3).forEach(function(f) {
+    var d = document.createElement('div');
+    d.className = 'flower-head';
+    d.textContent = f;
+    flowerRow.appendChild(d);
+  });
+  if (potCount) potCount.textContent = progress;
+}
+
+function win() {
+  C.finishClear({ gid: GID, progress, label: '磁鐵花園', displayName: loadDisplayName(), setDidWin: v => { didWin = v; } });
+}
+
+function spawnMagnet() {
+  stage.querySelectorAll('.magnet').forEach(el => el.remove());
+  if (progress >= NEED) return;
+  var el = document.createElement('div');
+  el.className = 'magnet pulse';
+  el.textContent = '🧲';
+  // place in random garden area (avoid pot zone)
+  var tx = 10 + Math.random() * 55, ty = 18 + Math.random() * 48;
+  el.style.left = tx + '%';
+  el.style.top = ty + '%';
+  stage.appendChild(el);
+  magnet = el;
+  C.enableDrag(el, pot, function() {
+    // magnet dropped on pot - attract nearest bug
+    var bugs = stage.querySelectorAll('.bug:not(.caught)');
+    if (bugs.length > 0) {
+      var closest = bugs[0];
+      var minD = Infinity;
+      bugs.forEach(function(b) {
+        var bx = b.offsetLeft + 35, by = b.offsetTop + 35;
+        var mx = el.offsetLeft + 45, my = el.offsetTop + 45;
+        var d = Math.hypot(bx - mx, by - my);
+        if (d < minD) { minD = d; closest = b; }
+      });
+      if (minD < 200) {
+        closest.classList.add('caught');
+        setTimeout(function() { closest.remove(); }, 500);
+        C.sfxOk();
+        addFlower();
+        setProgress(progress + 1);
+        if (progress >= NEED) {
+          el.remove(); setTimeout(win, 400);
+        } else {
+          el.remove();
+          setTimeout(spawnMagnet, 250);
+        }
+        return;
+      }
+    }
+    // no bug nearby - just feedback, reset magnet
+    C.toast('附近冇蟲！', true);
+    el.style.position = 'absolute';
+    el.style.left = tx + '%';
+    el.style.top = ty + '%';
+    el.style.zIndex = '';
+    el.classList.add('pulse');
+    pot.classList.remove('hot');
+  }, function() {
+    // miss
+    C.sfxBad();
+    C.toast('拖去花盆', true);
+    el.style.position = 'absolute';
+    el.style.left = tx + '%';
+    el.style.top = ty + '%';
+    el.style.zIndex = '';
+    el.classList.add('pulse');
+    pot.classList.remove('hot');
+  });
+}
+
+function spawnBug() {
+  if (progress >= NEED) return;
+  stage.querySelectorAll('.bug:not(.caught)').forEach(function(b) { b.remove(); });
+  var el = document.createElement('div');
+  el.className = 'bug pulse';
+  el.textContent = BUGS[progress % BUGS.length];
+  var bx = 20 + Math.random() * 48, by = 20 + Math.random() * 50;
+  el.style.left = bx + '%';
+  el.style.top = by + '%';
+  stage.appendChild(el);
+}
+
+function placeDecor() {
+  // static leaf decorations
+  var DECOR = ['🌿','🍀','🌱','☘️','🌾'];
+  for (var i = 0; i < 8; i++) {
+    var leaf = document.createElement('div');
+    leaf.className = 'leaf';
+    leaf.textContent = DECOR[i % DECOR.length];
+    leaf.style.left = (5 + Math.random() * 88) + '%';
+    leaf.style.top = (5 + Math.random() * 75) + '%';
+    leaf.style.fontSize = (1.5 + Math.random() * 2) + 'rem';
+    leaf.style.opacity = 0.3 + Math.random() * 0.4;
+    leaf.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+    stage.appendChild(leaf);
+  }
+}
+
+function start() {
+  didWin = false;
+  setProgress(0);
+  FLOWERS_COLLECTED.length = 0;
+  flowerRow.innerHTML = '';
+  if (potCount) potCount.textContent = '0';
+  stage.querySelectorAll('.bug,.leaf').forEach(function(el) { el.remove(); });
+  placeDecor();
+  spawnBug();
+  spawnMagnet();
+  if (MouseHubReward && MouseHubReward.autoSpeak()) C.speak('用磁鐵吸蟲蟲放入花盆');
+}
+
+C.wireChrome({ gid: GID, speakText: '用磁鐵吸蟲蟲放入花盆', didWin: function() { return didWin; }, onRetry: start });
+start();
+</script>
+</body>
+</html>
